@@ -1,1 +1,9 @@
+
+# Ignore client secret
 secret.dat
+
+# Ignore virtualenv
+Include\
+Lib\
+Scripts\
+tcl\
