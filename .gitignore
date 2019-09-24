@@ -3,7 +3,7 @@
 secret.dat
 
 # Ignore virtualenv
-Include\
-Lib\
-Scripts\
-tcl\
+Include/
+Lib/
+Scripts/
+tcl/
