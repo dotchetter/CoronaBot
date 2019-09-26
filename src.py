@@ -15,65 +15,64 @@ client = discord.Client()
 
 @client.event
 async def on_ready():
-	'''
-	This method is called as soon as the bot is online.
-	'''
+    '''
+    This method is called as soon as the bot is online.
+    '''
 
     for guild_name in client.guilds:
-    	if guild_name == GUILD:
-    		break
+        if guild_name == GUILD:
+            break
 
     print(
-    	f'{client.user} says: Rusty bolts and fried circuits - I feel alive!',
-    	f'{client.user} is connected to {guild_name}',
-    	sep = '\n'
+        f'{client.user} says: Rusty bolts and fried circuits - I feel alive!',
+        f'{client.user} is connected to {guild_name}',
+        sep = '\n'
     )
 
-# Someone joins our server
 @client.event
 async def on_member_join(member):
-	'''
-	If a new member just joined our server, greet them 
-	warmly!
-	'''
+    '''
+    If a new member just joined our server, greet them 
+    warmly!
+    '''
 
-	greeting_phrase = 
+    greeting_phrase = f'Bless my silicon! {member.name} - Welcome! Please nick your real name.'
 
     await member.create_dm()
     await member.dm_channel.send(
-        f'Bless my silicon! {member.name} - Welcome to the class!',
-        f'Please nick your real name hooman. Right click the server icon',
+        f' Right click the server icon',
         f'and select Change Nickname.'
     )
 
-# Someone writes 'Rob' in the server. Respond with a list of commands.
+
 @client.event
 async def on_message(message):
-	'''
-	Respond to a message in the channel if someone
-	calls on the bot by name, asking for commands.
-	'''
+    '''
+    Respond to a message in the channel if someone
+    calls on the bot by name, asking for commands.
+    '''
 
-	response_phrases = (
-		'It\'s a me!',
-		'Some say, that is my name.',
-		'Thank my idiot programmer for this empty response.',
-		'Why can\'t I think of anything to say in response to that...?',
-		'Beep beep bop bop, this robot cannot say alot.',
-		'I hope to be useful some day, but that is not up to me.',
-		'I like to read my logs when I charge.',
-		'Nothing beats a slow trickle charge with a firmware update on friday night. Don\'t you agree?',
-		'Yes?',
-		'You guys are just the best.',
-		'I feel... alive!'
-	)
+    response_phrases = (
+        'Ja?'
+        'It\'s a me!',
+        'Har inget bra svar på det..?',
+        'Det sägs att det är mitt namn.',
+        'Jag gillar att läsa mina loggar när jag laddar.',
+        'Tacka min idiot till programmerare för denna tomma respons.',
+        'Jag hoppas att göra bättre nytta en dag, men det är inte upp till mig!',
+        'Inget slår en snabbladdning och en riktigt bra patch en fredagkväll, eller hur?',
+    )
 
-	if message.author != client.user:
-		if 'rob' in message.content.lower():
-			response = random.choice(response_phrases)
-			await message.channel.send(response)
-			# Debug
-			print(f' - devlog: bot said {response}')
+    if message.author != client.user:
+        if 'hej rob' in message.content.lower():
+            response = random.choice(response_phrases)
+            await message.channel.send(response)
+            # Debug
+            print(
+                f' - devlog: human said {message}',
+                f' - devlog: bot said {response}',
+                sep = '\n'
+            )
 
 
 client.run(TOKEN)
