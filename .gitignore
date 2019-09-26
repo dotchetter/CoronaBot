@@ -1,6 +1,6 @@
 
 # Ignore client secret
-secret.dat
+.env
 
 # Ignore virtualenv
 Include/
