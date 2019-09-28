@@ -17,3 +17,6 @@ class MetaFileError(Exception):
 
 class InvalidCalendarUrl(Exception):
 	pass
+
+class TimezoneAdjustmentError(Exception):
+	pass

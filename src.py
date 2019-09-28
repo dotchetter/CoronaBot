@@ -25,6 +25,7 @@ CALURL = 'https://cloud.timeedit.net/nackademin/web/1/ri6555Qy1446n6QZ0YQ4Q7ZQZ5
 
 client = discord.Client()
 schedule = robbot.Schedule(url = CALURL)
+schedule.adjust_event_hours(add_hours = 2)
 
 @client.event
 async def on_ready():

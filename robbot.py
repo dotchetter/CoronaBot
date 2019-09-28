@@ -31,25 +31,34 @@ class Schedule:
 		try:
 			self._calendar = ics.Calendar(urlopen(self._url).read().decode())
 		except ValueError:
-			raise InvalidCalendarUrl('Invalid .ics url link provided')
-		self.__adjust_event_hours(add_hours = 2)
+			msg = 'Could not parse calendar url, verify server status and access.'
+			raise InvalidCalendarUrl(msg)
 
-	def __adjust_event_hours(self, add_hours = int):
+	def adjust_event_hours(self, add_hours = int):
 		'''
-		Adjust the hour in a calendar event by (n) hours. Expect
-		a datetime.time instance in event parameter.
+		Adjust the hour in a calendar event by (n) hours. 
+		Expect a datetime.time instance in event parameter.
+		This will add a .hour and a .minute property to the 
+		Calendar() objects passed to this method.
 		'''
 		for event in self.schedule:
-			hour = event.begin.hour
-			minute = event.begin.minute
-			year = self.current_time.year
-			month = self.current_time.month
-			day = self.current_time.day
-
-			event_datetime = datetime(year, month, day, hour, minute) + timedelta(hours = add_hours)
-			event.begin.hour = event_datetime.hour
-			event.begin.minute = event_datetime.minute
+			try:
+				hour = event.begin.hour
+				minute = event.begin.minute
+				year = self.current_time.year
+				month = self.current_time.month
+				day = self.current_time.day
 	
+				event_datetime = datetime(year, month, day, hour, minute)
+				evend_datetime += timedelta(hours = add_hours)
+				event.begin.hour = event_datetime.hour
+				event.begin.minute = event_datetime.minute
+			except ValueError:
+				msg = f'Could not adjust {event} with {add_hours} hrs'
+				raise TimezoneAdjustmentError(msg)
+			else:
+				return True
+
 	@property
 	def today(self):
 		return datetime.now().date()
