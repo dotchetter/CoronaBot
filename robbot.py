@@ -1,7 +1,8 @@
 import ics
 import json
 import os
-from datetime import datetime, timedelta
+from custom_errs import *
+from datetime import datetime, timedelta, time
 from urllib.request import urlopen
 
 '''
@@ -16,15 +17,7 @@ Synposis:
     The goal is to subscribe to the class schedule and then
     share the current classroom for the day or week in the chat
     with a chatbot. 
-
-Dependencies:
-    Non-standard lib:
-    * dotenv
-    * discord
 '''
-
-class MetaFileError(Exception):
-	__module__ = 'RobBot'
 
 class Schedule:
 	'''
@@ -35,7 +28,27 @@ class Schedule:
 	'''
 	def __init__(self, url):
 		self._url = url
-		self._calendar = ics.Calendar(urlopen(self._url).read().decode())
+		try:
+			self._calendar = ics.Calendar(urlopen(self._url).read().decode())
+		except ValueError:
+			raise InvalidCalendarUrl('Invalid .ics url link provided')
+		self.__adjust_event_hours(add_hours = 2)
+
+	def __adjust_event_hours(self, add_hours = int):
+		'''
+		Adjust the hour in a calendar event by (n) hours. Expect
+		a datetime.time instance in event parameter.
+		'''
+		for event in self.schedule:
+			hour = event.begin.hour
+			minute = event.begin.minute
+			year = self.current_time.year
+			month = self.current_time.month
+			day = self.current_time.day
+
+			event_datetime = datetime(year, month, day, hour, minute) + timedelta(hours = add_hours)
+			event.begin.hour = event_datetime.hour
+			event.begin.minute = event_datetime.minute
 	
 	@property
 	def today(self):
@@ -52,10 +65,35 @@ class Schedule:
 		return _schedule
 
 	@property
+	def todays_events(self):
+	#	_mock_datetime = datetime(2019, 10, 1) # DEV
+	#	_mock_date = datetime.date(_mock_datetime) # DEV
+		return [i for i in self.schedule if i.begin.date() == self.today]
+	
+
+	@property
 	def todays_lessons(self):
-		lessons = [i for i in self.schedule if i.begin.date() == self.today] 
+		'''
+		Iterate through the lessons of today, return these in a friendly
+		string with properties such as start and end time with locations.
+		'''
+
+		friendly_output = []
+
+		lessons = self.todays_events  
 		if len(lessons):
-			return lessons
+			for lesson in lessons:
+				if lesson.begin.minute < 10:
+					minute = f'0{lesson.begin.minute}'
+				else:
+					minute = lesson.begin.minute	
+				hour = lesson.begin.hour
+				name = lesson.name.split(',')[-1].strip()
+				friendly_time = f'{hour}:{minute}'
+				location = lesson.location
+				friendly_string = f'{name} klockan {friendly_time} i {location}'
+				friendly_output.append(friendly_string)
+			return friendly_output
 		return None
 
 	@property
@@ -68,19 +106,36 @@ class Schedule:
 		for today, iterate over the entire sorted schedule and return
 		the first lesson that lies in the future.
 		'''
-		if self.todays_lessons:
-			for lesson in self.todays_lessons:
-				if self.current_time < (lesson.begin.time() + timedelta(hours = 2)):
-					return lesson
-		else:
-			for lesson in self.schedule:
-				if lesson.begin.date() > self.today:
-					return lesson
+		lesson = None
+
+		if self.todays_events:
+			for event in self.todays_events:
+				if self.current_time.hour < event.begin.hour:
+					lesson = event
+					break
+		if not lesson:
+			for event in self.schedule:
+				if event.begin.date() > self.today:
+					lesson = event
+					break
+		
+		return lesson
 
 	@property
 	def next_lesson_classroom(self):
-		_next_lesson = self.next_lesson
-		return _next_lesson.location
+		return self.next_lesson.location
+
+	@property
+	def next_lesson_name(self):
+		return self.next_lesson.name
+	
+	@property
+	def next_lesson_time(self):
+		return f'{self.next_lesson.begin.hour}'
+
+	@property
+	def next_lesson_date(self):
+		return f'{self.next_lesson.begin.date()}'
 	
 
 class Brain:
@@ -97,8 +152,11 @@ class Brain:
 		self._name = name
 		self._keywords = self.__parse_keywords_fromjson()
 		self._reference_file = 'ref.json'
+		self._mock_keywords = [
+			'klassrum'
+		]
 		self.awakesince = datetime.now()
-		
+
 		if not os.path.isfile(self._reference_file):
 			raise Exception('')
 
