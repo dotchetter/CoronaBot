@@ -1,15 +1,16 @@
 import os
 import discord
 import random
-import robbot
 from dotenv import load_dotenv
+from schedule import Schedule
+from robbot import Brain
 
 '''
 Details:
     2019-09-25
 
 Module details:
-    Application main executable; Discord bot intelligence
+    Service main executable
 
 Synposis:
     Initialize the bot with api reference to Discords
@@ -18,13 +19,12 @@ Synposis:
 '''
 
 load_dotenv()
-
 TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD = os.getenv('DISCORD_GUILD')
-CALURL = 'https://cloud.timeedit.net/nackademin/web/1/ri6555Qy1446n6QZ0YQ4Q7ZQZ5607.ics'
+CALURL = os.getenv('TIMEEDIT_URL')
 
 client = discord.Client()
-schedule = robbot.Schedule(url = CALURL)
+schedule = Schedule(url = CALURL)
 schedule.adjust_event_hours(add_hours = 2)
 
 @client.event
@@ -70,12 +70,11 @@ async def on_message(message):
         recursive_response = True
     
     if 'hej rob' in body and not recursive_response:
-        if 'klassrum' in body or 'när börjar' or 'nästa lektion' in body:
+        if 'klassrum' in body or 'när börjar' in body or 'nästa lektion' in body:
             classroom = schedule.next_lesson_classroom
             time = schedule.next_lesson_time
             date = schedule.next_lesson_date
             response = f'Nästa lektion är i {classroom}, {date} klockan {time} :smirk:'
-            await message.channel.send(response)
         elif 'dagens schema' in body:
             if schedule.todays_lessons:
                 lessons_string = str('\n').join(schedule.todays_lessons)
@@ -84,7 +83,8 @@ async def on_message(message):
                 response = 'Det ser inte ut att finnas några fler lektioner på schemat idag.'
         else:
             response = 'Hmm, jag är inte säker på att jag fattade det där.'
-            await message.channel.send(response)
+        
+        await message.channel.send(response)
 
         # Debug
         print(
