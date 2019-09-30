@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 from custom_errs import *
 from enum import Enum
 from datetime import datetime
@@ -41,17 +42,17 @@ class Brain:
 	provide the current classroom for given lesson when 
 	asked.
 	'''
-	def __init__(self, name = str, schedule_url = str):
+	def __init__(self, name = str, schedule_url = str, schedule_hour_adjust = int):
 		self._name = name
 		self.schedule = Schedule(schedule_url)
-		self.schedule.adjust_event_hours(add_hours = 2)
-		self.awakesince = datetime.now()
-		self._mock_keywords = {
+		self.schedule.adjust_event_hours(add_hours = schedule_hour_adjust)
+		self.commands = self.__get_bot_commands()
+		self._keywords = {
 			'klassrum': ResponseOptions.NEXT_LESSON,
 			'nästa lektion': ResponseOptions.NEXT_LESSON,
 			'lektioner idag': ResponseOptions.TODAYS_LESSONS,
 			'dagens lektioner': ResponseOptions.TODAYS_LESSONS,
-			'vad kan du?': ResponseOptions.SHOW_BOT_COMMANDS,
+			'vad kan du': ResponseOptions.SHOW_BOT_COMMANDS,
 			'schema': ResponseOptions.SCHEDULE,
 			'meningen med livet': ResponseOptions.MEANING_OF_LIFE
 		}
@@ -61,24 +62,35 @@ class Brain:
 		Call private interpretation method to get enum instance
 		which points toward which response to give. 
 		'''
-		misunderstood_phrase = ':thinking:..? Skriv "Hej Rob, vad kan du?" för att se mina tricks!'
+		misunderstood_phrase = ':thinking:.. ? Skriv "Hej Rob, vad kan du?" för att se mina tricks!'
 
 		interpretation = self.__interpret(message = message)
+		if not interpretation:
+			return misunderstood_phrase
 
-		if interpretation.name == 'NEXT_LESSON':
+		if interpretation == ResponseOptions.NEXT_LESSON:
 			response = self.__get_next_lesson_response()
-		elif interpretation.name == 'TODAYS_LESSONS':
+		elif interpretation == ResponseOptions.TODAYS_LESSONS:
 			response = self.__get_todays_lessons_phrase()
-		elif interpretation.name == 'SCHEDULE':
+		elif interpretation == ResponseOptions.SCHEDULE:
 			response = self.__get_schedule_phrase()
-		elif interpretation.name == 'SHOW_BOT_COMMANDS':
-			response = self.__get_bot_commands()
-		elif interpretation.name == 'MEANING_OF_LIFE':
+		elif interpretation == ResponseOptions.SHOW_BOT_COMMANDS:
+			response = self.commands
+		elif interpretation == ResponseOptions.MEANING_OF_LIFE:
 			response = '42'
-		else:
-			response = misunderstood_phrase
-
 		return response
+
+	def greet(self, member = str):
+		'''
+		Return a greeting string, introducing ourselves
+		and welcoming the new member to the class.
+		'''
+		try:
+			with open('greeting.dat', 'r', encoding = 'utf-8') as f:
+				greeting = str().join(f.readlines())
+				return f'{greeting} {member}! :smile:'
+		except FileNotFoundError:
+			return 'Ett fel uppstod - jag hittar inte filen. Hjälp!'
 
 	def __get_bot_commands(self):
 		'''
@@ -106,7 +118,27 @@ class Brain:
 		Return string with the schedule for as long as forseeable
 		with Schedule object. 
 		'''
-		return f'Här är schemat så långt jag kan se:\n{self.schedule.schedule}'
+		friendly_schedule = []
+		discord_msg_length_limit = 2000
+		
+		for index, event in enumerate(self.schedule.schedule):
+			name = event.name
+			location = event.location
+			date = event.begin.date()
+			hour = event.begin.hour
+			phrase = f'{name} i {location}, {date}, klockan {hour}'
+			
+			if index % 2 != 0:
+				phrase += '\n'
+
+			if (discord_msg_length_limit - len(phrase)) > 10:
+				friendly_schedule.append(phrase)
+				discord_msg_length_limit -= len(phrase)
+			else:
+				break
+		
+		friendly_schedule = '\n'.join(friendly_schedule)
+		return f'**Här är schemat så långt jag kan se** :slight_smile:\n\n{friendly_schedule}'
 
 
 	def __get_next_lesson_response(self):
@@ -119,7 +151,7 @@ class Brain:
 		classroom = self.schedule.next_lesson_classroom
 		schedule =  self.schedule.schedule
 		todays_lessons = self.schedule.todays_lessons
-		return f'Nästa lektion är i {classroom}, {date}, kl {hour} :smile:'
+		return f'Nästa lektion är i {classroom}, {date}, kl {hour} :slight_smile:'
 
 
 	def __interpret(self, message = str):
@@ -131,32 +163,16 @@ class Brain:
 		the keyword dict property. Action will be taken accordingly
 		by separate method.
 		'''
-		for keyword in self._mock_keywords.keys():
+		for keyword in self._keywords.keys():
 			if keyword in message:
-				action = self._mock_keywords[keyword]
+				action = self._keywords[keyword]
 				return action
 		return False
 
-	def __parse_keywords_fromjson(self):
-		'''
-		Load and parse a locally stored .json with 
-		keywords, phrases, and other data stored in
-		strings. This method returns keywords that the
-		human can use when chatting with the bot, giving
-		us a hint what the human wants from the bot.
-		'''
-		try:
-			with open(self._reference_file, 'r') as f:
-				return json.loads(file.read(), encoding = 'utf-8')
-		except Exception as e:
-			raise MetaFileError('Could not read data from meta file')
-			return False
-
-
 	@property
-	def awakesince(self):
-		return self._awakesince.strftime("%Y-%m-%d-%H:%m:%S") 
-
-	@awakesince.setter
-	def awakesince(self, value = None):
-		self._awakesince = value
+	def commands(self):
+		return self._commands
+	
+	@commands.setter
+	def commands(self, value = str):
+		self._commands = value
