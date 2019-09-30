@@ -32,11 +32,7 @@ class Schedule:
 	'''
 	def __init__(self, url = str):
 		self._url = url
-		try:
-			self._calendar = ics.Calendar(urlopen(self._url).read().decode())
-		except ValueError:
-			msg = 'Could not parse calendar url, verify server status and access.'
-			raise InvalidCalendarUrl(msg)
+		self.set_calendar()
 
 	def adjust_event_hours(self, add_hours = int):
 		'''
@@ -62,9 +58,35 @@ class Schedule:
 				raise TimezoneAdjustmentError(msg)
 		return True
 
+	def set_calendar(self):
+		'''
+		Get data from the timeedit servers containing the
+		schedule for class IoT19 2 weeks ahead. This callable
+		will refresh the .ics Calendar object.
+		'''
+		try:
+			calendar = ics.Calendar(urlopen(self._url).read().decode())
+		except ValueError:
+			msg = 'Could not parse calendar url, verify server status and access.'
+			raise InvalidCalendarUrl(msg)
+		self._calendar = calendar
+
 	@property
 	def today(self):
 		return datetime.now().date()
+
+	@property
+	def weekday(self):
+		weekdays = {
+			1:'monday',
+			2:'tueday',
+			3:'wednesday',
+			4:'thursday',
+			5:'friday',
+			6:'saturday',
+			7:'sunday'
+		}
+		return weekdays[self.today.isoweekday()]
 
 	@property
 	def current_time(self):
