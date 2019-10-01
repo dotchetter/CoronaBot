@@ -3,7 +3,7 @@ Details:
     2019-09-25
 
 Module details:
-    Application backend logic; Discord bot intelligence
+    Custom error classes
 
 Synposis:
     Supply a discord chatbot with intelligence and features.
@@ -13,10 +13,10 @@ Synposis:
 '''
 
 class MetaFileError(Exception):
-	pass
+    pass
 
 class InvalidCalendarUrl(Exception):
-	pass
+    pass
 
 class TimezoneAdjustmentError(Exception):
-	pass
+    pass
