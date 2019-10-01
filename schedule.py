@@ -100,8 +100,6 @@ class Schedule:
 
 	@property
 	def todays_events(self):
-	#	_mock_datetime = datetime(2019, 10, 1) # DEV
-	#	_mock_date = datetime.date(_mock_datetime) # DEV
 		return [i for i in self.schedule if i.begin.date() == self.today]
 	
 	@property

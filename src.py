@@ -101,6 +101,7 @@ class RobBotCLient(discord.Client):
             await asyncio.sleep(3600)
             if self.brain.schedule.current_time.hour == 0:
                 self.brain.schedule.set_calendar()
+                self.brain.schedule.adjust_event_hours(add_hours = 2)
                 logging.info(f'Refreshed calendar object')
 
 

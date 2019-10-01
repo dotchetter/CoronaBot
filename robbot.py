@@ -110,8 +110,9 @@ class Brain:
 		no lessons for current date.
 		'''
 		if self.schedule.todays_lessons:
-			return f'Här är schemat för dagen:\n{ self.schedule.todays_lessons}'
-		return 'Det finns inga lektioner på schemat för idag :sunglasses:'
+			lessons = '\n'.join(self.schedule.todays_lessons)
+			return f'Här är schemat för dagen:\n{lessons}'
+		return 'Det finns inga lektioner på schemat idag :sunglasses:'
 
 	def __get_schedule_phrase(self):
 		'''
