@@ -1,6 +1,5 @@
 import os
 import discord
-import random
 import asyncio
 import logging
 from datetime import datetime, time
@@ -32,7 +31,7 @@ class RobBotCLient(discord.Client):
 
         self.loop.create_task(self.friday_message())
         self.loop.create_task(self.refresh_schedule())
-        self.brain = Brain(name = 'Rob', schedule_url = SCHDURL, schedule_hour_adjust = 2)
+        self.brain = Brain(name = 'Rob', schedule_url = SCHDURL, hourdelta = 2)
         log_format = "%(asctime)s::%(levelname)s::%(name)s::%(message)s"
         logging.basicConfig(level = logging.INFO, filename = 'bot.log', format = log_format)
 
@@ -101,6 +100,7 @@ class RobBotCLient(discord.Client):
             await asyncio.sleep(3600)
             if self.brain.schedule.current_time.hour == 0:
                 self.brain.schedule.set_calendar()
+                self.brain.schedule.truncate_event_name()
                 self.brain.schedule.adjust_event_hours(add_hours = 2)
                 logging.info(f'Refreshed calendar object')
 
