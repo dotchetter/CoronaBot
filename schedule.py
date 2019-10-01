@@ -135,10 +135,7 @@ class Schedule:
                 event_start = event.begin.adjusted_time.strftime('%H:%M')
                 event_end = event.end.adjusted_time.strftime('%H:%M')
                 output.append(f'{name}, {event_start} - {event_end} i {event.location}')
-            if platform == 'win32':
                 return output
-            else:
-                return '\n'.join(output)
         return None
 
     @property
