@@ -1,11 +1,9 @@
-import json
 import os
-import sys
 from custom_errs import *
 from enum import Enum
 from datetime import datetime
 from schedule import Schedule
-from dataclasses import dataclass
+from classevent import ClassEvent
 
 '''
 Details:
@@ -22,158 +20,174 @@ Synposis:
 '''
 
 class ResponseOptions(Enum):
-	'''
-	Constant enumerators for matching keywords against when
-	deciding which response to give a given command to the bot.
-	'''
-	NEXT_LESSON = 0
-	TODAYS_LESSONS = 1
-	SCHEDULE = 2
-	SHOW_BOT_COMMANDS = 3
-	MEANING_OF_LIFE = 4
+    '''
+    Constant enumerators for matching keywords against when
+    deciding which response to give a given command to the bot.
+    '''
+    NEXT_LESSON = 0
+    TODAYS_LESSONS = 1
+    SCHEDULE = 2
+    SHOW_BOT_COMMANDS = 3
+    MEANING_OF_LIFE = 4
+    REMEMBER_EVENT = 5
 
 class Brain:
-	'''
-	Chatbot intelligence. Different bot features
-	will be represented by class methods. Functionalities
-	vary from being able to understand questions, commanded
-	phrases and such. A core functionality for this bot is
-	the ability to subscribe to a .ics schedule link, and 
-	provide the current classroom for given lesson when 
-	asked.
-	'''
-	def __init__(self, name = str, schedule_url = str, schedule_hour_adjust = int):
-		self._name = name
-		self.schedule = Schedule(schedule_url)
-		self.schedule.adjust_event_hours(add_hours = schedule_hour_adjust)
-		self.commands = self.__get_bot_commands()
-		self._keywords = {
-			'klassrum': ResponseOptions.NEXT_LESSON,
-			'nästa lektion': ResponseOptions.NEXT_LESSON,
-			'lektioner idag': ResponseOptions.TODAYS_LESSONS,
-			'dagens lektioner': ResponseOptions.TODAYS_LESSONS,
-			'vad kan du': ResponseOptions.SHOW_BOT_COMMANDS,
-			'schema': ResponseOptions.SCHEDULE,
-			'meningen med livet': ResponseOptions.MEANING_OF_LIFE
-		}
+    '''
+    Chatbot intelligence. Different bot features
+    will be represented by class methods. Functionalities
+    vary from being able to understand questions, commanded
+    phrases and such. A core functionality for this bot is
+    the ability to subscribe to a .ics schedule link, and 
+    provide the current classroom for given lesson when 
+    asked.
+    '''
+    def __init__(self, name = str, schedule_url = str, hourdelta = int):
+        self._name = name
+        self.schedule = Schedule(schedule_url)
+        self.schedule.adjust_event_hours(hourdelta = hourdelta)
+        self.commands = self.__get_bot_commands()
+        self._keywords = {
+            'klassrum': ResponseOptions.NEXT_LESSON,
+            'nästa lektion': ResponseOptions.NEXT_LESSON,
+            'lektioner idag': ResponseOptions.TODAYS_LESSONS,
+            'dagens lektioner': ResponseOptions.TODAYS_LESSONS,
+            'vad kan du': ResponseOptions.SHOW_BOT_COMMANDS,
+            'schema': ResponseOptions.SCHEDULE,
+            'meningen med livet': ResponseOptions.MEANING_OF_LIFE,
+            'kan du komma ihåg:': ResponseOptions.REMEMBER_EVENT
+        }
 
-	def respond_to(self, message = str):
-		'''
-		Call private interpretation method to get enum instance
-		which points toward which response to give. 
-		'''
-		misunderstood_phrase = ':thinking:.. ? Skriv "Hej Rob, vad kan du?" för att se mina tricks!'
+    def respond_to(self, message = str):
+        '''
+        Call private interpretation method to get enum instance
+        which points toward which response to give. 
+        '''
+        misunderstood_phrase = ':thinking:.. ? Skriv "Hej Rob, vad kan du?" för att se mina tricks!'
+        interpretation = self.__interpret(message = message)
+        if not interpretation:
+            return misunderstood_phrase
 
-		interpretation = self.__interpret(message = message)
-		if not interpretation:
-			return misunderstood_phrase
+        if interpretation == ResponseOptions.NEXT_LESSON:
+            response = self.__get_next_lesson_response()
+        elif interpretation == ResponseOptions.TODAYS_LESSONS:
+            response = self.__get_todays_lessons_phrase()
+        elif interpretation == ResponseOptions.SCHEDULE:
+            response = self.__get_schedule_phrase()
+        elif interpretation == ResponseOptions.SHOW_BOT_COMMANDS:
+            response = self.commands
+        elif interpretation == ResponseOptions.MEANING_OF_LIFE:
+            response = '42'
+        elif interpretation == ResponseOptions.REMEMBER_EVENT:
+            response = self.__remember_event(message)
 
-		if interpretation == ResponseOptions.NEXT_LESSON:
-			response = self.__get_next_lesson_response()
-		elif interpretation == ResponseOptions.TODAYS_LESSONS:
-			response = self.__get_todays_lessons_phrase()
-		elif interpretation == ResponseOptions.SCHEDULE:
-			response = self.__get_schedule_phrase()
-		elif interpretation == ResponseOptions.SHOW_BOT_COMMANDS:
-			response = self.commands
-		elif interpretation == ResponseOptions.MEANING_OF_LIFE:
-			response = '42'
-		return response
+        return response
 
-	def greet(self, member = str):
-		'''
-		Return a greeting string, introducing ourselves
-		and welcoming the new member to the class.
-		'''
-		try:
-			with open('greeting.dat', 'r', encoding = 'utf-8') as f:
-				greeting = str().join(f.readlines())
-				return f'{greeting} {member}! :smile:'
-		except FileNotFoundError:
-			return 'Ett fel uppstod - jag hittar inte filen. Hjälp!'
+    def greet(self, member = str):
+        '''
+        Return a greeting string, introducing ourselves
+        and welcoming the new member to the class.
+        '''
+        try:
+            with open('greeting.dat', 'r', encoding = 'utf-8') as f:
+                greeting = str().join(f.readlines())
+                return f'{greeting} {member}! :smile:'
+        except FileNotFoundError:
+            return 'Ett fel uppstod - jag hittar inte filen. Hjälp!'
 
-	def __get_bot_commands(self):
-		'''
-		Return string that shows the human what this bot can do, 
-		and how to formulate a question.
-		'''
-		try:
-			with open('commands.dat', 'r', encoding = 'utf-8') as f:
-				return str().join(f.readlines())
-		except FileNotFoundError:
-			return 'Ett fel uppstod - jag hittar inte filen. Hjälp!'
+    def __get_bot_commands(self):
+        '''
+        Return string that shows the human what this bot can do, 
+        and how to formulate a question.
+        '''
+        try:
+            with open('commands.dat', 'r', encoding = 'utf-8') as f:
+                return str().join(f.readlines())
+        except FileNotFoundError:
+            return 'Ett fel uppstod - jag hittar inte filen. Hjälp!'
 
-	def __get_todays_lessons_phrase(self):
-		'''
-		Return concatenated response phrase with all lessons for 
-		the current date. If none, return a message that explains
-		no lessons for current date.
-		'''
-		if self.schedule.todays_lessons:
-			lessons = '\n'.join(self.schedule.todays_lessons)
-			return f'Här är schemat för dagen:\n{lessons}'
-		return 'Det finns inga lektioner på schemat idag :sunglasses:'
+    def __get_todays_lessons_phrase(self):
+        '''
+        Return concatenated response phrase with all lessons for 
+        the current date. If none, return a message that explains
+        no lessons for current date.
+        '''
+        if self.schedule.todays_lessons:
+            lessons = '\n'.join(self.schedule.todays_lessons)
+            return f'Här är schemat för dagen:\n{lessons}'
+        return 'Det finns inga lektioner på schemat idag :sunglasses:'
 
-	def __get_schedule_phrase(self):
-		'''
-		Return string with the schedule for as long as forseeable
-		with Schedule object. 
-		'''
-		friendly_schedule = []
-		discord_msg_length_limit = 2000
-		
-		for index, event in enumerate(self.schedule.schedule):
-			name = event.name
-			location = event.location
-			date = event.begin.date()
-			hour = event.begin.hour
-			phrase = f'{name} i {location}, {date}, klockan {hour}'
-			
-			if index % 2 != 0:
-				phrase += '\n'
+    def __get_schedule_phrase(self):
+        '''
+        Return string with the schedule for as long as forseeable
+        with Schedule object. Take in to acount the 2000 character
+        message limit in Discord. Append only until the length
+        of the total string length of all elements combined are within
+        0 - 2000 in length.s
+        '''
+        friendly_schedule = []
+        discord_msg_length_limit = 2000
+        
+        for index, event in enumerate(self.schedule.schedule):
+            begin = event.begin.adjusted_time.strftime('%H:%M')
+            end = event.end.adjusted_time.strftime('%H:%M')
+            location = event.location
+            name = event.name
+            date = event.begin.date()
+            phrase = f'**{name}**\n**Klassrum:** {location}\n**När:** {date} -- {begin}-{end}'
+            
+            if index % 2 != 0:
+                phrase += '\n'
 
-			if (discord_msg_length_limit - len(phrase)) > 10:
-				friendly_schedule.append(phrase)
-				discord_msg_length_limit -= len(phrase)
-			else:
-				break
-		
-		friendly_schedule = '\n'.join(friendly_schedule)
-		return f'**Här är schemat så långt jag kan se** :slight_smile:\n\n{friendly_schedule}'
-
-
-	def __get_next_lesson_response(self):
-		'''
-		Return string with concatenated variable values to tell the
-		human which is the next upcoming lesson.
-		'''
-		date = self.schedule.next_lesson_date
-		hour = self.schedule.next_lesson_time
-		classroom = self.schedule.next_lesson_classroom
-		schedule =  self.schedule.schedule
-		todays_lessons = self.schedule.todays_lessons
-		return f'Nästa lektion är i {classroom}, {date}, kl {hour} :slight_smile:'
+            if (discord_msg_length_limit - len(phrase)) > 10:
+                friendly_schedule.append(phrase)
+                discord_msg_length_limit -= len(phrase)
+            else:
+                break        
+        friendly_schedule = '\n'.join(friendly_schedule)        
+        return f'**Här är schemat!** :slight_smile:\n\n{friendly_schedule}'
 
 
-	def __interpret(self, message = str):
-		'''
-		If the bot is given a message, evaluate what it cntains.	
-		Provide sufficient response to the given message by using
-		class methods to get data for each response. Return enum
-		instance, depending on which keyword matches which key in 
-		the keyword dict property. Action will be taken accordingly
-		by separate method.
-		'''
-		for keyword in self._keywords.keys():
-			if keyword in message:
-				action = self._keywords[keyword]
-				return action
-		return False
+    def __get_next_lesson_response(self):
+        '''
+        Return string with concatenated variable values to tell the
+        human which is the next upcoming lesson.
+        '''
+        date = self.schedule.next_lesson_date
+        hour = self.schedule.next_lesson_time
+        classroom = self.schedule.next_lesson_classroom
+        schedule =  self.schedule.schedule
+        todays_lessons = self.schedule.todays_lessons
+        return f'Nästa lektion är i {classroom}, {date}, kl {hour} :slight_smile:'
 
-	@property
-	def commands(self):
-		return self._commands
-	
-	@commands.setter
-	def commands(self, value = str):
-		self._commands = value
+    def __remember_event(self, message):
+        '''
+        If the bot recieves a message with proper syntax, create
+        an ClassEvent instance. Save this object in a .json file
+        locally.
+        '''
+        pass
+
+
+
+    def __interpret(self, message = str):
+        '''
+        If the bot is given a message, evaluate what it cntains.    
+        Provide sufficient response to the given message by using
+        class methods to get data for each response. Return enum
+        instance, depending on which keyword matches which key in 
+        the keyword dict property. Action will be taken accordingly
+        by separate method.
+        '''
+        for keyword in self._keywords.keys():
+            if keyword in message:
+                action = self._keywords[keyword]
+                return action
+        return False
+
+    @property
+    def commands(self):
+        return self._commands
+    
+    @commands.setter
+    def commands(self, value = str):
+        self._commands = value
