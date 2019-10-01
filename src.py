@@ -97,7 +97,7 @@ class RobBotCLient(discord.Client):
         '''
         await client.wait_until_ready()
         while not self.is_closed():
-            await asyncio.sleep(3600)
+            await asyncio.sleep(1440)
             if self.brain.schedule.current_time.hour == 0:
                 self.brain.schedule.set_calendar()
                 self.brain.schedule.truncate_event_name()
