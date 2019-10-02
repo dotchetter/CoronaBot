@@ -47,6 +47,7 @@ class Brain:
         self.schedule.adjust_event_hours(hourdelta = hourdelta)
         self.commands = self.__get_bot_commands()
         self._keywords = {
+            'klass rum': ResponseOptions.NEXT_LESSON,
             'klassrum': ResponseOptions.NEXT_LESSON,
             'nästa lektion': ResponseOptions.NEXT_LESSON,
             'lektioner idag': ResponseOptions.TODAYS_LESSONS,
