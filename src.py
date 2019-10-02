@@ -29,7 +29,7 @@ class RobBotCLient(discord.Client):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.loop.create_task(self.friday_message())
+        self.loop.create_task(self.auto_message())
         self.loop.create_task(self.refresh_schedule())
         self.brain = Brain(name = 'Rob', schedule_url = SCHDURL, hourdelta = 2)
         log_format = "%(asctime)s::%(levelname)s::%(name)s::%(message)s"
@@ -68,25 +68,41 @@ class RobBotCLient(discord.Client):
             logging.info(f'{message.author} said {message.content}')
             logging.info(f'bot said {response}')
     
-    async def friday_message(self):
+    async def auto_message(self):
         '''
-        If it is friday and it's 15.30, tell everyone
-        how awesome this is in the General channel.
+        Loop indefinitely and send messages that are pre-
+        defined on a certain day and / or a certain time.
         '''
-        await client.wait_until_ready()        
-        channel = self.get_channel(626383773201727518)
-        now_time = None
-        message = 'Fredag!!! Dags för fredagsölen! :beers:'
-        message_time = time(15, 30)
+        await client.wait_until_ready()
+        channel = self.get_channel(628469370292535336)
+        automatic_messages = {
+            'friday': {
+                'message': 'WOHOOOOOOOOOOO! Dags för fredagsölen! :beers:',
+                'scheduled_time': time(15, 30)
+            },
+            'morning_next_lesson': {
+                'message': self.brain.next_lesson_response,
+                'scheduled_time': time(8, 0)
+            }
+        }
         
         while not self.is_closed():
             await asyncio.sleep(35)
+            message = None
+            now = self.brain.schedule.current_time
+            now_time = time(now.hour, now.minute)
+            
             if self.brain.schedule.weekday == 'friday':
-                now = self.brain.schedule.current_time
-                now_time = time(now.hour, now.minute)
-                if now_time == message_time:
-                    await channel.send(message)
-                    logging.info(f'bot said {message}')
+                if now_time == automatic_messages['friday']['scheduled_time']:
+                    message = automatic_messages['friday']['message']
+            
+            if now_time == automatic_messages['morning_next_lesson']['scheduled_time']:
+                message = automatic_messages['morning_next_lesson']['message']
+
+            if message:
+                await channel.send(message)
+                logging.info(f'--BOT SAID: {message}')
+
 
     async def refresh_schedule(self):
         '''
@@ -103,7 +119,6 @@ class RobBotCLient(discord.Client):
                 self.brain.schedule.truncate_event_name()
                 self.brain.schedule.adjust_event_hours(hourdelta = 2)
                 logging.info(f'Refreshed calendar object')
-
 
 if __name__ == '__main__':
     client = RobBotCLient()
