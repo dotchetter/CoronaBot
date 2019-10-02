@@ -167,8 +167,6 @@ class Brain:
         '''
         pass
 
-
-
     def __interpret(self, message = str):
         '''
         If the bot is given a message, evaluate what it cntains.    
@@ -188,6 +186,10 @@ class Brain:
     def commands(self):
         return self._commands
     
+    @property
+    def next_lesson_response(self):
+        return self.__get_next_lesson_response()
+
     @commands.setter
     def commands(self, value = str):
         self._commands = value
