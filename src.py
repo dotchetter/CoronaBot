@@ -101,7 +101,7 @@ class RobBotCLient(discord.Client):
             if self.brain.schedule.current_time.hour == 0:
                 self.brain.schedule.set_calendar()
                 self.brain.schedule.truncate_event_name()
-                self.brain.schedule.adjust_event_hours(add_hours = 2)
+                self.brain.schedule.adjust_event_hours(hourdelta = 2)
                 logging.info(f'Refreshed calendar object')
 
 
