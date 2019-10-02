@@ -74,7 +74,7 @@ class RobBotCLient(discord.Client):
         defined on a certain day and / or a certain time.
         '''
         await client.wait_until_ready()
-        channel = self.get_channel(628469370292535336)
+        channel = self.get_channel(618476154688634890)
         automatic_messages = {
             'friday': {
                 'message': 'WOHOOOOOOOOOOO! Dags för fredagsölen! :beers:',
