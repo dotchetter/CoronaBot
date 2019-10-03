@@ -111,7 +111,6 @@ class RobBotCLient(discord.Client):
                 for weekday in event.weekdays:
                     if weekday == self.brain.schedule.weekday and now == event.time:
                         await channel.send(event.body)
-                        print(f'Event {event} found at this time')
                         logging.info(f'--BOT SAID: {event.body}')
 
 
@@ -132,7 +131,10 @@ class RobBotCLient(discord.Client):
             self.brain.schedule.set_calendar()
             self.brain.schedule.truncate_event_name()
             self.brain.schedule.adjust_event_hours(hourdelta = 2)
-            logging.info(f'Refreshed calendar object')
+            removed_activities = self.brain.schedule.remove_activities()
+            logging.info('Refreshed calendar object')
+            if len(removed_activities): 
+                logging.info(f'Purged activities {'\n'.join(removed_activities)}')
 
 if __name__ == '__main__':
     client = RobBotCLient()
