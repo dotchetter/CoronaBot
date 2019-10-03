@@ -1,9 +1,8 @@
 import os
 from custom_errs import *
 from enum import Enum
-from datetime import datetime
-from schedule import Schedule
-from classevent import ClassEvent
+from datetime import datetime, time
+from schedule import Schedule, Event
 
 '''
 Details:
@@ -29,7 +28,8 @@ class ResponseOptions(Enum):
     SCHEDULE = 2
     SHOW_BOT_COMMANDS = 3
     MEANING_OF_LIFE = 4
-    REMEMBER_EVENT = 5
+    REMEMBER_ACTIVITY = 5
+    SHOW_ACTIVITY = 6
 
 class Brain:
     '''
@@ -50,12 +50,18 @@ class Brain:
             'klass rum': ResponseOptions.NEXT_LESSON,
             'klassrum': ResponseOptions.NEXT_LESSON,
             'nästa lektion': ResponseOptions.NEXT_LESSON,
+            'lektion': ResponseOptions.NEXT_LESSON,
             'lektioner idag': ResponseOptions.TODAYS_LESSONS,
             'dagens lektioner': ResponseOptions.TODAYS_LESSONS,
             'vad kan du': ResponseOptions.SHOW_BOT_COMMANDS,
             'schema': ResponseOptions.SCHEDULE,
             'meningen med livet': ResponseOptions.MEANING_OF_LIFE,
-            'kan du komma ihåg:': ResponseOptions.REMEMBER_EVENT
+            'kan du komma ihåg': ResponseOptions.REMEMBER_ACTIVITY,
+            'händelser': ResponseOptions.SHOW_ACTIVITY,
+            'vilka events': ResponseOptions.SHOW_ACTIVITY,
+            'event': ResponseOptions.SHOW_ACTIVITY,
+            'events': ResponseOptions.SHOW_ACTIVITY,
+            'aktiviteter': ResponseOptions.SHOW_ACTIVITY
         }
 
     def respond_to(self, message = str):
@@ -63,7 +69,7 @@ class Brain:
         Call private interpretation method to get enum instance
         which points toward which response to give. 
         '''
-        misunderstood_phrase = ':thinking:.. ? Skriv "Hej Rob, vad kan du?" för att se mina tricks!'
+        misunderstood_phrase = '..? - Skriv "Hej Rob, vad kan du?"'
         interpretation = self.__interpret(message = message)
         if not interpretation:
             return misunderstood_phrase
@@ -78,8 +84,10 @@ class Brain:
             response = self.commands
         elif interpretation == ResponseOptions.MEANING_OF_LIFE:
             response = '42'
-        elif interpretation == ResponseOptions.REMEMBER_EVENT:
-            response = self.__remember_event(message)
+        elif interpretation == ResponseOptions.REMEMBER_ACTIVITY:
+            response = self.__remember_activity(message)
+        elif interpretation == ResponseOptions.SHOW_ACTIVITY:
+            response = self.__get_remembered_activities()
 
         return response
 
@@ -160,13 +168,51 @@ class Brain:
         todays_lessons = self.schedule.todays_lessons
         return f'Nästa lektion är i {classroom}, {date}, kl {hour} :slight_smile:'
 
-    def __remember_event(self, message):
+    def __remember_activity(self, message):
         '''
         If the bot recieves a message with proper syntax, create
-        an ClassEvent instance. Save this object in a .json file
-        locally.
+        an Event instance. Save this object in the Schedule object.
         '''
-        pass
+        invalid_format_string = 'Ogiltigt format. Ange ett event formaterat enligt '\
+                                f'detta exempel:\n\n**Hej rob, kan du komma ihåg; händelse, '\
+                                '2019-01-01-09:00, plats**. Det är viktigt att ange ett '\
+                                'semikolon och sedan separera med mellanslag och kommatecken. '\
+                                'Notera att datumformatet måste vara ÅR-MÅNAD-DAG-TIMME:MINUT.'
+        success_string = 'Det ska jag komma ihåg! :smiley:'
+
+        try:
+            task = message.split(';')[-1].split(', ')
+            body = task[0]
+            event_date = datetime.strptime(task[1].strip(), '%Y-%m-%d-%H:%M')
+            location = task[2]
+
+            self.schedule.add_activity(
+                Event(
+                    body = body, location = location, 
+                    datetime = event_date, time = time(
+                        hour = event_date.hour, 
+                        minute = event_date.minute, 
+                        second = 0
+                    )
+                )
+            )
+        except Exception as e:
+            return invalid_format_string
+        return success_string
+
+    def __get_remembered_activities(self):
+        '''
+        Return a friendly phrase for every saved activity in memory.
+        '''
+        output = []
+        if self.schedule.activities:
+            for activity in self.schedule.activities:
+                what = f'**Händelse**: {activity.body}'
+                when = f'**När**: {activity.datetime.strftime("%Y-%m-%d-%H:%M")}'
+                where = f'**Var**: {activity.location}\n'
+                output.append(f'{what}\n{when}\n{where}')
+            return '\n'.join(output)
+        return f'Inga sparade händelser :sad:'
 
     def __interpret(self, message = str):
         '''
