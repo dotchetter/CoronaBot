@@ -212,7 +212,7 @@ class Brain:
                 where = f'**Var**: {activity.location}\n'
                 output.append(f'{what}\n{when}\n{where}')
             return '\n'.join(output)
-        return f'Inga sparade händelser :sad:'
+        return f'Inga sparade händelser :cry:'
 
     def __interpret(self, message = str):
         '''
