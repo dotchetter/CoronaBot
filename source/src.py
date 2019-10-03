@@ -4,7 +4,7 @@ import asyncio
 import logging
 from datetime import datetime, time
 from dotenv import load_dotenv
-from schedule import Schedule
+from schedule import Schedule, Event
 from robbot import Brain
 
 '''
@@ -26,14 +26,36 @@ GUILD = os.getenv('DISCORD_GUILD')
 SCHDURL = os.getenv('TIMEEDIT_URL')
 
 class RobBotCLient(discord.Client):
+    log_format = "%(asctime)s::%(levelname)s::%(name)s::%(message)s"
+    logging.basicConfig(level = logging.INFO, filename = 'bot.log', format = log_format)
+    
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.loop.create_task(self.auto_message())
-        self.loop.create_task(self.refresh_schedule())
+        self.loop.create_task(self.purge_runtime())
         self.brain = Brain(name = 'Rob', schedule_url = SCHDURL, hourdelta = 2)
-        log_format = "%(asctime)s::%(levelname)s::%(name)s::%(message)s"
-        logging.basicConfig(level = logging.INFO, filename = 'bot.log', format = log_format)
+        self.add_events()
+
+    def add_events(self):
+        '''
+        Save pre-defined reoccuring messages / events in the Schedule instance.
+        '''
+        next_lesson = lambda: self.brain.next_lesson_response
+
+        daily = Event(
+            weekdays = ['tuesday', 'wednesday', 'friday'], 
+            time = time(hour = 8, minute = 0, second = 0), 
+            body = next_lesson()
+        )
+
+        friday = Event(
+            weekdays = ['friday'], 
+            time = time(hour = 15, minute = 30, second = 0),
+            body = 'Wohoo, fredag! :beers: '
+        )            
+        
+        self.brain.schedule.schedule_events(daily, friday)
 
     async def on_ready(self):
         '''
@@ -71,40 +93,29 @@ class RobBotCLient(discord.Client):
     async def auto_message(self):
         '''
         Loop indefinitely and send messages that are pre-
-        defined on a certain day and / or a certain time.
+        defined on a certain day and a certain time.
         '''
         await client.wait_until_ready()
         channel = self.get_channel(618476154688634890)
-        automatic_messages = {
-            'friday': {
-                'message': 'WOHOOOOOOOOOOO! Dags för fredagsölen! :beers:',
-                'scheduled_time': time(15, 30)
-            },
-            'morning_next_lesson': {
-                'message': self.brain.next_lesson_response,
-                'scheduled_time': time(8, 0)
-            }
-        }
         
         while not self.is_closed():
-            await asyncio.sleep(35)
-            message = None
-            now = self.brain.schedule.current_time
-            now_time = time(now.hour, now.minute)
+            await asyncio.sleep(1)
             
-            if self.brain.schedule.weekday == 'friday':
-                if now_time == automatic_messages['friday']['scheduled_time']:
-                    message = automatic_messages['friday']['message']
+            now = time(
+                hour = self.brain.schedule.current_time.hour, 
+                minute = self.brain.schedule.current_time.minute,
+                second = self.brain.schedule.current_time.second
+            )
             
-            if now_time == automatic_messages['morning_next_lesson']['scheduled_time']:
-                message = automatic_messages['morning_next_lesson']['message']
+            for event in self.brain.schedule.scheduled_events:
+                for weekday in event.weekdays:
+                    if weekday == self.brain.schedule.weekday and now == event.time:
+                        await channel.send(event.body)
+                        print(f'Event {event} found at this time')
+                        logging.info(f'--BOT SAID: {event.body}')
 
-            if message:
-                await channel.send(message)
-                logging.info(f'--BOT SAID: {message}')
 
-
-    async def refresh_schedule(self):
+    async def purge_runtime(self):
         '''
         Refresh the Schedule object with a new updated
         variant of the schedule from the web by using
@@ -113,12 +124,15 @@ class RobBotCLient(discord.Client):
         '''
         await client.wait_until_ready()
         while not self.is_closed():
-            await asyncio.sleep(1440)
-            if self.brain.schedule.current_time.hour == 0:
-                self.brain.schedule.set_calendar()
-                self.brain.schedule.truncate_event_name()
-                self.brain.schedule.adjust_event_hours(hourdelta = 2)
-                logging.info(f'Refreshed calendar object')
+            now = self.brain.schedule.current_time
+            midnight = datetime(now.year, now.month, now.day,0, 0, 0)
+            time_left = (midnight - now)
+
+            await asyncio.sleep(time_left.seconds)
+            self.brain.schedule.set_calendar()
+            self.brain.schedule.truncate_event_name()
+            self.brain.schedule.adjust_event_hours(hourdelta = 2)
+            logging.info(f'Refreshed calendar object')
 
 if __name__ == '__main__':
     client = RobBotCLient()
