@@ -133,8 +133,9 @@ class RobBotCLient(discord.Client):
             self.brain.schedule.adjust_event_hours(hourdelta = 2)
             removed_activities = self.brain.schedule.remove_activities()
             logging.info('Refreshed calendar object')
-            if len(removed_activities): 
-                logging.info(f'Purged activities {'\n'.join(removed_activities)}')
+            if len(removed_activities):
+                removed_activities = '\n'.join(removed_activities)
+                logging.info(f"Purged activities {removed_activities}")
 
 if __name__ == '__main__':
     client = RobBotCLient()
