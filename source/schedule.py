@@ -3,6 +3,7 @@ import json
 import os
 from custom_errs import *
 from datetime import datetime, timedelta, time
+from dataclasses import dataclass
 from urllib.request import urlopen
 from enum import Enum
 from sys import platform
@@ -24,6 +25,14 @@ Synposis:
     with a chatbot. 
 '''
 
+@dataclass
+class Event:
+    body: str = None
+    location: str = None
+    weekdays: [] = None
+    time: time = None
+    datetime: datetime = None
+
 class Schedule:
     '''
     Parse an .ics url and fetch the data for this calendar.
@@ -33,8 +42,25 @@ class Schedule:
     '''
     def __init__(self, url = str):
         self._url = url
+        self._scheduled_events = []
+        self._activities = []
         self.set_calendar()
         self.truncate_event_name()
+
+    def schedule_events(self, *args):
+        '''
+        Save instances of event object instances.
+        '''
+        for event in args:
+            self._scheduled_events.append(event)
+
+    def add_activity(self, *args):
+        '''
+        Save Events that were saved by people through
+        creating a reminder from chat dialog
+        '''
+        for activity in args:
+            self._activities.append(activity)
 
     def adjust_event_hours(self, hourdelta = int):
         '''
@@ -89,6 +115,16 @@ class Schedule:
 
         for event in self.schedule:
             event.name = f"{event.name.split(',')[0]},{event.name.split(',')[-1]}"
+
+    @property
+    def activities(self):
+        if len(self._activities):
+            return self._activities
+        return None
+
+    @property
+    def scheduled_events(self):
+        return self._scheduled_events
 
     @property
     def today(self):
