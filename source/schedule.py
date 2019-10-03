@@ -62,6 +62,19 @@ class Schedule:
         for activity in args:
             self._activities.append(activity)
 
+    def remove_activities(self):
+        '''
+        Remove a given activity from self._activities
+        if the date is exhausted
+        '''
+        removed = []
+        if len(self._activities):
+            for activity in self._activities:
+                if self.current_time.date() > activity.datetime.date():
+                    removed.append(activity)
+                    self._activities.remove(activity)
+        return removed
+        
     def adjust_event_hours(self, hourdelta = int):
         '''
         Adjust the hour in a calendar event by (n) hours.
