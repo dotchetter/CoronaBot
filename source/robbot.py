@@ -47,7 +47,8 @@ class Brain:
         self._name = name
         self.schedule = Schedule(schedule_url)
         self.schedule.adjust_event_hours(hourdelta = hourdelta)
-        self.commands = self.__get_bot_commands()
+        self._commands = self.__get_bot_commands()
+        self._explicit_response = self.__get_explicit_response()
         self._keywords = {
             'klass rum': ResponseOptions.NEXT_LESSON,
             'klassrum': ResponseOptions.NEXT_LESSON,
@@ -68,6 +69,7 @@ class Brain:
             'fuck you': ResponseOptions.EXPLICIT,
             'fuck off': ResponseOptions.EXPLICIT,
             'du suger': ResponseOptions.EXPLICIT,
+            'du luktar': ResponseOptions.EXPLICIT,
             'kiss my ass': ResponseOptions.EXPLICIT,
         }
 
@@ -96,8 +98,7 @@ class Brain:
         elif interpretation == ResponseOptions.SHOW_ACTIVITY:
             response = self.__get_remembered_activities()
         elif interpretation == ResponseOptions.EXPLICIT:
-            response = self.__get_explicit_response()
-
+            response = self.explicit_response
         return response
 
     def greet(self, member = str):
@@ -215,7 +216,7 @@ class Brain:
         '''
         with open('explicit_responses.dat', 'r', encoding = 'utf-8') as f:
             responses = f.readlines()
-        return choice(responses)
+        return responses
 
     def __get_remembered_activities(self):
         '''
@@ -257,3 +258,11 @@ class Brain:
     @commands.setter
     def commands(self, value = str):
         self._commands = value
+
+    @property
+    def explicit_response(self):
+        return choice(self._explicit_response)
+    
+    @explicit_response.setter
+    def explicit_response(self, value = list):
+        self._explicit_response = value
