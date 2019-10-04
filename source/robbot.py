@@ -228,7 +228,8 @@ class Brain:
                 when = f'**När**: {activity.datetime.strftime("%Y-%m-%d-%H:%M")}'
                 where = f'**Var**: {activity.location}\n'
                 output.append(f'{what}\n{when}\n{where}')
-            return '\n'.join(output.sort())
+                output.sort()
+            return '\n'.join(output)
         return f'Inga sparade händelser :cry:'
 
     def __interpret(self, message = str):
