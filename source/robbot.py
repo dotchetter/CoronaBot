@@ -228,7 +228,6 @@ class Brain:
                 when = f'**När**: {activity.datetime.strftime("%Y-%m-%d-%H:%M")}'
                 where = f'**Var**: {activity.location}\n'
                 output.append(f'{what}\n{when}\n{where}')
-                output.sort(reverse = True)
             return '\n'.join(output)
         return f'Inga sparade händelser :cry:'
 
