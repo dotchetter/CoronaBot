@@ -31,6 +31,7 @@ class ResponseOptions(Enum):
     MEANING_OF_LIFE = 4
     REMEMBER_ACTIVITY = 5
     SHOW_ACTIVITY = 6
+    EXPLICIT = 7
 
 class Brain:
     '''
