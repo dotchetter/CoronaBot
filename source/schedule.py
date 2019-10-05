@@ -70,7 +70,7 @@ class Schedule:
         removed = []
         if len(self._activities):
             for activity in self._activities:
-                if self.current_time.date() > activity.datetime.date():
+                if self.current_time > activity.datetime:
                     removed.append(activity)
                     self._activities.remove(activity)
         return removed
