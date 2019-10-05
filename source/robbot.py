@@ -3,6 +3,7 @@ from custom_errs import *
 from enum import Enum
 from datetime import datetime, time
 from schedule import Schedule, Event
+from random import choice
 
 '''
 Details:
@@ -30,6 +31,7 @@ class ResponseOptions(Enum):
     MEANING_OF_LIFE = 4
     REMEMBER_ACTIVITY = 5
     SHOW_ACTIVITY = 6
+    EXPLICIT = 7
 
 class Brain:
     '''
@@ -45,12 +47,12 @@ class Brain:
         self._name = name
         self.schedule = Schedule(schedule_url)
         self.schedule.adjust_event_hours(hourdelta = hourdelta)
-        self.commands = self.__get_bot_commands()
+        self._commands = self.__get_bot_commands()
+        self._explicit_response = self.__get_explicit_response()
         self._keywords = {
             'klass rum': ResponseOptions.NEXT_LESSON,
             'klassrum': ResponseOptions.NEXT_LESSON,
             'nästa lektion': ResponseOptions.NEXT_LESSON,
-            'lektion': ResponseOptions.NEXT_LESSON,
             'lektioner idag': ResponseOptions.TODAYS_LESSONS,
             'dagens lektioner': ResponseOptions.TODAYS_LESSONS,
             'vad kan du': ResponseOptions.SHOW_BOT_COMMANDS,
@@ -61,7 +63,14 @@ class Brain:
             'vilka events': ResponseOptions.SHOW_ACTIVITY,
             'event': ResponseOptions.SHOW_ACTIVITY,
             'events': ResponseOptions.SHOW_ACTIVITY,
-            'aktiviteter': ResponseOptions.SHOW_ACTIVITY
+            'aktiviteter': ResponseOptions.SHOW_ACTIVITY,
+            'skit på dig': ResponseOptions.EXPLICIT,
+            'åt helvete': ResponseOptions.EXPLICIT,
+            'fuck you': ResponseOptions.EXPLICIT,
+            'fuck off': ResponseOptions.EXPLICIT,
+            'du suger': ResponseOptions.EXPLICIT,
+            'du luktar': ResponseOptions.EXPLICIT,
+            'kiss my ass': ResponseOptions.EXPLICIT,
         }
 
     def respond_to(self, message = str):
@@ -69,7 +78,7 @@ class Brain:
         Call private interpretation method to get enum instance
         which points toward which response to give. 
         '''
-        misunderstood_phrase = '..? - Skriv "Hej Rob, vad kan du?"'
+        misunderstood_phrase = 'Jag fattar inte riktigt. Skriv "Hej Rob, vad kan du?"'
         interpretation = self.__interpret(message = message)
         if not interpretation:
             return misunderstood_phrase
@@ -88,7 +97,8 @@ class Brain:
             response = self.__remember_activity(message)
         elif interpretation == ResponseOptions.SHOW_ACTIVITY:
             response = self.__get_remembered_activities()
-
+        elif interpretation == ResponseOptions.EXPLICIT:
+            response = self.explicit_response
         return response
 
     def greet(self, member = str):
@@ -200,6 +210,14 @@ class Brain:
             return invalid_format_string
         return success_string
 
+    def __get_explicit_response(self):
+        '''
+        Return an explicit response if people are being mean.
+        '''
+        with open('explicit_responses.dat', 'r', encoding = 'utf-8') as f:
+            responses = f.readlines()
+        return responses
+
     def __get_remembered_activities(self):
         '''
         Return a friendly phrase for every saved activity in memory.
@@ -240,3 +258,11 @@ class Brain:
     @commands.setter
     def commands(self, value = str):
         self._commands = value
+
+    @property
+    def explicit_response(self):
+        return choice(self._explicit_response)
+    
+    @explicit_response.setter
+    def explicit_response(self, value = list):
+        self._explicit_response = value

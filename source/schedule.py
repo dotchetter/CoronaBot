@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from urllib.request import urlopen
 from enum import Enum
 from sys import platform
-
+from operator import attrgetter
 
 '''
 Details:
@@ -132,6 +132,7 @@ class Schedule:
     @property
     def activities(self):
         if len(self._activities):
+            self._activities.sort(key = attrgetter('datetime'))
             return self._activities
         return None
 
