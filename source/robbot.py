@@ -63,15 +63,21 @@ class Brain:
             'event': ResponseOptions.SHOW_ACTIVITY,
             'events': ResponseOptions.SHOW_ACTIVITY,
             'aktiviteter': ResponseOptions.SHOW_ACTIVITY,
-            'skit på dig': ResponseOptions.EXPLICIT,
-            'åt helvete': ResponseOptions.EXPLICIT,
-            'fuck you': ResponseOptions.EXPLICIT,
-            'fuck off': ResponseOptions.EXPLICIT,
-            'du suger': ResponseOptions.EXPLICIT,
-            'kiss my ass': ResponseOptions.EXPLICIT,
+            # 'skit på dig': ResponseOptions.EXPLICIT,
+            # 'åt helvete': ResponseOptions.EXPLICIT,
+            # 'fuck you': ResponseOptions.EXPLICIT,
+            # 'fuck off': ResponseOptions.EXPLICIT,
+            # 'du suger': ResponseOptions.EXPLICIT,
+            # 'kiss my ass': ResponseOptions.EXPLICIT,
         }
+        self._explicitAdjectives = [
+            'kuk',
+            'ful',
+            'dum'
+        ]
 
-    def respond_to(self, message = str):
+
+    def respond_to(self, message = str, messageUser=0):
         '''
         Call private interpretation method to get enum instance
         which points toward which response to give. 
@@ -96,7 +102,7 @@ class Brain:
         elif interpretation == ResponseOptions.SHOW_ACTIVITY:
             response = self.__get_remembered_activities()
         elif interpretation == ResponseOptions.EXPLICIT:
-            response = self.__get_explicit_response()
+            response = self.__get_explicit_response(message,messageUser)
 
         return response
 
@@ -209,13 +215,21 @@ class Brain:
             return invalid_format_string
         return success_string
 
-    def __get_explicit_response(self):
+    def __get_explicit_response(self,message,messageUser):
         '''
         Return an explicit response if people are being mean.
         '''
-        with open('explicit_responses.dat', 'r', encoding = 'utf-8') as f:
-            responses = f.readlines()
-        return choice(responses)
+        messageList = message.split()
+        for word in messageList:
+            if word in self._explicitAdjectives:
+                explicitAdjective = word
+            else:
+                continue
+        return f'<@{messageUser}> är {explicitAdjective}'
+        
+        # with open('explicit_responses.dat', 'r', encoding = 'utf-8') as f:
+        #     responses = f.readlines()
+        # return choice(responses)
 
     def __get_remembered_activities(self):
         '''
@@ -244,6 +258,9 @@ class Brain:
             if keyword in message:
                 action = self._keywords[keyword]
                 return action
+        for keyword in self._explicitAdjectives:
+            if keyword in message:
+                return ResponseOptions.EXPLICIT
         return False
 
     @property
