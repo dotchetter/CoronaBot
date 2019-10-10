@@ -144,6 +144,7 @@ class RobBotCLient(discord.Client):
             self.brain.schedule.set_calendar()
             self.brain.schedule.truncate_event_name()
             self.brain.schedule.adjust_event_hours(hourdelta = 2)
+            await asyncio.sleep(1)
             
             removed_activities = self.brain.schedule.remove_activities()
             logging.info('Refreshed calendar object')
