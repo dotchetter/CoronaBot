@@ -1,6 +1,6 @@
 import os
 from custom_errs import *
-from enum import Enum
+from enum import Enum, auto
 from datetime import datetime, time
 from schedule import Schedule, Event
 from random import choice
@@ -24,14 +24,14 @@ class ResponseOptions(Enum):
     Constant enumerators for matching keywords against when
     deciding which response to give a given command to the bot.
     '''
-    NEXT_LESSON = 0
-    TODAYS_LESSONS = 1
-    SCHEDULE = 2
-    SHOW_BOT_COMMANDS = 3
-    MEANING_OF_LIFE = 4
-    REMEMBER_ACTIVITY = 5
-    SHOW_ACTIVITY = 6
-    EXPLICIT = 7
+    NEXT_LESSON = auto()
+    TODAYS_LESSONS = auto()
+    SCHEDULE = auto()
+    SHOW_BOT_COMMANDS = auto()
+    MEANING_OF_LIFE = auto()
+    REMEMBER_ACTIVITY = auto()
+    SHOW_ACTIVITY = auto()
+    EXPLICIT = auto()
 
 class Brain:
     '''
