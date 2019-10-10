@@ -43,35 +43,37 @@ class Brain:
     provide the current classroom for given lesson when 
     asked.
     '''
+    
+    KEYWORDS = {
+        'klass rum': ResponseOptions.NEXT_LESSON,
+        'klassrum': ResponseOptions.NEXT_LESSON,
+        'nästa lektion': ResponseOptions.NEXT_LESSON,
+        'lektioner idag': ResponseOptions.TODAYS_LESSONS,
+        'dagens lektioner': ResponseOptions.TODAYS_LESSONS,
+        'vad kan du': ResponseOptions.SHOW_BOT_COMMANDS,
+        'schema': ResponseOptions.SCHEDULE,
+        'meningen med livet': ResponseOptions.MEANING_OF_LIFE,
+        'kan du komma ihåg': ResponseOptions.REMEMBER_ACTIVITY,
+        'händelser': ResponseOptions.SHOW_ACTIVITY,
+        'vilka events': ResponseOptions.SHOW_ACTIVITY,
+        'event': ResponseOptions.SHOW_ACTIVITY,
+        'events': ResponseOptions.SHOW_ACTIVITY,
+        'aktiviteter': ResponseOptions.SHOW_ACTIVITY,
+        'skit på dig': ResponseOptions.EXPLICIT,
+        'åt helvete': ResponseOptions.EXPLICIT,
+        'fuck you': ResponseOptions.EXPLICIT,
+        'fuck off': ResponseOptions.EXPLICIT,
+        'du suger': ResponseOptions.EXPLICIT,
+        'du luktar': ResponseOptions.EXPLICIT,
+        'kiss my ass': ResponseOptions.EXPLICIT,
+    }
+    
     def __init__(self, name = str, schedule_url = str, hourdelta = int):
         self._name = name
         self.schedule = Schedule(schedule_url)
         self.schedule.adjust_event_hours(hourdelta = hourdelta)
         self._commands = self._get_bot_commands()
         self._explicit_response = self._get_explicit_response()
-        self._keywords = {
-            'klass rum': ResponseOptions.NEXT_LESSON,
-            'klassrum': ResponseOptions.NEXT_LESSON,
-            'nästa lektion': ResponseOptions.NEXT_LESSON,
-            'lektioner idag': ResponseOptions.TODAYS_LESSONS,
-            'dagens lektioner': ResponseOptions.TODAYS_LESSONS,
-            'vad kan du': ResponseOptions.SHOW_BOT_COMMANDS,
-            'schema': ResponseOptions.SCHEDULE,
-            'meningen med livet': ResponseOptions.MEANING_OF_LIFE,
-            'kan du komma ihåg': ResponseOptions.REMEMBER_ACTIVITY,
-            'händelser': ResponseOptions.SHOW_ACTIVITY,
-            'vilka events': ResponseOptions.SHOW_ACTIVITY,
-            'event': ResponseOptions.SHOW_ACTIVITY,
-            'events': ResponseOptions.SHOW_ACTIVITY,
-            'aktiviteter': ResponseOptions.SHOW_ACTIVITY,
-            'skit på dig': ResponseOptions.EXPLICIT,
-            'åt helvete': ResponseOptions.EXPLICIT,
-            'fuck you': ResponseOptions.EXPLICIT,
-            'fuck off': ResponseOptions.EXPLICIT,
-            'du suger': ResponseOptions.EXPLICIT,
-            'du luktar': ResponseOptions.EXPLICIT,
-            'kiss my ass': ResponseOptions.EXPLICIT,
-        }
 
     def respond_to(self, message = str):
         '''
@@ -241,9 +243,9 @@ class Brain:
         the keyword dict property. Action will be taken accordingly
         by separate method.
         '''
-        for keyword in self._keywords.keys():
+        for keyword in Brain.KEYWORDS.keys():
             if keyword in message:
-                action = self._keywords[keyword]
+                action = Brain.KEYWORDS[keyword]
                 return action
         return False
 
