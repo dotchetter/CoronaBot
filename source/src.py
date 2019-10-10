@@ -141,16 +141,21 @@ class RobBotCLient(discord.Client):
             time_left = (midnight - now)
 
             await asyncio.sleep(time_left.seconds)
-            self.brain.schedule.set_calendar()
-            self.brain.schedule.truncate_event_name()
-            self.brain.schedule.adjust_event_hours(hourdelta = 2)
-            await asyncio.sleep(1)
+            logging.INFO('Commencing nightly purge and cleanup...')
             
-            removed_activities = self.brain.schedule.remove_activities()
-            logging.info('Refreshed calendar object')
+            try:
+                self.brain.schedule.set_calendar()
+                self.brain.schedule.truncate_event_name()
+                self.brain.schedule.adjust_event_hours(hourdelta = 2)
+                removed_activities = self.brain.schedule.remove_activities()
+            except Exception as e:
+                logging.ERROR(f'Error occured while cleaning up: {e}')
+            else:
+                logging.info('Nightly purge and cleanup completed.')
             
+            await asyncio.sleep(1)            
             if len(removed_activities):
-                logging.info(f"Purged activities {removed_activities}")
+                logging.info(f"Purged activities: {removed_activities}")
 
 if __name__ == '__main__':
     TOKEN = os.getenv('DISCORD_TOKEN')
