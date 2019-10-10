@@ -34,6 +34,13 @@ class Event:
     time: time = None
     datetime: datetime = None
 
+    def to_json(self):
+        return json.dumps(
+            self, default = lambda: self.__dict__,
+            sort_keys = True, ensure_ascii = False, 
+            indent = 4
+        )
+
 class Weekday(Enum):
     MONDAY = 1
     TUESDAY = 2
