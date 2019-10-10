@@ -25,7 +25,7 @@ Synposis:
 
 load_dotenv()
 
-class RobBotCLient(discord.Client):
+class RobBotClient(discord.Client):
     
     try:
         GUILD = os.getenv('DISCORD_GUILD')
@@ -46,7 +46,7 @@ class RobBotCLient(discord.Client):
 
         self.loop.create_task(self.auto_message())
         self.loop.create_task(self.purge_runtime())
-        self.brain = Brain(name = 'Rob', schedule_url = SCHDURL, hourdelta = 2)
+        self.brain = Brain(name = 'Rob', schedule_url = RobBotClient.SCHDURL, hourdelta = 2)
         self.add_events()
 
     def add_events(self):
@@ -108,7 +108,7 @@ class RobBotCLient(discord.Client):
         defined on a certain day and a certain time.
         '''
         await client.wait_until_ready()
-        channel = self.get_channel(CHANNEL)
+        channel = self.get_channel(RobBotClient.CHANNEL)
         
         while not self.is_closed():
             await asyncio.sleep(1)
@@ -159,5 +159,5 @@ class RobBotCLient(discord.Client):
 
 if __name__ == '__main__':
     TOKEN = os.getenv('DISCORD_TOKEN')
-    client = RobBotCLient()
+    client = RobBotClient()
     client.run(TOKEN)
