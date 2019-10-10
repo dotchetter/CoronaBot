@@ -1,6 +1,7 @@
 import ics
 import json
 import os
+from enum import Enum, auto
 from custom_errs import *
 from datetime import datetime, timedelta, time
 from dataclasses import dataclass
@@ -32,6 +33,15 @@ class Event:
     weekdays: [] = None
     time: time = None
     datetime: datetime = None
+
+class Weekday(Enum):
+    MONDAY = 1
+    TUESDAY = 2
+    WEDNESDAY = 3
+    THURSDAY = 4
+    FRIDAY = 5
+    SATURDAY = 6
+    SUNDAY = 7
 
 class Schedule:
     '''
@@ -70,7 +80,7 @@ class Schedule:
         removed = []
         if len(self._activities):
             for activity in self._activities:
-                if self.current_time.date() > activity.datetime.date():
+                if self.current_time > activity.datetime:
                     removed.append(activity)
                     self._activities.remove(activity)
         return removed
@@ -146,16 +156,9 @@ class Schedule:
 
     @property
     def weekday(self):
-        weekdays = {
-            1:'monday',
-            2:'tueday',
-            3:'wednesday',
-            4:'thursday',
-            5:'friday',
-            6:'saturday',
-            7:'sunday'
-        }
-        return weekdays[self.today.isoweekday()]
+        for e in Weekday:
+            if self.today.isoweekday() == e.value:
+                return e
 
     @property
     def current_time(self):

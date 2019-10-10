@@ -1,6 +1,6 @@
 import os
 from custom_errs import *
-from enum import Enum
+from enum import Enum, auto
 from datetime import datetime, time
 from schedule import Schedule, Event
 from random import choice
@@ -24,14 +24,14 @@ class ResponseOptions(Enum):
     Constant enumerators for matching keywords against when
     deciding which response to give a given command to the bot.
     '''
-    NEXT_LESSON = 0
-    TODAYS_LESSONS = 1
-    SCHEDULE = 2
-    SHOW_BOT_COMMANDS = 3
-    MEANING_OF_LIFE = 4
-    REMEMBER_ACTIVITY = 5
-    SHOW_ACTIVITY = 6
-    EXPLICIT = 7
+    NEXT_LESSON = auto()
+    TODAYS_LESSONS = auto()
+    SCHEDULE = auto()
+    SHOW_BOT_COMMANDS = auto()
+    MEANING_OF_LIFE = auto()
+    REMEMBER_ACTIVITY = auto()
+    SHOW_ACTIVITY = auto()
+    EXPLICIT = auto()
 
 class Brain:
     '''
@@ -43,38 +43,37 @@ class Brain:
     provide the current classroom for given lesson when 
     asked.
     '''
+    
+    KEYWORDS = {
+        'klass rum': ResponseOptions.NEXT_LESSON,
+        'klassrum': ResponseOptions.NEXT_LESSON,
+        'nästa lektion': ResponseOptions.NEXT_LESSON,
+        'lektioner idag': ResponseOptions.TODAYS_LESSONS,
+        'dagens lektioner': ResponseOptions.TODAYS_LESSONS,
+        'vad kan du': ResponseOptions.SHOW_BOT_COMMANDS,
+        'schema': ResponseOptions.SCHEDULE,
+        'meningen med livet': ResponseOptions.MEANING_OF_LIFE,
+        'kan du komma ihåg': ResponseOptions.REMEMBER_ACTIVITY,
+        'händelser': ResponseOptions.SHOW_ACTIVITY,
+        'vilka events': ResponseOptions.SHOW_ACTIVITY,
+        'event': ResponseOptions.SHOW_ACTIVITY,
+        'events': ResponseOptions.SHOW_ACTIVITY,
+        'aktiviteter': ResponseOptions.SHOW_ACTIVITY,
+        'skit på dig': ResponseOptions.EXPLICIT,
+        'åt helvete': ResponseOptions.EXPLICIT,
+        'fuck you': ResponseOptions.EXPLICIT,
+        'fuck off': ResponseOptions.EXPLICIT,
+        'du suger': ResponseOptions.EXPLICIT,
+        'du luktar': ResponseOptions.EXPLICIT,
+        'kiss my ass': ResponseOptions.EXPLICIT,
+    }
+    
     def __init__(self, name = str, schedule_url = str, hourdelta = int):
         self._name = name
         self.schedule = Schedule(schedule_url)
         self.schedule.adjust_event_hours(hourdelta = hourdelta)
-        self.commands = self.__get_bot_commands()
-        self._keywords = {
-            'klass rum': ResponseOptions.NEXT_LESSON,
-            'klassrum': ResponseOptions.NEXT_LESSON,
-            'nästa lektion': ResponseOptions.NEXT_LESSON,
-            'lektioner idag': ResponseOptions.TODAYS_LESSONS,
-            'dagens lektioner': ResponseOptions.TODAYS_LESSONS,
-            'vad kan du': ResponseOptions.SHOW_BOT_COMMANDS,
-            'schema': ResponseOptions.SCHEDULE,
-            'meningen med livet': ResponseOptions.MEANING_OF_LIFE,
-            'kan du komma ihåg': ResponseOptions.REMEMBER_ACTIVITY,
-            'händelser': ResponseOptions.SHOW_ACTIVITY,
-            'vilka events': ResponseOptions.SHOW_ACTIVITY,
-            'event': ResponseOptions.SHOW_ACTIVITY,
-            'events': ResponseOptions.SHOW_ACTIVITY,
-            'aktiviteter': ResponseOptions.SHOW_ACTIVITY,
-            # 'skit på dig': ResponseOptions.EXPLICIT,
-            # 'åt helvete': ResponseOptions.EXPLICIT,
-            # 'fuck you': ResponseOptions.EXPLICIT,
-            # 'fuck off': ResponseOptions.EXPLICIT,
-            # 'du suger': ResponseOptions.EXPLICIT,
-            # 'kiss my ass': ResponseOptions.EXPLICIT,
-        }
-        self._explicitAdjectives = [
-            'kuk',
-            'ful',
-            'dum'
-        ]
+        self._commands = self._get_bot_commands()
+        self._explicit_response = self._get_explicit_response()
 
 
     def respond_to(self, message = str, messageUser=0):
@@ -83,27 +82,31 @@ class Brain:
         which points toward which response to give. 
         '''
         misunderstood_phrase = 'Jag fattar inte riktigt. Skriv "Hej Rob, vad kan du?"'
-        interpretation = self.__interpret(message = message)
+        interpretation = self._interpret(message = message)
         if not interpretation:
             return misunderstood_phrase
 
         if interpretation == ResponseOptions.NEXT_LESSON:
-            response = self.__get_next_lesson_response()
+            response = self._get_next_lesson_response()
         elif interpretation == ResponseOptions.TODAYS_LESSONS:
-            response = self.__get_todays_lessons_phrase()
+            response = self._get_todays_lessons_phrase()
         elif interpretation == ResponseOptions.SCHEDULE:
-            response = self.__get_schedule_phrase()
+            response = self._get_schedule_phrase()
         elif interpretation == ResponseOptions.SHOW_BOT_COMMANDS:
             response = self.commands
         elif interpretation == ResponseOptions.MEANING_OF_LIFE:
             response = '42'
         elif interpretation == ResponseOptions.REMEMBER_ACTIVITY:
-            response = self.__remember_activity(message)
+            response = self._remember_activity(message)
         elif interpretation == ResponseOptions.SHOW_ACTIVITY:
-            response = self.__get_remembered_activities()
+            response = self._get_remembered_activities()
         elif interpretation == ResponseOptions.EXPLICIT:
+<<<<<<< HEAD
             response = self.__get_explicit_response(message,messageUser)
 
+=======
+            response = self.explicit_response
+>>>>>>> upstream/master
         return response
 
     def greet(self, member = str):
@@ -118,7 +121,7 @@ class Brain:
         except FileNotFoundError:
             return 'Ett fel uppstod - jag hittar inte filen. Hjälp!'
 
-    def __get_bot_commands(self):
+    def _get_bot_commands(self):
         '''
         Return string that shows the human what this bot can do, 
         and how to formulate a question.
@@ -129,7 +132,7 @@ class Brain:
         except FileNotFoundError:
             return 'Ett fel uppstod - jag hittar inte filen. Hjälp!'
 
-    def __get_todays_lessons_phrase(self):
+    def _get_todays_lessons_phrase(self):
         '''
         Return concatenated response phrase with all lessons for 
         the current date. If none, return a message that explains
@@ -140,7 +143,7 @@ class Brain:
             return f'Här är schemat för dagen:\n{lessons}'
         return 'Det finns inga lektioner på schemat idag :sunglasses:'
 
-    def __get_schedule_phrase(self):
+    def _get_schedule_phrase(self):
         '''
         Return string with the schedule for as long as forseeable
         with Schedule object. Take in to acount the 2000 character
@@ -171,7 +174,7 @@ class Brain:
         return f'**Här är schemat!** :slight_smile:\n\n{friendly_schedule}'
 
 
-    def __get_next_lesson_response(self):
+    def _get_next_lesson_response(self):
         '''
         Return string with concatenated variable values to tell the
         human which is the next upcoming lesson.
@@ -183,7 +186,7 @@ class Brain:
         todays_lessons = self.schedule.todays_lessons
         return f'Nästa lektion är i {classroom}, {date}, kl {hour} :slight_smile:'
 
-    def __remember_activity(self, message):
+    def _remember_activity(self, message):
         '''
         If the bot recieves a message with proper syntax, create
         an Event instance. Save this object in the Schedule object.
@@ -215,6 +218,7 @@ class Brain:
             return invalid_format_string
         return success_string
 
+<<<<<<< HEAD
     def __get_explicit_response(self,message,messageUser):
         '''
         Return an explicit response if people are being mean.
@@ -230,8 +234,17 @@ class Brain:
         # with open('explicit_responses.dat', 'r', encoding = 'utf-8') as f:
         #     responses = f.readlines()
         # return choice(responses)
+=======
+    def _get_explicit_response(self):
+        '''
+        Return an explicit response if people are being mean.
+        '''
+        with open('explicit_responses.dat', 'r', encoding = 'utf-8') as f:
+            responses = f.readlines()
+        return responses
+>>>>>>> upstream/master
 
-    def __get_remembered_activities(self):
+    def _get_remembered_activities(self):
         '''
         Return a friendly phrase for every saved activity in memory.
         '''
@@ -245,7 +258,7 @@ class Brain:
             return '\n'.join(output)
         return f'Inga sparade händelser :cry:'
 
-    def __interpret(self, message = str):
+    def _interpret(self, message = str):
         '''
         If the bot is given a message, evaluate what it cntains.    
         Provide sufficient response to the given message by using
@@ -254,9 +267,9 @@ class Brain:
         the keyword dict property. Action will be taken accordingly
         by separate method.
         '''
-        for keyword in self._keywords.keys():
+        for keyword in Brain.KEYWORDS.keys():
             if keyword in message:
-                action = self._keywords[keyword]
+                action = Brain.KEYWORDS[keyword]
                 return action
         for keyword in self._explicitAdjectives:
             if keyword in message:
@@ -269,8 +282,16 @@ class Brain:
     
     @property
     def next_lesson_response(self):
-        return self.__get_next_lesson_response()
+        return self._get_next_lesson_response()
 
     @commands.setter
     def commands(self, value = str):
         self._commands = value
+
+    @property
+    def explicit_response(self):
+        return choice(self._explicit_response)
+    
+    @explicit_response.setter
+    def explicit_response(self, value = list):
+        self._explicit_response = value
