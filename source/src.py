@@ -51,23 +51,22 @@ class RobBotClient(discord.Client):
 
     def add_events(self):
         '''
-        Save pre-defined reoccuring messages / events in the Schedule instance.
+        Save pre-defined reoccuring messages / events in the brain.schedule instance.
         '''
         next_lesson = lambda: self.brain.next_lesson_response
-
-        daily = Event(
-            weekdays = [Weekday.TUESDAY, Weekday.WEDNESDAY, Weekday.FRIDAY], 
-            time = time(hour = 8, minute = 0, second = 0), 
-            body = next_lesson()
-        )
-
-        friday = Event(
-            weekdays = [Weekday.FRIDAY], 
-            time = time(hour = 15, minute = 30, second = 0),
-            body = 'Wohoo, fredag! :beers: '
+        self.brain.schedule.schedule_events(
+            Event(
+                weekdays = [Weekday.TUESDAY, Weekday.WEDNESDAY, Weekday.FRIDAY], 
+                time = time(hour = 8, minute = 0, second = 0), 
+                body = next_lesson()
+            ),
+            Event(
+                weekdays = [Weekday.FRIDAY],
+                time = time(hour = 15, minute = 30, second = 0),
+                body = 'Wohoo, fredag! :beers: '
+            )
         )            
         
-        self.brain.schedule.schedule_events(daily, friday)
 
     async def on_ready(self):
         '''
@@ -124,7 +123,6 @@ class RobBotClient(discord.Client):
                     if weekday == self.brain.schedule.weekday and now == event.time:
                         await channel.send(event.body)
                         logging.info(f'BOT SAID: {event.body}')
-
 
     async def purge_runtime(self):
         '''
