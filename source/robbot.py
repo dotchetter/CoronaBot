@@ -5,6 +5,7 @@ from datetime import datetime, time
 from schedule import Schedule, Event
 from reminder import Reminder
 from random import choice
+from operator import attrgetter
 
 '''
 Details:
@@ -51,6 +52,7 @@ class Brain:
         'nästa lektion': ResponseOptions.NEXT_LESSON,
         'lektioner idag': ResponseOptions.TODAYS_LESSONS,
         'dagens lektioner': ResponseOptions.TODAYS_LESSONS,
+        'lektioner': ResponseOptions.TODAYS_LESSONS,
         'vad kan du': ResponseOptions.SHOW_BOT_COMMANDS,
         'schema': ResponseOptions.SCHEDULE,
         'meningen med livet': ResponseOptions.MEANING_OF_LIFE,
@@ -58,6 +60,7 @@ class Brain:
         'kan du påminna om': ResponseOptions.REMEMBER_EVENT,
         'kan du påminna': ResponseOptions.REMEMBER_EVENT,
         'tenta': ResponseOptions.SHOW_EVENTS,
+        'tentor': ResponseOptions.SHOW_EVENTS,
         'händelser': ResponseOptions.SHOW_EVENTS,
         'event': ResponseOptions.SHOW_EVENTS,
         'events': ResponseOptions.SHOW_EVENTS,
@@ -223,7 +226,10 @@ class Brain:
         Return a friendly phrase for every saved event in memory.
         '''
         output = []
+
         if self.reminder.events:
+            self.reminder.events.sort(key = attrgetter('datetime'))
+
             for event in self.reminder.events:
                 what = f'**Händelse**: {event.body}'
                 when = f'**När**: {event.datetime.strftime("%Y-%m-%d-%H:%M")}'
