@@ -226,15 +226,22 @@ class Brain:
         Return a friendly phrase for every saved event in memory.
         '''
         output = []
+        remembered_events = []
 
         if self.reminder.events:
-            self.reminder.events.sort(key = attrgetter('datetime'))
-
             for event in self.reminder.events:
+                if event.location:
+                    remembered_events.append(event)
+            
+            remembered_events.sort(key = attrgetter('datetime'))
+            
+            for event in remembered_events:
                 what = f'**Händelse**: {event.body}'
                 when = f'**När**: {event.datetime.strftime("%Y-%m-%d-%H:%M")}'
                 where = f'**Var**: {event.location}\n'
                 output.append(f'{what}\n{when}\n{where}')
+        
+        if len(output):
             return '\n'.join(output)
         return f'Inga sparade händelser :cry:'
 

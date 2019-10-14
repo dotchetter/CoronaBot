@@ -126,6 +126,7 @@ class RobBotClient(discord.Client):
                 self.brain.schedule.set_calendar()
                 self.brain.schedule.truncate_event_name()
                 self.brain.schedule.adjust_event_hours(hourdelta = 2)
+                self.brain.setup_reminders()
                 removed_activities = self.brain.reminder.purge()
 
             except Exception as e:
@@ -169,6 +170,6 @@ if __name__ == '__main__':
 
     client = RobBotClient()
     client.setup_reminders(reoccuring = [friday])
-    
+
     TOKEN = os.getenv('DISCORD_TOKEN')
     client.run(TOKEN)
