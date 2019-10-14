@@ -8,20 +8,19 @@ from dataclasses import dataclass
 from urllib.request import urlopen
 from enum import Enum
 from sys import platform
-from operator import attrgetter
 
 '''
 Details:
     2019-09-25
 
 Module details:
-    Application backend logic; ics schedule URL parsing
+    Application backend logic; ics curriculum URL parsing
     class with methods and properties to return relevant
-    data for a schedule.
+    data for a curriculum.
 
 Synposis:
     Supply a discord chatbot with intelligence and features.
-    The goal is to subscribe to the class schedule and then
+    The goal is to subscribe to the class curriculum and then
     share the current classroom for the day or week in the chat
     with a chatbot. 
 '''
@@ -41,7 +40,7 @@ class Event:
             indent = 4
         )
 
-class Weekday(Enum):
+class Weekdays(Enum):
     MONDAY = 1
     TUESDAY = 2
     WEDNESDAY = 3
@@ -59,17 +58,10 @@ class Schedule:
     '''
     def __init__(self, url = str):
         self._url = url
-        self._scheduled_events = []
+        self._curriculum_events = []
         self._activities = []
         self.set_calendar()
         self.truncate_event_name()
-
-    def schedule_events(self, *args):
-        '''
-        Save instances of event object instances.
-        '''
-        for event in args:
-            self._scheduled_events.append(event)
 
     def add_activity(self, *args):
         '''
@@ -78,19 +70,6 @@ class Schedule:
         '''
         for activity in args:
             self._activities.append(activity)
-
-    def remove_activities(self):
-        '''
-        Remove a given activity from self._activities
-        if the date is exhausted
-        '''
-        removed = []
-        if len(self._activities):
-            for activity in self._activities:
-                if self.current_time > activity.datetime:
-                    removed.append(activity)
-                    self._activities.remove(activity)
-        return removed
         
     def adjust_event_hours(self, hourdelta = int):
         '''
@@ -100,7 +79,7 @@ class Schedule:
         parameter. The instance attribute will be accessible through
         self.begin.time and self.end.time.
         '''
-        for event in self.schedule:
+        for event in self.curriculum:
             try:
                 year = self.current_time.year
                 month = self.current_time.month
@@ -126,7 +105,7 @@ class Schedule:
     def set_calendar(self):
         '''
         Get data from the timeedit servers containing the
-        schedule for class IoT19 2 weeks ahead. This callable
+        curriculum for class IoT19 2 weeks ahead. This callable
         will refresh the .ics Calendar object.
         '''
         try:
@@ -143,19 +122,8 @@ class Schedule:
         the privacy issue of storing names in log files.
         '''
 
-        for event in self.schedule:
+        for event in self.curriculum:
             event.name = f"{event.name.split(',')[0]},{event.name.split(',')[-1]}"
-
-    @property
-    def activities(self):
-        if len(self._activities):
-            self._activities.sort(key = attrgetter('datetime'))
-            return self._activities
-        return None
-
-    @property
-    def scheduled_events(self):
-        return self._scheduled_events
 
     @property
     def today(self):
@@ -163,23 +131,23 @@ class Schedule:
 
     @property
     def weekday(self):
-        for e in Weekday:
-            if self.today.isoweekday() == e.value:
-                return e
+        for day in Weekdays:
+            if self.today.isoweekday() == day.value:
+                return day
 
     @property
     def current_time(self):
         return datetime.now()
 
     @property
-    def schedule(self):
-        _schedule = list(self._calendar.events)
-        _schedule.sort()
-        return _schedule
+    def curriculum(self):
+        _curriculum = list(self._calendar.events)
+        _curriculum.sort()
+        return _curriculum
 
     @property
     def todays_events(self):
-        return [i for i in self.schedule if i.begin.date() == self.today]
+        return [i for i in self.curriculum if i.begin.date() == self.today]
     
     @property
     def todays_lessons(self):
@@ -201,11 +169,11 @@ class Schedule:
     @property
     def next_lesson(self):
         '''
-        Evaluate what lesson is the next on schedule. Iterate
+        Evaluate what lesson is the next on curriculum. Iterate
         through the list of lessons for today. Compare the current
         time with each lesson start time, return the upcoming one.
         Adjust for calendar timezone with 2hrs. If no lesson is found
-        for today, iterate over the entire sorted schedule and return
+        for today, iterate over the entire sorted curriculum and return
         the first lesson that lies in the future.
         '''
         lesson = None
@@ -216,7 +184,7 @@ class Schedule:
                     lesson = event
                     break
         if not lesson:
-            for event in self.schedule:
+            for event in self.curriculum:
                 if event.begin.date() > self.today:
                     lesson = event
                     break
