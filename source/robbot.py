@@ -3,6 +3,7 @@ from custom_errs import *
 from enum import Enum, auto
 from datetime import datetime, time
 from schedule import Schedule, Event
+from reminder import Reminder
 from random import choice
 
 '''
@@ -29,8 +30,8 @@ class ResponseOptions(Enum):
     SCHEDULE = auto()
     SHOW_BOT_COMMANDS = auto()
     MEANING_OF_LIFE = auto()
-    REMEMBER_ACTIVITY = auto()
-    SHOW_ACTIVITY = auto()
+    REMEMBER_EVENT = auto()
+    SHOW_EVENTS = auto()
     EXPLICIT = auto()
 
 class Brain:
@@ -53,12 +54,14 @@ class Brain:
         'vad kan du': ResponseOptions.SHOW_BOT_COMMANDS,
         'schema': ResponseOptions.SCHEDULE,
         'meningen med livet': ResponseOptions.MEANING_OF_LIFE,
-        'kan du komma ihåg': ResponseOptions.REMEMBER_ACTIVITY,
-        'händelser': ResponseOptions.SHOW_ACTIVITY,
-        'vilka events': ResponseOptions.SHOW_ACTIVITY,
-        'event': ResponseOptions.SHOW_ACTIVITY,
-        'events': ResponseOptions.SHOW_ACTIVITY,
-        'aktiviteter': ResponseOptions.SHOW_ACTIVITY,
+        'kan du komma ihåg': ResponseOptions.REMEMBER_EVENT,
+        'kan du påminna om': ResponseOptions.REMEMBER_EVENT,
+        'kan du påminna': ResponseOptions.REMEMBER_EVENT,
+        'tenta': ResponseOptions.SHOW_EVENTS,
+        'händelser': ResponseOptions.SHOW_EVENTS,
+        'event': ResponseOptions.SHOW_EVENTS,
+        'events': ResponseOptions.SHOW_EVENTS,
+        'aktiviteter': ResponseOptions.SHOW_EVENTS,
         'skit på dig': ResponseOptions.EXPLICIT,
         'åt helvete': ResponseOptions.EXPLICIT,
         'fuck you': ResponseOptions.EXPLICIT,
@@ -68,10 +71,10 @@ class Brain:
         'kiss my ass': ResponseOptions.EXPLICIT,
     }
     
-    def __init__(self, name = str, schedule_url = str, hourdelta = int):
-        self._name = name
+    def __init__(self, schedule_url = str, hourdelta = int):
         self.schedule = Schedule(schedule_url)
         self.schedule.adjust_event_hours(hourdelta = hourdelta)
+        self.reminder = Reminder()
         self._commands = self._get_bot_commands()
         self._explicit_response = self._get_explicit_response()
 
@@ -95,10 +98,10 @@ class Brain:
             response = self.commands
         elif interpretation == ResponseOptions.MEANING_OF_LIFE:
             response = '42'
-        elif interpretation == ResponseOptions.REMEMBER_ACTIVITY:
-            response = self._remember_activity(message)
-        elif interpretation == ResponseOptions.SHOW_ACTIVITY:
-            response = self._get_remembered_activities()
+        elif interpretation == ResponseOptions.REMEMBER_EVENT:
+            response = self._remember_event(message)
+        elif interpretation == ResponseOptions.SHOW_EVENTS:
+            response = self._get_remembered_events()
         elif interpretation == ResponseOptions.EXPLICIT:
             response = self.explicit_response
         return response
@@ -148,7 +151,7 @@ class Brain:
         friendly_schedule = []
         discord_msg_length_limit = 2000
         
-        for index, event in enumerate(self.schedule.schedule):
+        for index, event in enumerate(self.schedule.curriculum):
             begin = event.begin.adjusted_time.strftime('%H:%M')
             end = event.end.adjusted_time.strftime('%H:%M')
             location = event.location
@@ -176,41 +179,36 @@ class Brain:
         date = self.schedule.next_lesson_date
         hour = self.schedule.next_lesson_time
         classroom = self.schedule.next_lesson_classroom
-        schedule =  self.schedule.schedule
+        schedule =  self.schedule.curriculum
         todays_lessons = self.schedule.todays_lessons
         return f'Nästa lektion är i {classroom}, {date}, kl {hour} :slight_smile:'
 
-    def _remember_activity(self, message):
+    def _remember_event(self, message):
         '''
         If the bot recieves a message with proper syntax, create
-        an Event instance. Save this object in the Schedule object.
+        an Event instance. Save this object in the Reminder object.
         '''
-        invalid_format_string = 'Ogiltigt format. Ange ett event formaterat enligt '\
-                                f'detta exempel:\n\n**Hej rob, kan du komma ihåg; händelse, '\
-                                '2019-01-01-09:00, plats**. Det är viktigt att ange ett '\
-                                'semikolon och sedan separera med mellanslag och kommatecken. '\
-                                'Notera att datumformatet måste vara ÅR-MÅNAD-DAG-TIMME:MINUT.'
-        success_string = 'Det ska jag komma ihåg! :smiley:'
+        invalid_format = 'Ogiltigt format, försök igen. Exempel:\n\n**Hej rob, kan '\
+                        'du komma ihåg; händelse, 2019-01-01-09:00, plats**.\n\nDet är '\
+                        'viktigt att ange ett semikolon och sedan separera med '\
+                        'mellanslag och kommatecken. Datumformatet måste vara '\
+                        'ÅR-MÅNAD-DAG-TIMME:MINUT.'
+
+        success = 'Det ska jag påminna om :smiley:'
 
         try:
             task = message.split(';')[-1].split(', ')
             body = task[0]
             event_date = datetime.strptime(task[1].strip(), '%Y-%m-%d-%H:%M')
             location = task[2]
-
-            self.schedule.add_activity(
-                Event(
-                    body = body, location = location, 
-                    datetime = event_date, time = time(
-                        hour = event_date.hour, 
-                        minute = event_date.minute, 
-                        second = 0
-                    )
-                )
-            )
         except Exception as e:
-            return invalid_format_string
-        return success_string
+            return invalid_format
+        else:
+            self.reminder.add(Event(
+                body = body, location = location, 
+                datetime = event_date, 
+                time = time(hour = event_date.hour, minute = event_date.minute)))
+        return success
 
     def _get_explicit_response(self):
         '''
@@ -220,16 +218,16 @@ class Brain:
             responses = f.readlines()
         return responses
 
-    def _get_remembered_activities(self):
+    def _get_remembered_events(self):
         '''
-        Return a friendly phrase for every saved activity in memory.
+        Return a friendly phrase for every saved event in memory.
         '''
         output = []
-        if self.schedule.activities:
-            for activity in self.schedule.activities:
-                what = f'**Händelse**: {activity.body}'
-                when = f'**När**: {activity.datetime.strftime("%Y-%m-%d-%H:%M")}'
-                where = f'**Var**: {activity.location}\n'
+        if self.reminder.events:
+            for event in self.reminder.events:
+                what = f'**Händelse**: {event.body}'
+                when = f'**När**: {event.datetime.strftime("%Y-%m-%d-%H:%M")}'
+                where = f'**Var**: {event.location}\n'
                 output.append(f'{what}\n{when}\n{where}')
             return '\n'.join(output)
         return f'Inga sparade händelser :cry:'
