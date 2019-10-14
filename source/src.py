@@ -6,9 +6,10 @@ import asyncio
 import logging
 from datetime import datetime, time
 from dotenv import load_dotenv
-from schedule import Schedule, Event, Weekday
+from schedule import Schedule, Event, Weekdays
 from robbot import Brain
 from custom_errs import EnvironmentVariableError
+from reminder import Reminder
 '''
 Details:
     2019-09-25
@@ -30,7 +31,6 @@ class RobBotClient(discord.Client):
     try:
         GUILD = os.getenv('DISCORD_GUILD')
         SCHDURL = os.getenv('TIMEEDIT_URL')
-        CHANNEL = os.getenv('CHANNEL')
         LOGFORMAT = "%(asctime)s::%(levelname)s::%(name)s::%(message)s"
     except Exception as e:
         raise EnvironmentVariableError(f'Unable to load enviromnent variable: {e}')
@@ -46,27 +46,7 @@ class RobBotClient(discord.Client):
 
         self.loop.create_task(self.auto_message())
         self.loop.create_task(self.purge_runtime())
-        self.brain = Brain(name = 'Rob', schedule_url = RobBotClient.SCHDURL, hourdelta = 2)
-        self.add_events()
-
-    def add_events(self):
-        '''
-        Save pre-defined reoccuring messages / events in the brain.schedule instance.
-        '''
-        next_lesson = lambda: self.brain.next_lesson_response
-        self.brain.schedule.schedule_events(
-            Event(
-                weekdays = [Weekday.TUESDAY, Weekday.WEDNESDAY, Weekday.FRIDAY], 
-                time = time(hour = 8, minute = 0, second = 0), 
-                body = next_lesson()
-            ),
-            Event(
-                weekdays = [Weekday.FRIDAY],
-                time = time(hour = 15, minute = 30, second = 0),
-                body = 'Wohoo, fredag! :beers: '
-            )
-        )            
-        
+        self.brain = Brain(schedule_url = RobBotClient.SCHDURL, hourdelta = 2)
 
     async def on_ready(self):
         '''
@@ -98,31 +78,32 @@ class RobBotClient(discord.Client):
         if 'hej rob' in body and message.author != client.user:
             response = self.brain.respond_to(body)
             await message.channel.send(response)
-            logging.info(f'{message.author} said {message.content}')
-            logging.info(f'bot said {response}')
+            logging.info(f'{message.author} said: {message.content}')
+            logging.info(f'Bot said: {response}')
     
     async def auto_message(self):
         '''
         Loop indefinitely and send messages that are pre-
-        defined on a certain day and a certain time.
+        defined on a certain day and a certain time. 
         '''
         await client.wait_until_ready()
-        channel = self.get_channel(RobBotClient.CHANNEL)
+        channel = self.get_channel(618476154688634890)
         
         while not self.is_closed():
             await asyncio.sleep(1)
-            
-            now = time(
-                hour = self.brain.schedule.current_time.hour, 
-                minute = self.brain.schedule.current_time.minute,
-                second = self.brain.schedule.current_time.second
-            )
-            
-            for event in self.brain.schedule.scheduled_events:
-                for weekday in event.weekdays:
-                    if weekday == self.brain.schedule.weekday and now == event.time:
-                        await channel.send(event.body)
-                        logging.info(f'BOT SAID: {event.body}')
+
+            if self.brain.reminder.get():
+                event = self.brain.reminder.get()
+                if event.location:
+                    what = f'**Händelse**: {event.body}'
+                    when = f'**När**: {event.datetime.strftime("%Y-%m-%d-%H:%M")}'
+                    where = f'**Var**: {event.location}\n'
+                    message = f'**Påminnelse**\n\n{what}\n{when}\n{where}'
+                else:
+                    message = f'**Påminnelse**\n\n{event.body}'
+
+                await channel.send(message)
+                logging.info(f'Bot said: {message}')
 
     async def purge_runtime(self):
         '''
@@ -135,19 +116,20 @@ class RobBotClient(discord.Client):
         while not self.is_closed():
 
             now = self.brain.schedule.current_time
-            midnight = datetime(now.year, now.month, now.day,0, 0, 0)
+            midnight = datetime(now.year, now.month, now.day, 0, 0, 0)
             time_left = (midnight - now)
 
             await asyncio.sleep(time_left.seconds)
-            logging.INFO('Commencing nightly purge and cleanup...')
+            logging.info('Commencing nightly purge and cleanup...')
             
             try:
                 self.brain.schedule.set_calendar()
                 self.brain.schedule.truncate_event_name()
                 self.brain.schedule.adjust_event_hours(hourdelta = 2)
-                removed_activities = self.brain.schedule.remove_activities()
+                removed_activities = self.brain.reminder.purge()
+
             except Exception as e:
-                logging.ERROR(f'Error occured while cleaning up: {e}')
+                logging.error(f'Error occured while cleaning up: {e}')
             else:
                 logging.info('Nightly purge and cleanup completed.')
             
@@ -155,7 +137,38 @@ class RobBotClient(discord.Client):
             if len(removed_activities):
                 logging.info(f"Purged activities: {removed_activities}")
 
+    def setup_reminders(self, reoccuring = []):
+        '''
+        Create Event instances and keep them in Reminders object
+        for each day. If lessons or events are encountered for given 
+        current day, these will be represented by an Event instance.
+        '''
+        
+        next_lesson = lambda: self.brain.next_lesson_response
+
+        if len(self.brain.schedule.todays_events):
+            for element in self.brain.schedule.todays_events:
+                self.brain.reminder.add(Event(
+                    body = next_lesson(), 
+                    datetime = element.begin.date(),
+                    time = element.begin.time()))
+
+        if len(reoccuring):
+            for element in reoccuring:
+                self.brain.reminder.add_reoccuring(element)
+
+        if self.brain.reminder.events:
+            logging.info(f'Added reminders:\n{self.brain.reminder.events}')
+
+
 if __name__ == '__main__':
-    TOKEN = os.getenv('DISCORD_TOKEN')
+
+    friday = Event(body = 'Fredag, wohoo! :beers:',
+                weekdays = [Weekdays.FRIDAY],
+                time = time(hour = 15, minute = 0))
+
     client = RobBotClient()
+    client.setup_reminders(reoccuring = [friday])
+    
+    TOKEN = os.getenv('DISCORD_TOKEN')
     client.run(TOKEN)
