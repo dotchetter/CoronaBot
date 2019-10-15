@@ -84,10 +84,9 @@ class RobBotCLient(discord.Client):
         '''
         now = datetime.now().strftime('%Y-%m-%d -- %H:%M:%S')
         body = message.content.lower()
-        messageUser = message.author.id
     
         if 'hej rob' in body and message.author != client.user:
-            response = self.brain.respond_to(body,messageUser=messageUser)
+            response = self.brain.respond_to(body,message_user=message.author.id)
             await message.channel.send(response)
             logging.info(f'{message.author} said {message.content}')
             logging.info(f'bot said {response}')
