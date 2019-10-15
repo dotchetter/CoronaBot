@@ -152,7 +152,8 @@ class RobBotClient(discord.Client):
                 self.brain.reminder.add(Event(
                     body = next_lesson(), 
                     datetime = element.begin.date(),
-                    time = element.begin.time()))
+                    time = element.begin.time()),
+                    curriculum_event = True)
 
         if len(reoccuring):
             for element in reoccuring:
