@@ -94,13 +94,11 @@ class RobBotClient(discord.Client):
 
             if self.brain.reminder.get():
                 event = self.brain.reminder.get()
-                if event.location:
-                    what = f'**Händelse**: {event.body}'
-                    when = f'**När**: {event.datetime.strftime("%Y-%m-%d-%H:%M")}'
-                    where = f'**Var**: {event.location}\n'
-                    message = f'**Påminnelse**\n\n{what}\n{when}\n{where}'
-                else:
-                    message = f'**Påminnelse**\n\n{event.body}'
+                
+                what = f'**Händelse**: {event.body}'
+                when = f'**När**: {event.datetime.strftime("%Y-%m-%d-%H:%M")}'
+                where = f'**Var**: {event.location}\n'
+                message = f'**Påminnelse**\n\n{what}\n{when}\n{where}'
 
                 await channel.send(message)
                 logging.info(f'Bot said: {message}')
@@ -144,15 +142,14 @@ class RobBotClient(discord.Client):
         for each day. If lessons or events are encountered for given 
         current day, these will be represented by an Event instance.
         '''
-        
-        next_lesson = lambda: self.brain.next_lesson_response
 
         if len(self.brain.schedule.todays_events):
             for element in self.brain.schedule.todays_events:
                 self.brain.reminder.add(Event(
-                    body = next_lesson(), 
+                    body = element.name, 
                     datetime = element.begin.date(),
                     time = element.begin.time(),
+                    location = element.location,
                     curriculum_event = True))
 
         if len(reoccuring):
