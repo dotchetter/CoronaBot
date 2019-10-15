@@ -43,6 +43,13 @@ class Brain:
     provide the current classroom for given lesson when 
     asked.
     '''
+    explicit_adjectives = [
+        'kuk',
+        'ful',
+        'dum',
+        'ass',
+        'suger'
+    ]
     def __init__(self, name = str, schedule_url = str, hourdelta = int):
         self._name = name
         self.schedule = Schedule(schedule_url)
@@ -62,22 +69,10 @@ class Brain:
             'vilka events': ResponseOptions.SHOW_ACTIVITY,
             'event': ResponseOptions.SHOW_ACTIVITY,
             'events': ResponseOptions.SHOW_ACTIVITY,
-            'aktiviteter': ResponseOptions.SHOW_ACTIVITY,
-            # 'skit på dig': ResponseOptions.EXPLICIT,
-            # 'åt helvete': ResponseOptions.EXPLICIT,
-            # 'fuck you': ResponseOptions.EXPLICIT,
-            # 'fuck off': ResponseOptions.EXPLICIT,
-            # 'du suger': ResponseOptions.EXPLICIT,
-            # 'kiss my ass': ResponseOptions.EXPLICIT,
+            'aktiviteter': ResponseOptions.SHOW_ACTIVITY
         }
-        self._explicitAdjectives = [
-            'kuk',
-            'ful',
-            'dum'
-        ]
 
-
-    def respond_to(self, message = str, messageUser=0):
+    def respond_to(self, message = str, message_user=0):
         '''
         Call private interpretation method to get enum instance
         which points toward which response to give. 
@@ -102,7 +97,7 @@ class Brain:
         elif interpretation == ResponseOptions.SHOW_ACTIVITY:
             response = self.__get_remembered_activities()
         elif interpretation == ResponseOptions.EXPLICIT:
-            response = self.__get_explicit_response(message,messageUser)
+            response = self.__get_explicit_response(message,message_user)
 
         return response
 
@@ -215,17 +210,16 @@ class Brain:
             return invalid_format_string
         return success_string
 
-    def __get_explicit_response(self,message,messageUser):
+    def __get_explicit_response(self,message,message_user):
         '''
         Return an explicit response if people are being mean.
         '''
-        messageList = message.split()
-        for word in messageList:
-            if word in self._explicitAdjectives:
-                explicitAdjective = word
+        for word in message.split():
+            if word in explicit_adjectives:
+                explicit_adjective = word
             else:
                 continue
-        return f'<@{messageUser}> är {explicitAdjective}'
+        return f'<@{message_user}> är {explicit_adjective}'
         
         # with open('explicit_responses.dat', 'r', encoding = 'utf-8') as f:
         #     responses = f.readlines()
