@@ -230,7 +230,7 @@ class Brain:
         output = []
 
         if self.reminder.events:
-            remembered_events = [i for i in self.reminder.events if not event.curriculum_event]
+            remembered_events = [i for i in self.reminder.events if not i.curriculum_event]
             remembered_events.sort(key = attrgetter('datetime'))
             
             for event in remembered_events:
