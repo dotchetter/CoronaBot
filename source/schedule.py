@@ -32,6 +32,7 @@ class Event:
     weekdays: [] = None
     time: time = None
     datetime: datetime = None
+    curriculum_event = False
 
     def to_json(self):
         return json.dumps(
