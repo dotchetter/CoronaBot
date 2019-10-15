@@ -224,15 +224,13 @@ class Brain:
     def _get_remembered_events(self):
         '''
         Return a friendly phrase for every saved event in memory.
+        Sort by curriculum events only (auto generated Events representing
+        scheduled class lessons and events from Schedule object.)
         '''
         output = []
-        remembered_events = []
 
         if self.reminder.events:
-            for event in self.reminder.events:
-                if event.location:
-                    remembered_events.append(event)
-            
+            remembered_events = [i for i in self.reminder.events if not event.curriculum_event]
             remembered_events.sort(key = attrgetter('datetime'))
             
             for event in remembered_events:
