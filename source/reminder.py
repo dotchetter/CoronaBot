@@ -68,7 +68,7 @@ class Reminder:
 
 		if self.events:
 			for event in self.events:
-				if event.time == now_time and event.datetime.date() == now.date():
+				if event.time == now_time and event.datetime == now.date():
 					return event
 
 		if self.reoccuring:
