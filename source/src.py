@@ -86,7 +86,7 @@ class RobBotClient(discord.Client):
         defined on a certain day and a certain time. 
         '''
         await client.wait_until_ready()
-        channel = self.get_channel(634122441677078560) # prod: (618476154688634890) # DEV
+        channel = self.get_channel(634122441677078560)
         
         while not self.is_closed():
             await asyncio.sleep(1)
