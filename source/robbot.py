@@ -209,7 +209,7 @@ class Brain:
         else:
             self.reminder.add(Event(
                 body = body, location = location, 
-                datetime = event_date, 
+                datetime = event_date.date(), 
                 time = time(hour = event_date.hour, minute = event_date.minute)))
         return success
 

@@ -55,6 +55,7 @@ class Reminder:
 		return None
 
 	def get(self):
+		
 		now = datetime.now()
 		
 		now_time = time(

@@ -43,10 +43,9 @@ class RobBotClient(discord.Client):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         self.loop.create_task(self.auto_message())
         self.loop.create_task(self.purge_runtime())
-        self.brain = Brain(schedule_url = RobBotClient.SCHDURL, hourdelta = 2)
+        self.brain = Brain(schedule_url = RobBotClient.SCHDURL, hourdelta = kwargs['hourdelta'])
 
     async def on_ready(self):
         '''
@@ -87,22 +86,24 @@ class RobBotClient(discord.Client):
         defined on a certain day and a certain time. 
         '''
         await client.wait_until_ready()
-        channel = self.get_channel(618476154688634890)
+        channel = self.get_channel(634122441677078560) # prod: (618476154688634890) # DEV
         
         while not self.is_closed():
             await asyncio.sleep(1)
 
-            if self.brain.reminder.get():
-                event = self.brain.reminder.get()
-                
+            event = self.brain.reminder.get()
+
+            if event:
+                when = f'**När**: {event.datetime} Kl. ' \
+                           f'{event.time.strftime("%H:%M")}'
+                    
                 what = f'**Händelse**: {event.body}'
-                when = f'**När**: {event.datetime.strftime("%Y-%m-%d-%H:%M")}'
                 where = f'**Var**: {event.location}\n'
                 message = f'**Påminnelse**\n\n{what}\n{when}\n{where}'
-
+                
                 await channel.send(message)
                 logging.info(f'Bot said: {message}')
-
+                
     async def purge_runtime(self):
         '''
         Refresh the Schedule object with a new updated
@@ -164,8 +165,8 @@ if __name__ == '__main__':
     friday = Event(body = 'Fredag, wohoo! :beers:',
                 weekdays = [Weekdays.FRIDAY],
                 time = time(hour = 15, minute = 0))
-
-    client = RobBotClient()
+    
+    client = RobBotClient(**{'hourdelta': 2})
     client.setup_reminders(reoccuring = [friday])
 
     TOKEN = os.getenv('DISCORD_TOKEN')
