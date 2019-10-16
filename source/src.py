@@ -126,17 +126,16 @@ class RobBotClient(discord.Client):
                 self.brain.schedule.set_calendar()
                 self.brain.schedule.truncate_event_name()
                 self.brain.schedule.adjust_event_hours(hourdelta = 2)
-                self.brain.setup_reminders()
+                self.setup_reminders()
                 removed_activities = self.brain.reminder.purge()
 
             except Exception as e:
                 logging.error(f'Error occured while cleaning up: {e}')
             else:
                 logging.info('Nightly purge and cleanup completed.')
-            
-            await asyncio.sleep(1)            
-            if len(removed_activities):
-                logging.info(f"Purged activities: {removed_activities}")
+                await asyncio.sleep(1)            
+                if len(removed_activities):
+                    logging.info(f"Purged activities: {removed_activities}")
 
     def setup_reminders(self, reoccuring = []):
         '''
