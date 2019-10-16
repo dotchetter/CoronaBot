@@ -94,11 +94,15 @@ class RobBotClient(discord.Client):
 
             if self.brain.reminder.get():
                 event = self.brain.reminder.get()
-                
                 what = f'**Händelse**: {event.body}'
-                when = f'**När**: {event.datetime.strftime("%Y-%m-%d-%H:%M")}'
                 where = f'**Var**: {event.location}\n'
                 message = f'**Påminnelse**\n\n{what}\n{when}\n{where}'
+                
+                if event.curriculum_event:
+                    when = f'**När**: {event.datetime.strftime("%Y-%m-%d")} Kl. '\
+                           f'{event.begin.adjusted_time.strftime("%H:%M")}'
+                else:
+                    when = f'**När**: {event.datetime.strftime("%Y-%m-%d-%H:%M")}'
 
                 await channel.send(message)
                 logging.info(f'Bot said: {message}')
