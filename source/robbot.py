@@ -234,11 +234,15 @@ class Brain:
             remembered_events.sort(key = attrgetter('datetime'))
             
             for event in remembered_events:
+                when = f'**När**: {event.datetime} Kl. ' \
+                           f'{event.time.strftime("%H:%M")}'
+                    
                 what = f'**Händelse**: {event.body}'
-                when = f'**När**: {event.datetime.strftime("%Y-%m-%d-%H:%M")}'
                 where = f'**Var**: {event.location}\n'
-                output.append(f'{what}\n{when}\n{where}')
-        
+                message = f'**Påminnelse**\n\n{what}\n{when}\n{where}'
+
+                output.append(message)
+
         if len(output):
             return '\n'.join(output)
         return f'Inga sparade händelser :cry:'
