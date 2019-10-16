@@ -63,14 +63,6 @@ class Schedule:
         self._activities = []
         self.set_calendar()
         self.truncate_event_name()
-
-    def add_activity(self, *args):
-        '''
-        Save Events that were saved by people through
-        creating a reminder from chat dialog
-        '''
-        for activity in args:
-            self._activities.append(activity)
         
     def adjust_event_hours(self, hourdelta = int):
         '''
