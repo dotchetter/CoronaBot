@@ -8,6 +8,7 @@ from schedule import Schedule, Event, Weekdays
 from dotenv import load_dotenv
 from robbot import Brain
 from reminder import Reminder
+from pathlib import Path
 '''
 Details:
     2019-09-25
@@ -39,9 +40,10 @@ class RobBotClient(discord.Client):
         self.brain = Brain(schedule_url = RobBotClient.SCHDURL, hourdelta = kwargs['hourdelta'])
     
         try:
+            logfile = Path('runtime.log')
             logging.basicConfig(
                 level = logging.INFO, 
-                filename = f'{self.brain.LOG_DIR}\\runtime.log', 
+                filename = self.brain.LOG_DIR / logfile, 
                 format = RobBotClient.LOGFORMAT)
         except FileNotFoundError:
             if not os.path.isdir(self.brain.LOG_DIR):

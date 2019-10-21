@@ -8,6 +8,7 @@ from reminder import Reminder
 from random import choice
 from operator import attrgetter
 from dataclasses import dataclass
+from pathlib import Path
 
 
 '''
@@ -69,9 +70,9 @@ class Brain:
     asked.
     '''
     
-    LOG_DIR = 'runtime_logs'
+    LOG_DIR = Path('runtime_logs')
     UNRECOGNIZED_CMDS_CACHE_FILE = 'unrecognized_commands.json'
-    UNRECOGNIZED_CMDS_CACHE_FULLPATH = f'{LOG_DIR}\\{UNRECOGNIZED_CMDS_CACHE_FILE}'
+    UNRECOGNIZED_CMDS_CACHE_FULLPATH = LOG_DIR / UNRECOGNIZED_CMDS_CACHE_FILE
     
     MISUNDERSTOOD_PHRASES = (
         '?',
