@@ -8,7 +8,8 @@ from schedule import Schedule, Event, Weekdays
 from dotenv import load_dotenv
 from robbot import Brain
 from reminder import Reminder
-from pathlib import Path 
+from pathlib import Path
+
 '''
 Details:
     2019-09-25
@@ -92,7 +93,6 @@ class RobBotClient(discord.Client):
         while not self.is_closed():
             await asyncio.sleep(1)
             event = self.brain.reminder.get()
-            print(event) #DEBUG
             if event:
                 message = f'**Påminnelse:**\r\n{event}'
                 await channel.send(message)
@@ -146,8 +146,6 @@ class RobBotClient(discord.Client):
                     location = element.location,
                     curriculum_event = True,
                     alarm = timedelta(hours = 1)))
-
-        print('Events:', self.brain.reminder.events) #DEBUG
 
         if len(reoccuring):
             for element in reoccuring:
