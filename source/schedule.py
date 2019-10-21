@@ -211,7 +211,7 @@ class Schedule:
 
     @property
     def today(self):
-        return datetime.now().date() + timedelta(days = 1)
+        return datetime.now().date()
 
     @property
     def weekday(self):
