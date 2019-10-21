@@ -42,7 +42,7 @@ class RobBotClient(discord.Client):
     
         try:
             logging.basicConfig(
-                logfile = Path('runtime.log')
+                logfile = Path('runtime.log'),
                 level = logging.INFO, 
                 filename = self.brain.LOG_DIR / logfile, 
                 format = RobBotClient.LOGFORMAT)
