@@ -41,8 +41,8 @@ class RobBotClient(discord.Client):
         self.brain = Brain(schedule_url = RobBotClient.SCHDURL, hourdelta = kwargs['hourdelta'])
     
         try:
+            logfile = Path('runtime.log'),
             logging.basicConfig(
-                logfile = Path('runtime.log'),
                 level = logging.INFO, 
                 filename = self.brain.LOG_DIR / logfile, 
                 format = RobBotClient.LOGFORMAT)
