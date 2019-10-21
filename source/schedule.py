@@ -3,8 +3,7 @@ import json
 import os
 from enum import Enum, auto
 from custom_errs import *
-from datetime import datetime, timedelta, time
-from dataclasses import dataclass
+from datetime import date, datetime, timedelta, time
 from urllib.request import urlopen
 from enum import Enum
 from sys import platform
@@ -25,21 +24,113 @@ Synposis:
     with a chatbot. 
 '''
 
-@dataclass
 class Event:
-    body: str = None
-    location: str = None
-    weekdays: [] = None
-    time: time = None
-    datetime: datetime = None
-    curriculum_event: bool = False
+    def __init__(self, *args, **kwargs):
+        self.body = None
+        self.location = None
+        self.date = None
+        self.curriculum_event = False
+        self.weekdays = []
+        self.time = time()
+        self.alarm = timedelta()
+
+        for key in kwargs:
+            setattr(self, key, kwargs[key])
+
+    def __repr__(self):
+        what = self.body
+        where = self.location
+        
+        if self.date:
+            when = f'{self.date} - {self.time.strftime("%H:%M")}'
+        else:
+            when = self.time.strftime("%H:%M")
+        
+        return f'Vad: {what}\nNär: {when}\nVar: {where}\n'
+
+    @property
+    def curriculum_event(self):
+        return self._curriculum_event
+
+    @curriculum_event.setter
+    def curriculum_event(self, value):
+        self._curriculum_event = value    
+
+    @property
+    def body(self):
+        if self._body:
+            return self._body
+        return '-'
+
+    @body.setter
+    def body(self, value):
+        self._body = value
+
+    @property
+    def location(self):
+        if self._location:
+            return self._location
+        return '-'
+
+    @location.setter
+    def location(self, value):
+        self._location = value
+
+    @property
+    def weekdays(self):
+        if self._weekdays:
+            return self._weekdays
+        return []
+    
+    @weekdays.setter
+    def weekdays(self, value):
+        if isinstance(value, list):
+            self._weekdays = value
+        else:
+            raise AttributeError(f'Expected {list}, got {type(value)}')
+
+    @property
+    def time(self):
+        return self._time
+        
+    @time.setter
+    def time(self, value):
+        if isinstance(value, time):
+            self._time = value
+        else:
+            raise AttributeError(f'Expected {time}, got {type(value)}')
+
+    @property
+    def date(self):
+        return self._date
+
+    @date.setter
+    def date(self, value):
+        if isinstance(value, date) or isinstance(value, type(None)):
+            self._date = value
+        else:
+            raise AttributeError(f'Expected {date} or {None}, got {type(value)}')
+
+    @property
+    def alarm(self):
+        return self._alarm
+
+    @alarm.setter
+    def alarm(self, value):
+        if isinstance(value, timedelta):
+            try:
+                combined = datetime.combine(datetime.today(), self.time)
+                self._alarm = (combined - value).time()
+            except Exception as e:
+                raise EventReminderTimeAdjustError(e)
+        else:
+            raise AttributeError(f'Expected {timedelta}, got {type(value)}')
 
     def to_json(self):
         return json.dumps(
             self, default = lambda: self.__dict__,
             sort_keys = True, ensure_ascii = False, 
-            indent = 4
-        )
+            indent = 4)
 
 class Weekdays(Enum):
     MONDAY = 1
