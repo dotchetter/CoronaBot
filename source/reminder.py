@@ -30,7 +30,7 @@ class Reminder:
 		purged_events = []
 
 		for item in self._events:
-			if item.datetime < datetime.now():
+			if item.date < datetime.now().date():
 				purged_events.append(item)
 				self._events.remove(item)
 
@@ -69,12 +69,12 @@ class Reminder:
 
 		if self.events:
 			for event in self.events:
-				if event.time == now_time and event.datetime == now.date():
+				if event.alarm == now_time and event.date == now.date():
 					return event
 
 		if self.reoccuring:
 			for event in self.reoccuring:
 				for weekday in event.weekdays:
-					if weekday == today and now_time == event.time:
+					if weekday == today and now_time == event.alarm:
 						return event
 		return None

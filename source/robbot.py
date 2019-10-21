@@ -1,11 +1,14 @@
 import os
+import json
 from custom_errs import *
 from enum import Enum, auto
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 from schedule import Schedule, Event
 from reminder import Reminder
 from random import choice
 from operator import attrgetter
+from dataclasses import dataclass
+
 
 '''
 Details:
@@ -20,6 +23,26 @@ Synposis:
     share the current classroom for the day or week in the chat
     with a chatbot. 
 '''
+
+@dataclass
+class UnrecognizedCommand:
+    '''
+    Represent a message recieved in chat that the bot
+    was unable to handle. Store message content, author
+    and when it was recieved.
+    '''
+    command: str
+    author: str
+    timestamp: None
+
+    @property
+    def timestamp(self):
+        return self.timestamp
+
+    @timestamp.setter
+    def timestamp(self, value):
+        if isinstance(value, datetime):
+            self.timestamp = value.isoformat()
 
 class ResponseOptions(Enum):
     '''
@@ -46,6 +69,20 @@ class Brain:
     asked.
     '''
     
+    LOG_DIR = 'runtime_logs'
+    UNRECOGNIZED_CMDS_CACHE_FILE = 'unrecognized_commands.json'
+    UNRECOGNIZED_CMDS_CACHE_FULLPATH = f'{LOG_DIR}\\{UNRECOGNIZED_CMDS_CACHE_FILE}'
+    
+    MISUNDERSTOOD_PHRASES = (
+        '?',
+        'Jag fattar inte riktigt.',
+        'Mjaa det låter bra!',
+        'Alltid, alltid. Självklart.',
+        'Ja visst!',
+        'Jag håller med.',
+        'Ingen aning vad du pratar om.'
+    )
+    
     KEYWORDS = {
         'klass rum': ResponseOptions.NEXT_LESSON,
         'klassrum': ResponseOptions.NEXT_LESSON,
@@ -65,13 +102,12 @@ class Brain:
         'event': ResponseOptions.SHOW_EVENTS,
         'events': ResponseOptions.SHOW_EVENTS,
         'aktiviteter': ResponseOptions.SHOW_EVENTS,
-        'skit på dig': ResponseOptions.EXPLICIT,
-        'åt helvete': ResponseOptions.EXPLICIT,
-        'fuck you': ResponseOptions.EXPLICIT,
-        'fuck off': ResponseOptions.EXPLICIT,
+        'skit': ResponseOptions.EXPLICIT,
+        'helvete': ResponseOptions.EXPLICIT,
+        'fuck': ResponseOptions.EXPLICIT,
         'du suger': ResponseOptions.EXPLICIT,
         'du luktar': ResponseOptions.EXPLICIT,
-        'kiss my ass': ResponseOptions.EXPLICIT,
+        'kiss my': ResponseOptions.EXPLICIT,
     }
     
     def __init__(self, schedule_url = str, hourdelta = int):
@@ -80,16 +116,20 @@ class Brain:
         self.reminder = Reminder()
         self._commands = self._get_bot_commands()
         self._explicit_response = self._get_explicit_response()
+        self._unrecognized_commands = []
 
-    def respond_to(self, message = str):
+    def respond_to(self, message):
         '''
         Call private interpretation method to get enum instance
         which points toward which response to give. 
         '''
-        misunderstood_phrase = 'Jag fattar inte riktigt. Skriv "Hej Rob, vad kan du?"'
-        interpretation = self._interpret(message = message)
+
+        interpretation = self._interpret(message = message.content)
+        
         if not interpretation:
-            return misunderstood_phrase
+            self._log_unrecognized_message(message)
+            return f'{choice(Brain.MISUNDERSTOOD_PHRASES)}\r\n' \
+                    '**Psst**: Skriv "Hej Rob, vad kan du?"'
 
         if interpretation == ResponseOptions.NEXT_LESSON:
             response = self._get_next_lesson_response()
@@ -121,6 +161,48 @@ class Brain:
         except FileNotFoundError:
             return 'Ett fel uppstod - jag hittar inte filen. Hjälp!'
 
+    def _log_unrecognized_message(self, message):
+        '''
+        Create UnrecognizedCommand instance representing
+        the message which was not understood by the bot.
+        Write to a local .json file as the list of instances
+        grows larger during runtime.
+        '''
+        
+
+        entry = UnrecognizedCommand(
+                command = str(message.content),
+                author = str(message.author),
+                timestamp = datetime.now())
+        
+        self._unrecognized_commands.append(entry.__dict__)
+
+        try:
+            if not os.path.isdir(Brain.LOG_DIR):
+                os.mkdir(Brain.LOG_DIR)
+            
+            with open(Brain.UNRECOGNIZED_CMDS_CACHE_FULLPATH, 'w', 
+                encoding = 'utf-8') as f:
+                    json.dump(self._unrecognized_commands, f,
+                        ensure_ascii = False, indent = 4)
+        
+        except Exception as e:
+            raise UnrecognizedCommandLoggingError(e)
+
+    def load_unrecognized_message_history(self):
+        '''
+        Upon bot launch, load previously cached non-recognized phrases
+        in to self._unrecognized_commands field.
+        '''
+
+        try:
+            if os.path.isfile(Brain.UNRECOGNIZED_CMDS_CACHE_FULLPATH):
+                with open(Brain.UNRECOGNIZED_CMDS_CACHE_FULLPATH, 'r',
+                    encoding = 'utf-8') as f:
+                        self._unrecognized_commands = json.loads(f.read())
+        except Exception as e:
+            raise UnrecognizedCommandLoggingError(f'Could not load file. {e}')
+
     def _get_bot_commands(self):
         '''
         Return string that shows the human what this bot can do, 
@@ -129,8 +211,8 @@ class Brain:
         try:
             with open('commands.dat', 'r', encoding = 'utf-8') as f:
                 return str().join(f.readlines())
-        except FileNotFoundError:
-            return 'Ett fel uppstod - jag hittar inte filen. Hjälp!'
+        except Exception as e:
+            raise FileNotFoundError(f'Could not parse commands.dat file: {e}')
 
     def _get_todays_lessons_phrase(self):
         '''
@@ -153,23 +235,27 @@ class Brain:
         '''
         friendly_schedule = []
         discord_msg_length_limit = 2000
+        last_date = self.schedule.curriculum[0].begin.date()
         
         for index, event in enumerate(self.schedule.curriculum):
-            begin = event.begin.adjusted_time.strftime('%H:%M')
-            end = event.end.adjusted_time.strftime('%H:%M')
-            location = event.location
-            name = event.name
-            date = event.begin.date()
-            phrase = f'**{name}**\n**Klassrum:** {location}\n**När:** {date} -- {begin}-{end}'
-            
-            if index % 2 != 0:
-                phrase += '\n'
-
-            if (discord_msg_length_limit - len(phrase)) > 10:
-                friendly_schedule.append(phrase)
-                discord_msg_length_limit -= len(phrase)
-            else:
-                break        
+            if event.begin.date() >= self.schedule.today:
+                begin = event.begin.adjusted_time.strftime('%H:%M')
+                end = event.end.adjusted_time.strftime('%H:%M')
+                location = event.location
+                name = event.name
+                date = event.begin.date()
+                
+                if date != last_date:
+                    phrase = f'\n{name}\nKlassrum: {location}\nNär: {date} -- {begin}-{end}'
+                else:
+                    phrase = f'{name}\nKlassrum: {location}\nNär: {date} -- {begin}-{end}\n'
+    
+                if (discord_msg_length_limit - len(phrase)) > 10:
+                    friendly_schedule.append(phrase)
+                    discord_msg_length_limit -= len(phrase)
+                    last_date = event.begin.date()
+                else:
+                    break        
         friendly_schedule = '\n'.join(friendly_schedule)        
         return f'**Här är schemat!** :slight_smile:\n\n{friendly_schedule}'
 
@@ -200,7 +286,7 @@ class Brain:
         success = 'Det ska jag påminna om :smiley:'
 
         try:
-            task = message.split(';')[-1].split(', ')
+            task = message.content.split(';')[-1].split(', ')
             body = task[0]
             event_date = datetime.strptime(task[1].strip(), '%Y-%m-%d-%H:%M')
             location = task[2]
@@ -209,8 +295,9 @@ class Brain:
         else:
             self.reminder.add(Event(
                 body = body, location = location, 
-                datetime = event_date.date(), 
-                time = time(hour = event_date.hour, minute = event_date.minute)))
+                date = event_date.date(), 
+                time = time(hour = event_date.hour, minute = event_date.minute),
+                alarm = timedelta(hours = 1)))
         return success
 
     def _get_explicit_response(self):
@@ -227,24 +314,15 @@ class Brain:
         Sort by curriculum events only (auto generated Events representing
         scheduled class lessons and events from Schedule object.)
         '''
-        output = []
+        remembered_events = None
 
         if self.reminder.events:
             remembered_events = [i for i in self.reminder.events if not i.curriculum_event]
-            remembered_events.sort(key = attrgetter('datetime'))
-            
-            for event in remembered_events:
-                when = f'**När**: {event.datetime} Kl. ' \
-                           f'{event.time.strftime("%H:%M")}'
-                    
-                what = f'**Händelse**: {event.body}'
-                where = f'**Var**: {event.location}\n'
-                message = f'**Påminnelse**\n\n{what}\n{when}\n{where}'
-
-                output.append(message)
-
-        if len(output):
-            return '\n'.join(output)
+        
+        if remembered_events:
+            remembered_events.sort(key = attrgetter('date'))
+            remembered_events = [str(i) for i in remembered_events]
+            return '\n'.join(remembered_events)
         return f'Inga sparade händelser :cry:'
 
     def _interpret(self, message = str):
