@@ -43,10 +43,9 @@ class RobBotClient(discord.Client):
         if not os.path.isdir(self.brain.LOG_DIR):
             os.mkdir(self.brain.LOG_DIR)
 
-        logfile = self.brain.LOG_DIR / Path('runtime.log'),
         logging.basicConfig(
             level = logging.INFO, 
-            filename = str(logfile), 
+            filename = 'runtime.log', 
             format = RobBotClient.LOGFORMAT)
 
     async def on_ready(self):
