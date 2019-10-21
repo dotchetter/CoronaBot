@@ -8,6 +8,7 @@ from schedule import Schedule, Event, Weekdays
 from dotenv import load_dotenv
 from robbot import Brain
 from reminder import Reminder
+from pathlib import Path 
 '''
 Details:
     2019-09-25
@@ -41,7 +42,7 @@ class RobBotClient(discord.Client):
         try:
             logging.basicConfig(
                 level = logging.INFO, 
-                filename = f'{self.brain.LOG_DIR}\\runtime.log', 
+                filename = self.brain.LOG_DIR / Path('runtime.log'), 
                 format = RobBotClient.LOGFORMAT)
         except FileNotFoundError:
             if not os.path.isdir(self.brain.LOG_DIR):
@@ -90,6 +91,7 @@ class RobBotClient(discord.Client):
         while not self.is_closed():
             await asyncio.sleep(1)
             event = self.brain.reminder.get()
+            print(event) #DEBUG
             if event:
                 message = f'**Påminnelse:**\r\n{event}'
                 await channel.send(message)
@@ -141,8 +143,10 @@ class RobBotClient(discord.Client):
                     date = element.begin.date(),
                     time = element.begin.adjusted_time,
                     location = element.location,
-                    curriculum_event = True),
-                    alarm = timedelta(hours = 1))
+                    curriculum_event = True,
+                    alarm = timedelta(hours = 1)))
+
+        print('Events:', self.brain.reminder.events) #DEBUG
 
         if len(reoccuring):
             for element in reoccuring:
