@@ -39,16 +39,15 @@ class RobBotClient(discord.Client):
         self.loop.create_task(self.auto_message())
         self.loop.create_task(self.purge_runtime())
         self.brain = Brain(schedule_url = RobBotClient.SCHDURL, hourdelta = kwargs['hourdelta'])
-    
-        try:
-            logfile = self.brain.LOG_DIR / Path('runtime.log'),
-            logging.basicConfig(
-                level = logging.INFO, 
-                filename =  logfile, 
-                format = RobBotClient.LOGFORMAT)
-        except FileNotFoundError:
-            if not os.path.isdir(self.brain.LOG_DIR):
-                os.mkdir(self.brain.LOG_DIR)
+        
+        if not os.path.isdir(self.brain.LOG_DIR):
+            os.mkdir(self.brain.LOG_DIR)
+
+        logfile = self.brain.LOG_DIR / Path('runtime.log'),
+        logging.basicConfig(
+            level = logging.INFO, 
+            filename = str(logfile), 
+            format = RobBotClient.LOGFORMAT)
 
     async def on_ready(self):
         '''
