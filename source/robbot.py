@@ -148,6 +148,8 @@ class Brain:
             response = self._get_remembered_events()
         elif interpretation == ResponseOptions.EXPLICIT:
             response = self.explicit_response
+            response = self._get_explicit_response(message)
+
         return response
 
     def greet(self, member = str):
@@ -301,13 +303,16 @@ class Brain:
                 alarm = timedelta(hours = 1)))
         return success
 
-    def _get_explicit_response(self):
+    def _get_explicit_response(self, message):
         '''
         Return an explicit response if people are being mean.
         '''
-        with open('explicit_responses.dat', 'r', encoding = 'utf-8') as f:
-            responses = f.readlines()
-        return responses
+        for word in message.content.split():
+            if word in explicit_adjectives:
+                explicit_adjective = word
+            else:
+                continue
+        return f'<@{message.author}> är {explicit_adjective}'
 
     def _get_remembered_events(self):
         '''
@@ -339,6 +344,9 @@ class Brain:
             if keyword in message:
                 action = Brain.KEYWORDS[keyword]
                 return action
+        for keyword in self._explicitAdjectives:
+            if keyword in message:
+                return ResponseOptions.EXPLICIT
         return False
 
     @property
