@@ -107,7 +107,7 @@ class RobBotClient(discord.Client):
         while not self.is_closed():
 
             now = self.brain.schedule.current_time
-            midnight = datetime(now.year, now.month, now.day, 0, 0, 0)
+            midnight = datetime(now.year, now.month, now.day, 0, 10, 0)
             time_left = (midnight - now)
 
             await asyncio.sleep(time_left.seconds)

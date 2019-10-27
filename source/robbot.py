@@ -84,6 +84,13 @@ class Brain:
         'Ingen aning vad du pratar om.'
     )
     
+    EXPLICIT_ADJECTIVES = [
+        'ful',
+        'dum',
+        'ass',
+        'suger'
+    ]
+    
     KEYWORDS = {
         'klass rum': ResponseOptions.NEXT_LESSON,
         'klassrum': ResponseOptions.NEXT_LESSON,
@@ -116,7 +123,6 @@ class Brain:
         self.schedule.adjust_event_hours(hourdelta = hourdelta)
         self.reminder = Reminder()
         self._commands = self._get_bot_commands()
-        self._explicit_response = self._get_explicit_response()
         self._unrecognized_commands = []
 
     def respond_to(self, message):
@@ -147,7 +153,8 @@ class Brain:
         elif interpretation == ResponseOptions.SHOW_EVENTS:
             response = self._get_remembered_events()
         elif interpretation == ResponseOptions.EXPLICIT:
-            response = self.explicit_response
+            response = self._get_explicit_response(message)
+
         return response
 
     def greet(self, member = str):
@@ -301,13 +308,13 @@ class Brain:
                 alarm = timedelta(hours = 1)))
         return success
 
-    def _get_explicit_response(self):
+    def _get_explicit_response(self, message):
         '''
         Return an explicit response if people are being mean.
         '''
-        with open('explicit_responses.dat', 'r', encoding = 'utf-8') as f:
-            responses = f.readlines()
-        return responses
+        for word in message.content.split():
+            if word in Brain.EXPLICIT_ADJECTIVES:
+                return f'{message.author.mention} är {word}' 
 
     def _get_remembered_events(self):
         '''
@@ -339,24 +346,20 @@ class Brain:
             if keyword in message:
                 action = Brain.KEYWORDS[keyword]
                 return action
+
+        for keyword in Brain.EXPLICIT_ADJECTIVES:
+            if keyword in message:
+                return ResponseOptions.EXPLICIT
         return False
+
+    @property
+    def next_lesson_response(self):
+        return self._get_next_lesson_response()
 
     @property
     def commands(self):
         return self._commands
     
-    @property
-    def next_lesson_response(self):
-        return self._get_next_lesson_response()
-
     @commands.setter
     def commands(self, value = str):
         self._commands = value
-
-    @property
-    def explicit_response(self):
-        return choice(self._explicit_response)
-    
-    @explicit_response.setter
-    def explicit_response(self, value = list):
-        self._explicit_response = value
