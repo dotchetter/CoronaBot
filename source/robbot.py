@@ -122,6 +122,7 @@ class Brain:
         self.schedule = Schedule(schedule_url)
         self.schedule.adjust_event_hours(hourdelta = hourdelta)
 <<<<<<< HEAD
+<<<<<<< HEAD
         self._commands = self._get_bot_commands()
         self._explicit_response = self._get_explicit_response()
 
@@ -130,6 +131,11 @@ class Brain:
         self._commands = self._get_bot_commands()
         self._unrecognized_commands = []
 >>>>>>> 6c0d67f6008a021431b7bc2bebc802162c193867
+=======
+        self.reminder = Reminder()
+        self._commands = self._get_bot_commands()
+        self._unrecognized_commands = []
+>>>>>>> upstream/master
 
     def respond_to(self, message):
         '''
@@ -161,6 +167,7 @@ class Brain:
         elif interpretation == ResponseOptions.EXPLICIT:
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             response = self.__get_explicit_response(message,messageUser)
 
 =======
@@ -170,6 +177,10 @@ class Brain:
             response = self._get_explicit_response(message)
 
 >>>>>>> 6c0d67f6008a021431b7bc2bebc802162c193867
+=======
+            response = self._get_explicit_response(message)
+
+>>>>>>> upstream/master
         return response
 
     def greet(self, member = str):
@@ -325,6 +336,7 @@ class Brain:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     def __get_explicit_response(self,message,messageUser):
         '''
         Return an explicit response if people are being mean.
@@ -358,6 +370,15 @@ class Brain:
             if word in Brain.EXPLICIT_ADJECTIVES:
                 return f'{message.author.mention} är {word}' 
 >>>>>>> 6c0d67f6008a021431b7bc2bebc802162c193867
+=======
+    def _get_explicit_response(self, message):
+        '''
+        Return an explicit response if people are being mean.
+        '''
+        for word in message.content.split():
+            if word in Brain.EXPLICIT_ADJECTIVES:
+                return f'{message.author.mention} är {word}' 
+>>>>>>> upstream/master
 
     def _get_remembered_events(self):
         '''

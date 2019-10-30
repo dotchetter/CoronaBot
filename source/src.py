@@ -24,14 +24,6 @@ Synposis:
 
 
 load_dotenv()
-<<<<<<< HEAD
-TOKEN = os.getenv('DISCORD_TOKEN')
-GUILD = os.getenv('DISCORD_GUILD')
-SCHDURL = os.getenv('TIMEEDIT_URL')
-class RobBotCLient(discord.Client):
-    log_format = "%(asctime)s::%(levelname)s::%(name)s::%(message)s"
-    logging.basicConfig(level = logging.INFO, filename = 'bot.log', format = log_format)
-=======
 
 class RobBotClient(discord.Client):
     
@@ -48,7 +40,6 @@ class RobBotClient(discord.Client):
         filename = 'bot.log', 
         format = LOGFORMAT
     )
->>>>>>> upstream/master
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
