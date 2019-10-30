@@ -162,7 +162,7 @@ if __name__ == '__main__':
                 time = time(hour = 16, minute = 0),
                 alarm = timedelta(minutes = 30))
     
-    client = RobBotClient(**{'hourdelta': 0})
+    client = RobBotClient(**{'hourdelta': 1})
     client.setup_reminders(reoccuring = [friday])
     client.brain.load_unrecognized_message_history()
 
