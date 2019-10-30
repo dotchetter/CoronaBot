@@ -23,3 +23,9 @@ class TimezoneAdjustmentError(Exception):
 
 class EnvironmentVariableError(Exception):
 	pass
+
+class EventReminderTimeAdjustError(Exception):
+    pass
+
+class UnrecognizedCommandLoggingError(Exception):
+    pass

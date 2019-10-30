@@ -3,38 +3,136 @@ import json
 import os
 from enum import Enum, auto
 from custom_errs import *
-from datetime import datetime, timedelta, time
-from dataclasses import dataclass
+from datetime import date, datetime, timedelta, time
 from urllib.request import urlopen
 from enum import Enum
 from sys import platform
-from operator import attrgetter
 
 '''
 Details:
     2019-09-25
 
 Module details:
-    Application backend logic; ics schedule URL parsing
+    Application backend logic; ics curriculum URL parsing
     class with methods and properties to return relevant
-    data for a schedule.
+    data for a curriculum.
 
 Synposis:
     Supply a discord chatbot with intelligence and features.
-    The goal is to subscribe to the class schedule and then
+    The goal is to subscribe to the class curriculum and then
     share the current classroom for the day or week in the chat
     with a chatbot. 
 '''
 
-@dataclass
 class Event:
-    body: str = None
-    location: str = None
-    weekdays: [] = None
-    time: time = None
-    datetime: datetime = None
+    def __init__(self, *args, **kwargs):
+        self.body = None
+        self.location = None
+        self.date = None
+        self.curriculum_event = False
+        self.weekdays = []
+        self.time = time()
+        self.alarm = timedelta()
 
-class Weekday(Enum):
+        for key in kwargs:
+            setattr(self, key, kwargs[key])
+
+    def __repr__(self):
+        what = self.body
+        where = self.location
+        
+        if self.date:
+            when = f'{self.date} - {self.time.strftime("%H:%M")}'
+        else:
+            when = self.time.strftime("%H:%M")
+        
+        return f'Vad: {what}\nNär: {when}\nVar: {where}\n'
+
+    @property
+    def curriculum_event(self):
+        return self._curriculum_event
+
+    @curriculum_event.setter
+    def curriculum_event(self, value):
+        self._curriculum_event = value    
+
+    @property
+    def body(self):
+        if self._body:
+            return self._body
+        return '-'
+
+    @body.setter
+    def body(self, value):
+        self._body = value
+
+    @property
+    def location(self):
+        if self._location:
+            return self._location
+        return '-'
+
+    @location.setter
+    def location(self, value):
+        self._location = value
+
+    @property
+    def weekdays(self):
+        if self._weekdays:
+            return self._weekdays
+        return []
+    
+    @weekdays.setter
+    def weekdays(self, value):
+        if isinstance(value, list):
+            self._weekdays = value
+        else:
+            raise AttributeError(f'Expected {list}, got {type(value)}')
+
+    @property
+    def time(self):
+        return self._time
+        
+    @time.setter
+    def time(self, value):
+        if isinstance(value, time):
+            self._time = value
+        else:
+            raise AttributeError(f'Expected {time}, got {type(value)}')
+
+    @property
+    def date(self):
+        return self._date
+
+    @date.setter
+    def date(self, value):
+        if isinstance(value, date) or isinstance(value, type(None)):
+            self._date = value
+        else:
+            raise AttributeError(f'Expected {date} or {None}, got {type(value)}')
+
+    @property
+    def alarm(self):
+        return self._alarm
+
+    @alarm.setter
+    def alarm(self, value):
+        if isinstance(value, timedelta):
+            try:
+                combined = datetime.combine(datetime.today(), self.time)
+                self._alarm = (combined - value).time()
+            except Exception as e:
+                raise EventReminderTimeAdjustError(e)
+        else:
+            raise AttributeError(f'Expected {timedelta}, got {type(value)}')
+
+    def to_json(self):
+        return json.dumps(
+            self, default = lambda: self.__dict__,
+            sort_keys = True, ensure_ascii = False, 
+            indent = 4)
+
+class Weekdays(Enum):
     MONDAY = 1
     TUESDAY = 2
     WEDNESDAY = 3
@@ -52,38 +150,10 @@ class Schedule:
     '''
     def __init__(self, url = str):
         self._url = url
-        self._scheduled_events = []
+        self._curriculum_events = []
         self._activities = []
         self.set_calendar()
         self.truncate_event_name()
-
-    def schedule_events(self, *args):
-        '''
-        Save instances of event object instances.
-        '''
-        for event in args:
-            self._scheduled_events.append(event)
-
-    def add_activity(self, *args):
-        '''
-        Save Events that were saved by people through
-        creating a reminder from chat dialog
-        '''
-        for activity in args:
-            self._activities.append(activity)
-
-    def remove_activities(self):
-        '''
-        Remove a given activity from self._activities
-        if the date is exhausted
-        '''
-        removed = []
-        if len(self._activities):
-            for activity in self._activities:
-                if self.current_time > activity.datetime:
-                    removed.append(activity)
-                    self._activities.remove(activity)
-        return removed
         
     def adjust_event_hours(self, hourdelta = int):
         '''
@@ -93,7 +163,7 @@ class Schedule:
         parameter. The instance attribute will be accessible through
         self.begin.time and self.end.time.
         '''
-        for event in self.schedule:
+        for event in self.curriculum:
             try:
                 year = self.current_time.year
                 month = self.current_time.month
@@ -119,7 +189,7 @@ class Schedule:
     def set_calendar(self):
         '''
         Get data from the timeedit servers containing the
-        schedule for class IoT19 2 weeks ahead. This callable
+        curriculum for class IoT19 2 weeks ahead. This callable
         will refresh the .ics Calendar object.
         '''
         try:
@@ -136,19 +206,8 @@ class Schedule:
         the privacy issue of storing names in log files.
         '''
 
-        for event in self.schedule:
+        for event in self.curriculum:
             event.name = f"{event.name.split(',')[0]},{event.name.split(',')[-1]}"
-
-    @property
-    def activities(self):
-        if len(self._activities):
-            self._activities.sort(key = attrgetter('datetime'))
-            return self._activities
-        return None
-
-    @property
-    def scheduled_events(self):
-        return self._scheduled_events
 
     @property
     def today(self):
@@ -156,23 +215,23 @@ class Schedule:
 
     @property
     def weekday(self):
-        for e in Weekday:
-            if self.today.isoweekday() == e.value:
-                return e
+        for day in Weekdays:
+            if self.today.isoweekday() == day.value:
+                return day
 
     @property
     def current_time(self):
         return datetime.now()
 
     @property
-    def schedule(self):
-        _schedule = list(self._calendar.events)
-        _schedule.sort()
-        return _schedule
+    def curriculum(self):
+        _curriculum = list(self._calendar.events)
+        _curriculum.sort()
+        return _curriculum
 
     @property
     def todays_events(self):
-        return [i for i in self.schedule if i.begin.date() == self.today]
+        return [i for i in self.curriculum if i.begin.date() == self.today]
     
     @property
     def todays_lessons(self):
@@ -194,11 +253,11 @@ class Schedule:
     @property
     def next_lesson(self):
         '''
-        Evaluate what lesson is the next on schedule. Iterate
+        Evaluate what lesson is the next on curriculum. Iterate
         through the list of lessons for today. Compare the current
         time with each lesson start time, return the upcoming one.
         Adjust for calendar timezone with 2hrs. If no lesson is found
-        for today, iterate over the entire sorted schedule and return
+        for today, iterate over the entire sorted curriculum and return
         the first lesson that lies in the future.
         '''
         lesson = None
@@ -209,7 +268,7 @@ class Schedule:
                     lesson = event
                     break
         if not lesson:
-            for event in self.schedule:
+            for event in self.curriculum:
                 if event.begin.date() > self.today:
                     lesson = event
                     break
