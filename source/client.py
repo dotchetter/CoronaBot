@@ -38,7 +38,8 @@ class RobBotClient(discord.Client):
         super().__init__(*args, **kwargs)
         self.loop.create_task(self.auto_message())
         self.loop.create_task(self.purge_runtime())
-        self.brain = Brain(schedule_url = RobBotClient.SCHDURL, hourdelta = kwargs['hourdelta'])
+        self._hourdelta = kwargs['hourdelta']
+        self.brain = Brain(schedule_url = RobBotClient.SCHDURL, hourdelta = self._hourdelta)
         
         if not os.path.isdir(self.brain.LOG_DIR):
             os.mkdir(self.brain.LOG_DIR)
@@ -116,7 +117,7 @@ class RobBotClient(discord.Client):
             try:
                 self.brain.schedule.set_calendar()
                 self.brain.schedule.truncate_event_name()
-                self.brain.schedule.adjust_event_hours(hourdelta = 2)
+                self.brain.schedule.adjust_event_hours(hourdelta = self._hourdelta)
                 self.setup_reminders()
                 removed_activities = self.brain.reminder.purge()
 
