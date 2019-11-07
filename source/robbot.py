@@ -77,13 +77,14 @@ class Brain:
     UNRECOGNIZED_CMDS_CACHE_FULLPATH = LOG_DIR / UNRECOGNIZED_CMDS_CACHE_FILE
     
     MISUNDERSTOOD_PHRASES = (
-        '?',
-        'Jag fattar inte riktigt.',
+        'Haha!',
+        'Det blir grymt!',
         'Mjaa det låter bra!',
         'Alltid, alltid. Självklart.',
         'Ja visst!',
         'Jag håller med.',
-        'Ingen aning vad du pratar om.'
+        'Säger du det?',
+        'Menar du det?'
     )
     
     EXPLICIT_ADJECTIVES = [
