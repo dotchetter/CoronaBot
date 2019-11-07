@@ -27,10 +27,14 @@ load_dotenv()
 
 class RobBotClient(discord.Client):
     
+    LOGFORMAT = "%(asctime)s::%(levelname)s::%(name)s::%(message)s"
+    
     try:
         GUILD = os.getenv('DISCORD_GUILD')
         SCHDURL = os.getenv('TIMEEDIT_URL')
-        LOGFORMAT = "%(asctime)s::%(levelname)s::%(name)s::%(message)s"
+        REDDIT_CLIENT_ID = os.getenv('REDDIT_CLIENT_ID')
+        REDDIT_CLIENT_SECRET = os.getenv('REDDIT_CLIENT_SECRET')
+        REDDIT_USER_AGENT = os.getenv('REDDIT_USER_AGENT')
     except Exception as e:
         raise EnvironmentVariableError(f'Unable to load enviromnent variable: {e}')
     
@@ -39,7 +43,12 @@ class RobBotClient(discord.Client):
         self.loop.create_task(self.auto_message())
         self.loop.create_task(self.purge_runtime())
         self._hourdelta = kwargs['hourdelta']
-        self.brain = Brain(schedule_url = RobBotClient.SCHDURL, hourdelta = self._hourdelta)
+        self.brain = Brain(
+            schedule_url = RobBotClient.SCHDURL, 
+            hourdelta = self._hourdelta,
+            reddit_client_id = RobBotClient.REDDIT_CLIENT_ID,
+            reddit_client_secret = RobBotClient.REDDIT_CLIENT_SECRET,
+            reddit_user_agent = RobBotClient.REDDIT_USER_AGENT)
         
         if not os.path.isdir(self.brain.LOG_DIR):
             os.mkdir(self.brain.LOG_DIR)
