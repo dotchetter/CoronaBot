@@ -1,9 +1,0 @@
-
-# Ignore client secret
-source/.env
-
-# Ignore virtualenv
-Include/
-Lib/
-Scripts/
-tcl/
