@@ -121,28 +121,34 @@ class Brain:
         'kiss my': ResponseOptions.EXPLICIT,
         'skämt' : ResponseOptions.JOKE
     }
-    
-    def __init__(self, schedule_url = str, hourdelta = int):
-        self.schedule = Schedule(schedule_url)
-        self.schedule.adjust_event_hours(hourdelta = hourdelta)
+
+    def __init__(self, *args, **kwargs):
+        for key in kwargs:
+            setattr(self, key, kwargs[key])
+
+        self.schedule = Schedule(self.schedule_url)
+        self.schedule.adjust_event_hours(hourdelta = self.hourdelta)
         self.reminder = Reminder()
         self._commands = self._get_bot_commands()
         self._unrecognized_commands = []
-        self._reddit = praw.Reddit(client_id='', client_secret='', user_agent='')
+        self._reddit = praw.Reddit(
+            client_id = self.reddit_client_id, 
+            client_secret = self.reddit_client_secret,
+            user_agent = self.reddit_user_agent)
 
     def respond_to(self, message):
         '''
         Call private interpretation method to get enum instance
         which points toward which response to give. 
+        Unrecognized messages recieved by people are logged separately
+        for further development purposes and easy data harvesting.
         '''
 
         interpretation = self._interpret(message = message.content)
         
         if not interpretation:
             self._log_unrecognized_message(message)
-            return f'{choice(Brain.MISUNDERSTOOD_PHRASES)}\r\n' \
-                    '**Psst**: Skriv "Hej Rob, vad kan du?"'
-
+            return f'{choice(Brain.MISUNDERSTOOD_PHRASES)}'
         if interpretation == ResponseOptions.NEXT_LESSON:
             response = self._get_next_lesson_response()
         elif interpretation == ResponseOptions.TODAYS_LESSONS:
