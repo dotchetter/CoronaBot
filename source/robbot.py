@@ -1,5 +1,6 @@
 import os
 import json
+import praw
 from custom_errs import *
 from enum import Enum, auto
 from datetime import datetime, time, timedelta
@@ -58,6 +59,7 @@ class ResponseOptions(Enum):
     REMEMBER_EVENT = auto()
     SHOW_EVENTS = auto()
     EXPLICIT = auto()
+    JOKE = auto()
 
 class Brain:
     '''
@@ -116,6 +118,7 @@ class Brain:
         'du suger': ResponseOptions.EXPLICIT,
         'du luktar': ResponseOptions.EXPLICIT,
         'kiss my': ResponseOptions.EXPLICIT,
+        'skämt' : ResponseOptions.JOKE
     }
     
     def __init__(self, schedule_url = str, hourdelta = int):
@@ -124,6 +127,7 @@ class Brain:
         self.reminder = Reminder()
         self._commands = self._get_bot_commands()
         self._unrecognized_commands = []
+        self._reddit = praw.Reddit(client_id='', client_secret='', user_agent='')
 
     def respond_to(self, message):
         '''
@@ -154,6 +158,8 @@ class Brain:
             response = self._get_remembered_events()
         elif interpretation == ResponseOptions.EXPLICIT:
             response = self._get_explicit_response(message)
+        elif interpretation == ResponseOptions.JOKE:
+            response = self._joke()
 
         return response
 
@@ -332,6 +338,11 @@ class Brain:
             remembered_events = [str(i) for i in remembered_events]
             return '\n'.join(remembered_events)
         return f'Inga sparade händelser :cry:'
+
+    def _joke(self):
+        submission = self._reddit.subreddit("jokes").random()
+        return f'{submission.title}\n||{submission.selftext}||'
+
 
     def _interpret(self, message = str):
         '''
