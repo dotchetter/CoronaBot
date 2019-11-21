@@ -4,9 +4,11 @@ import asyncio
 import logging
 from custom_errs import *
 from datetime import datetime, time, timedelta
-from schedule import Schedule, Event, Weekdays
+from schedule import Schedule
+from event import Event
+from weekdays import Weekdays
 from dotenv import load_dotenv
-from robbot import Brain
+from brain import Brain
 from reminder import Reminder
 from pathlib import Path
 
@@ -28,7 +30,10 @@ load_dotenv()
 class RobBotClient(discord.Client):
     
     LOGFORMAT = "%(asctime)s::%(levelname)s::%(name)s::%(message)s"
-    
+    LOG_DIR = Path('runtime_logs')
+    LOG_FILE = 'runtime.log'
+    LOG_FILE_FULLPATH = LOG_DIR / LOG_FILE
+
     try:
         GUILD = os.getenv('DISCORD_GUILD')
         SCHDURL = os.getenv('TIMEEDIT_URL')
@@ -55,7 +60,7 @@ class RobBotClient(discord.Client):
 
         logging.basicConfig(
             level = logging.INFO, 
-            filename = 'runtime.log', 
+            filename = RobBotClient.LOG_FILE_FULLPATH, 
             format = RobBotClient.LOGFORMAT)
 
     async def on_ready(self):
