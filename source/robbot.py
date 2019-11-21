@@ -10,6 +10,8 @@ from random import choice
 from operator import attrgetter
 from dataclasses import dataclass
 from pathlib import Path
+from unrecognizedcommand import UnrecognizedCommand
+from responseoptions import ResponseOptions
 
 
 '''
@@ -25,41 +27,6 @@ Synposis:
     share the current classroom for the day or week in the chat
     with a chatbot. 
 '''
-
-@dataclass
-class UnrecognizedCommand:
-    '''
-    Represent a message recieved in chat that the bot
-    was unable to handle. Store message content, author
-    and when it was recieved.
-    '''
-    command: str
-    author: str
-    timestamp: None
-
-    @property
-    def timestamp(self):
-        return self.timestamp
-
-    @timestamp.setter
-    def timestamp(self, value):
-        if isinstance(value, datetime):
-            self.timestamp = value.isoformat()
-
-class ResponseOptions(Enum):
-    '''
-    Constant enumerators for matching keywords against when
-    deciding which response to give a given command to the bot.
-    '''
-    NEXT_LESSON = auto()
-    TODAYS_LESSONS = auto()
-    SCHEDULE = auto()
-    SHOW_BOT_COMMANDS = auto()
-    MEANING_OF_LIFE = auto()
-    REMEMBER_EVENT = auto()
-    SHOW_EVENTS = auto()
-    EXPLICIT = auto()
-    JOKE = auto()
 
 class Brain:
     '''
@@ -87,13 +54,6 @@ class Brain:
         'Menar du det?'
     )
     
-    EXPLICIT_ADJECTIVES = [
-        'ful',
-        'dum',
-        'ass',
-        'suger'
-    ]
-    
     KEYWORDS = {
         'klass rum': ResponseOptions.NEXT_LESSON,
         'klassrum': ResponseOptions.NEXT_LESSON,
@@ -105,21 +65,15 @@ class Brain:
         'schema': ResponseOptions.SCHEDULE,
         'meningen med livet': ResponseOptions.MEANING_OF_LIFE,
         'kan du komma ihåg': ResponseOptions.REMEMBER_EVENT,
-        'kan du påminna om': ResponseOptions.REMEMBER_EVENT,
-        'kan du påminna': ResponseOptions.REMEMBER_EVENT,
+        'påminna': ResponseOptions.REMEMBER_EVENT,
         'tenta': ResponseOptions.SHOW_EVENTS,
         'tentor': ResponseOptions.SHOW_EVENTS,
         'händelser': ResponseOptions.SHOW_EVENTS,
         'event': ResponseOptions.SHOW_EVENTS,
         'events': ResponseOptions.SHOW_EVENTS,
         'aktiviteter': ResponseOptions.SHOW_EVENTS,
-        'skit': ResponseOptions.EXPLICIT,
-        'helvete': ResponseOptions.EXPLICIT,
-        'fuck': ResponseOptions.EXPLICIT,
-        'du suger': ResponseOptions.EXPLICIT,
-        'du luktar': ResponseOptions.EXPLICIT,
-        'kiss my': ResponseOptions.EXPLICIT,
-        'skämt' : ResponseOptions.JOKE
+        'skämt': ResponseOptions.JOKE,
+        'du är': ResponseOptions.ADJECTIVE
     }
 
     def __init__(self, *args, **kwargs):
@@ -163,8 +117,8 @@ class Brain:
             response = self._remember_event(message)
         elif interpretation == ResponseOptions.SHOW_EVENTS:
             response = self._get_remembered_events()
-        elif interpretation == ResponseOptions.EXPLICIT:
-            response = self._get_explicit_response(message)
+        elif interpretation == ResponseOptions.ADJECTIVE:
+            response = self._get_adjective_response(message)
         elif interpretation == ResponseOptions.JOKE:
             response = self._joke()
 
@@ -188,9 +142,7 @@ class Brain:
         the message which was not understood by the bot.
         Write to a local .json file as the list of instances
         grows larger during runtime.
-        '''
-        
-
+        '''   
         entry = UnrecognizedCommand(
                 command = str(message.content),
                 author = str(message.author),
@@ -215,7 +167,6 @@ class Brain:
         Upon bot launch, load previously cached non-recognized phrases
         in to self._unrecognized_commands field.
         '''
-
         try:
             if os.path.isfile(Brain.UNRECOGNIZED_CMDS_CACHE_FULLPATH):
                 with open(Brain.UNRECOGNIZED_CMDS_CACHE_FULLPATH, 'r',
@@ -321,13 +272,13 @@ class Brain:
                 alarm = timedelta(hours = 1)))
         return success
 
-    def _get_explicit_response(self, message):
+    def _get_adjective_response(self, message):
         '''
-        Return an explicit response if people are being mean.
+        Return a response with an adjective recieved,tagging 
+        the user and returning the phrase back to the user.
         '''
-        for word in message.content.split():
-            if word in Brain.EXPLICIT_ADJECTIVES:
-                return f'{message.author.mention} är {word}' 
+        phrase = str(message.content.split('du')[-1])
+        return f'{message.author.mention} {phrase} :smile:' 
 
     def _get_remembered_events(self):
         '''
@@ -364,10 +315,6 @@ class Brain:
             if keyword in message:
                 action = Brain.KEYWORDS[keyword]
                 return action
-
-        for keyword in Brain.EXPLICIT_ADJECTIVES:
-            if keyword in message:
-                return ResponseOptions.EXPLICIT
         return False
 
     @property
