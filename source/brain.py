@@ -7,7 +7,7 @@ from datetime import datetime, time, timedelta
 from schedule import Schedule
 from event import Event
 from reminder import Reminder
-from random import choice, seed
+from random import choice, seed, randint
 from operator import attrgetter
 from dataclasses import dataclass
 from pathlib import Path
@@ -28,7 +28,7 @@ Synposis:
     with a chatbot. 
 '''
 
-seed()
+seed(datetime.now().timestamp())
 
 class Brain:
     '''
