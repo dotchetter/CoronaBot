@@ -75,8 +75,10 @@ class Brain:
         'events': ResponseOptions.SHOW_EVENTS,
         'aktiviteter': ResponseOptions.SHOW_EVENTS,
         'skämt': ResponseOptions.JOKE,
-        'du är': ResponseOptions.ADJECTIVE
+        'är': ResponseOptions.ADJECTIVE
     }
+
+    DISCORD_MSG_LENGTH_LIMIT = 2000
 
     def __init__(self, *args, **kwargs):
         for key in kwargs:
@@ -208,7 +210,6 @@ class Brain:
         0 - 2000 in length.s
         '''
         friendly_schedule = []
-        discord_msg_length_limit = 2000
         last_date = self.schedule.curriculum[0].begin.date()
         
         for index, event in enumerate(self.schedule.curriculum):
@@ -224,9 +225,9 @@ class Brain:
                 else:
                     phrase = f'{name}\nKlassrum: {location}\nNär: {date} -- {begin}-{end}\n'
     
-                if (discord_msg_length_limit - len(phrase)) > 10:
+                if (Brain.DISCORD_MSG_LENGTH_LIMIT - len(phrase)) > 10:
                     friendly_schedule.append(phrase)
-                    discord_msg_length_limit -= len(phrase)
+                    Brain.DISCORD_MSG_LENGTH_LIMIT -= len(phrase)
                     last_date = event.begin.date()
                 else:
                     break        
@@ -279,8 +280,19 @@ class Brain:
         Return a response with an adjective recieved,tagging 
         the user and returning the phrase back to the user.
         '''
-        phrase = str(message.content.split('du')[-1])
-        return f'{message.author.mention} {phrase} :smile:' 
+        prefixes = (
+            'kan vara', 'är', 'är fan'
+        )
+        suffixes = (
+            ', oftast i alla fall :smirk:', 
+            '... ibland :sunglasses:', ':laughing:'
+        )
+
+        prefix = choice(prefixes)        
+        suffix = choice(suffixes)
+
+        phrase = str(message.content.split('är')[-1]).strip()
+        return f'{message.author.mention} du {prefix} {phrase} {suffix}' 
 
     def _get_remembered_events(self):
         '''
@@ -300,9 +312,27 @@ class Brain:
         return f'Inga sparade händelser :cry:'
 
     def _joke(self):
-        submission = self._reddit.subreddit("jokes").random()
-        return f'{submission.title}\n||{submission.selftext}||'
 
+        iterations = 0
+        iteration_limit = 10
+
+        while True:
+            iterations += 1
+            joke_selection = randint(0, 1)
+
+            if joke_selection == 0:
+                submission = self._reddit.subreddit("jokes").random()
+                message = f'{submission.title}\n||{submission.selftext}||'
+            else:
+                submission = self._reddit.subreddit("ProgrammerHumor").random()
+                message =  f'{submission.title}\n{submission.url}'
+            
+            if len(message) < Brain.DISCORD_MSG_LENGTH_LIMIT:
+                break
+            elif iterations == iteration_limit:
+                message = f'Jag kommer inte på något... :cry:'
+                break
+        return message
 
     def _interpret(self, message = str):
         '''
