@@ -89,7 +89,7 @@ class RobBotClient(discord.Client):
         '''
         now = datetime.now().strftime('%Y-%m-%d -- %H:%M:%S')
     
-        if 'hej rob' in message.content.lower() and message.author != client.user:
+        if message.content.lower().startswith("rob") and message.author != client.user:
             response = self.brain.respond_to(message)
             await message.channel.send(response)
             logging.info(f'{message.author} said: {message.content}')
@@ -107,9 +107,8 @@ class RobBotClient(discord.Client):
             await asyncio.sleep(1)
             event = self.brain.reminder.get()
             if event:
-                message = f'**Påminnelse:**\r\n{event}'
-                await channel.send(message)
-                logging.info(f'Bot said: {message}')
+                await channel.send(event)
+                logging.info(f'Bot said: {event}')
                 
     async def purge_runtime(self):
         '''
