@@ -1,6 +1,8 @@
 # Ignore pycache
 __pycache__
 
+# Ignore log files
+runtime_logs
 
 # Ignore client secret
 source/.env
