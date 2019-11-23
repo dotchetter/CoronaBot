@@ -75,7 +75,9 @@ class Brain:
         'events': ResponseOptions.SHOW_EVENTS,
         'aktiviteter': ResponseOptions.SHOW_EVENTS,
         'skämt': ResponseOptions.JOKE,
-        'är': ResponseOptions.ADJECTIVE
+        'rob är': ResponseOptions.ADJECTIVE,
+        'du är': ResponseOptions.ADJECTIVE,
+        'klockan': ResponseOptions.TIMENOW
     }
 
     DISCORD_MSG_LENGTH_LIMIT = 2000
@@ -107,7 +109,7 @@ class Brain:
         if not interpretation:
             self._log_unrecognized_message(message)
             return f'{choice(Brain.MISUNDERSTOOD_PHRASES)}'
-        if interpretation == ResponseOptions.NEXT_LESSON:
+        elif interpretation == ResponseOptions.NEXT_LESSON:
             response = self._get_next_lesson_response()
         elif interpretation == ResponseOptions.TODAYS_LESSONS:
             response = self._get_todays_lessons_phrase()
@@ -121,10 +123,12 @@ class Brain:
             response = self._remember_event(message)
         elif interpretation == ResponseOptions.SHOW_EVENTS:
             response = self._get_remembered_events()
-        elif interpretation == ResponseOptions.ADJECTIVE:
-            response = self._get_adjective_response(message)
         elif interpretation == ResponseOptions.JOKE:
             response = self._joke()
+        elif interpretation == ResponseOptions.TIMENOW:
+            response = self._get_timenow_response()
+        elif interpretation == ResponseOptions.ADJECTIVE:
+            response = self._get_adjective_response(message)
 
         return response
 
@@ -310,6 +314,12 @@ class Brain:
             remembered_events = [str(i) for i in remembered_events]
             return '\n'.join(remembered_events)
         return f'Inga sparade händelser :cry:'
+
+    def _get_timenow_response(self):
+        '''
+        Return current timestamp in Hour:Minute format
+        '''
+        return f'Den är {datetime.now().strftime("%H:%M")}!'
 
     def _joke(self):
 

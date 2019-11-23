@@ -30,3 +30,4 @@ class ResponseOptions(Enum):
     SHOW_EVENTS = auto()
     ADJECTIVE = auto()
     JOKE = auto()
+    TIMENOW = auto()
