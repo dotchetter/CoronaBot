@@ -31,3 +31,4 @@ class ResponseOptions(Enum):
     ADJECTIVE = auto()
     JOKE = auto()
     TIMENOW = auto()
+    WEBSEARCH = auto()
