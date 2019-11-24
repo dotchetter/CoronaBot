@@ -1,6 +1,6 @@
 from apiclient.discovery import build
 from custom_errs import AccessViolation
-
+from random import choice
 '''
 Details:
     2019-11-24
@@ -36,13 +36,22 @@ class Websearch:
 		Return only the URL from a websearch, based upon query.
 		If the search resulted in 0 matches, return None.
 		'''
+		prefixes = (
+			'Jag hittade detta!',
+			'Vad tror du om det där?',
+			'Hittade detta på webben, vad sägs om det?',
+			'Här har du lite läsning om det!',
+			'Det finns många svar på det men.. jag tror det där passar.',
+		)
+
 		result = self._service.list(
-					q = query, cx = self.customsearch_id, 
+					q = query, 
 					safe = 'active',
+					cx = self.customsearch_id, 
 					num = 1).execute()
 		
 		if int(result['queries']['request'][0]['totalResults']) > 0:
-			return result['items'][0]['link']
+			return f"{choice(prefixes)} :slight_smile:\n{result['items'][0]['link']}"
 		return None
 
 	@property
