@@ -284,19 +284,15 @@ class Brain:
         Return a response with an adjective recieved,tagging 
         the user and returning the phrase back to the user.
         '''
-        prefixes = (
-            'kan vara', 'är', 'är fan'
-        )
+
         suffixes = (
             ', oftast i alla fall :smirk:', 
-            '... ibland :sunglasses:', ':laughing:'
-        )
-
-        prefix = choice(prefixes)        
+            '... ibland :sunglasses:', ':laughing:',
+            ':slight_smile:'
+        ) 
         suffix = choice(suffixes)
-
         phrase = str(message.content.split('är')[-1]).strip()
-        return f'{message.author.mention} du {prefix} {phrase} {suffix}' 
+        return f'{message.author.mention} du är {phrase} {suffix}' 
 
     def _get_remembered_events(self):
         '''
