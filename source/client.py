@@ -25,36 +25,30 @@ Synposis:
     modules. 
 '''
 
-load_dotenv()
-
 class RobBotClient(discord.Client):
     
     LOGFORMAT = "%(asctime)s::%(levelname)s::%(name)s::%(message)s"
     LOG_DIR = Path('runtime_logs')
     LOG_FILE = 'runtime.log'
     LOG_FILE_FULLPATH = LOG_DIR / LOG_FILE
-
-    try:
-        GUILD = os.getenv('DISCORD_GUILD')
-        SCHDURL = os.getenv('TIMEEDIT_URL')
-        REDDIT_CLIENT_ID = os.getenv('REDDIT_CLIENT_ID')
-        REDDIT_CLIENT_SECRET = os.getenv('REDDIT_CLIENT_SECRET')
-        REDDIT_USER_AGENT = os.getenv('REDDIT_USER_AGENT')
-    except Exception as e:
-        raise EnvironmentVariableError(f'Unable to load enviromnent variable: {e}')
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
         self.loop.create_task(self.auto_message())
         self.loop.create_task(self.purge_runtime())
-        self._hourdelta = kwargs['hourdelta']
-        self.brain = Brain(
-            schedule_url = RobBotClient.SCHDURL, 
-            hourdelta = self._hourdelta,
-            reddit_client_id = RobBotClient.REDDIT_CLIENT_ID,
-            reddit_client_secret = RobBotClient.REDDIT_CLIENT_SECRET,
-            reddit_user_agent = RobBotClient.REDDIT_USER_AGENT)
         
+        self._hourdelta = kwargs['hourdelta']
+        self._guild = kwargs['DISCORD_GUILD']
+
+        self.brain = Brain(hourdelta = kwargs['hourdelta'],
+                            schedule_url = kwargs['TIMEEDIT_URL'], 
+                            google_api_key = kwargs['GOOGLE_API_KEY'],
+                            google_cse_id = kwargs['GOOGLE_CSE_ID'],
+                            reddit_client_id = kwargs['REDDIT_CLIENT_ID'],
+                            reddit_client_secret = kwargs['REDDIT_CLIENT_SECRET'],
+                            reddit_user_agent = kwargs['REDDIT_USER_AGENT'])
+
         if not os.path.isdir(self.brain.LOG_DIR):
             os.mkdir(self.brain.LOG_DIR)
 
@@ -68,7 +62,7 @@ class RobBotClient(discord.Client):
         This method is called as soon as the bot is online.
         '''
         for guild_name in client.guilds:
-            if guild_name == RobBotClient.GUILD:
+            if guild_name == self._guild:
                 break
         logging.info(f'Bot is online at {guild_name}')
 
@@ -166,17 +160,37 @@ class RobBotClient(discord.Client):
         if self.brain.reminder.events:
             logging.info(f'Added reminders:\n{self.brain.reminder.events}')
 
+def load_environment():
+    
+    load_dotenv()
+    var_dict = {}
+    env_var_strings = [
+        'DISCORD_GUILD',
+        'TIMEEDIT_URL',
+        'REDDIT_CLIENT_ID',
+        'REDDIT_CLIENT_SECRET',
+        'REDDIT_USER_AGENT',
+        'GOOGLE_API_KEY',
+        'GOOGLE_CSE_ID',
+        'DISCORD_TOKEN'
+    ]
+
+    for var in env_var_strings:
+        var_dict[var] = os.getenv(var)
+
+    return var_dict
+
 if __name__ == '__main__':
     
-    TOKEN = os.getenv('DISCORD_TOKEN')
-    
+    environment_vars = load_environment()
+    environment_vars['hourdelta'] = 1
+
     friday = Event(body = 'Fredag, wohoo! :beers:',
                 weekdays = [Weekdays.FRIDAY],
                 time = time(hour = 16, minute = 0),
                 alarm = timedelta(minutes = 30))
     
-    client = RobBotClient(**{'hourdelta': 1})
+    client = RobBotClient(**environment_vars)
     client.setup_reminders(reoccuring = [friday])
     client.brain.load_unrecognized_message_history()
-
-    client.run(TOKEN)
+    client.run(environment_vars['DISCORD_TOKEN'])
