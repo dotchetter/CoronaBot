@@ -29,3 +29,6 @@ class EventReminderTimeAdjustError(Exception):
 
 class UnrecognizedCommandLoggingError(Exception):
     pass
+
+class AccessViolation(Exception):
+    pass
