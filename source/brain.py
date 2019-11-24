@@ -228,10 +228,10 @@ class Brain:
                     phrase = f'\n{name}\nKlassrum: {location}\nNär: {date} -- {begin}-{end}'
                 else:
                     phrase = f'{name}\nKlassrum: {location}\nNär: {date} -- {begin}-{end}\n'
-    
-                if (Brain.DISCORD_MSG_LENGTH_LIMIT - len(phrase)) > 10:
+        
+                if (allowed_length - len(phrase)) > 10:
                     friendly_schedule.append(phrase)
-                    Brain.DISCORD_MSG_LENGTH_LIMIT -= len(phrase)
+                    allowed_length -= len(phrase)
                     last_date = event.begin.date()
                 else:
                     break        
