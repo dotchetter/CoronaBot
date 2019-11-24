@@ -214,6 +214,7 @@ class Brain:
         '''
         friendly_schedule = []
         last_date = self.schedule.curriculum[0].begin.date()
+        allowed_length = Brain.DISCORD_MSG_LENGTH_LIMIT
         
         for index, event in enumerate(self.schedule.curriculum):
             if event.begin.date() >= self.schedule.today:
