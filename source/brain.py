@@ -47,9 +47,7 @@ class Brain:
     
     MISUNDERSTOOD_PHRASES = (
         'Haha!',
-        'Det blir grymt!',
         'Mjaa det låter bra!',
-        'Alltid, alltid. Självklart.',
         'Ja visst!',
         'Jag håller med.',
         'Säger du det?',
@@ -57,44 +55,42 @@ class Brain:
     )
     
     KEYWORDS = {
-        'klass rum': ResponseOptions.NEXT_LESSON,
-        'klassrum': ResponseOptions.NEXT_LESSON,
+        'rum': ResponseOptions.NEXT_LESSON,
         'nästa lektion': ResponseOptions.NEXT_LESSON,
         'lektioner idag': ResponseOptions.TODAYS_LESSONS,
-        'dagens lektioner': ResponseOptions.TODAYS_LESSONS,
         'lektioner': ResponseOptions.TODAYS_LESSONS,
         'vad kan du': ResponseOptions.SHOW_BOT_COMMANDS,
         'schema': ResponseOptions.SCHEDULE,
-        'meningen med livet': ResponseOptions.MEANING_OF_LIFE,
         'kan du komma ihåg': ResponseOptions.REMEMBER_EVENT,
         'påminna': ResponseOptions.REMEMBER_EVENT,
-        'tenta': ResponseOptions.SHOW_EVENTS,
-        'tentor': ResponseOptions.SHOW_EVENTS,
+        'tent': ResponseOptions.SHOW_EVENTS,
         'händelser': ResponseOptions.SHOW_EVENTS,
-        'event': ResponseOptions.SHOW_EVENTS,
         'events': ResponseOptions.SHOW_EVENTS,
         'aktiviteter': ResponseOptions.SHOW_EVENTS,
         'skämt': ResponseOptions.JOKE,
         'rob är': ResponseOptions.ADJECTIVE,
         'du är': ResponseOptions.ADJECTIVE,
-        'klockan': ResponseOptions.TIMENOW
+        'klockan': ResponseOptions.TIMENOW,
+        '?': ResponseOptions.WEBSEARCH,
+        'vad är': ResponseOptions.WEBSEARCH
     }
 
     DISCORD_MSG_LENGTH_LIMIT = 2000
 
     def __init__(self, *args, **kwargs):
-        for key in kwargs:
-            setattr(self, key, kwargs[key])
-
-        self.schedule = Schedule(self.schedule_url)
-        self.schedule.adjust_event_hours(hourdelta = self.hourdelta)
-        self.reminder = Reminder()
         self._commands = self._get_bot_commands()
         self._unrecognized_commands = []
-        self._reddit = praw.Reddit(
-            client_id = self.reddit_client_id, 
-            client_secret = self.reddit_client_secret,
-            user_agent = self.reddit_user_agent)
+        
+        self.reminder = Reminder()
+        self.schedule = Schedule(kwargs['schedule_url'])
+        self.schedule.adjust_event_hours(hourdelta = kwargs['hourdelta'])
+        
+        self.websearch = Websearch(developerKey = kwargs['google_api_key'],
+                                customsearch_id = kwargs['google_cse_id'])
+       
+        self.reddit = praw.Reddit(client_id = kwargs['reddit_client_id'], 
+                                client_secret = kwargs['reddit_client_secret'],
+                                user_agent = kwargs['reddit_user_agent'])
 
     def respond_to(self, message):
         '''
