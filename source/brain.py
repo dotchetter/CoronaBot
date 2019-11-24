@@ -317,7 +317,26 @@ class Brain:
         '''
         return f'Den är {datetime.now().strftime("%H:%M")}!'
 
+    def _get_websearch_response(self, message):
+        '''
+        Return URL link fetched from the Websearch object.
+        If no results were found, return phrase that indicates
+        this to the user.
+        '''
+        query = message.content.split('rob')[-1].strip()
+        result = self.websearch.search(query)
+
+        if result is None:
+            return 'Hmm.. hittade inget på det. Prova på engelska! :slight_smile:'
+        return result
+
     def _joke(self):
+        '''
+        Return a random url or random joke phrase parsed
+        from reddits api client 'praw'. Ensure that the returned
+        joke is sub 2000 characters and randomize the choice between
+        the two alternatives, r/jokes and r/programmerhumor
+        '''
 
         iterations = 0
         iteration_limit = 10
