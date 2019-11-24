@@ -13,6 +13,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from unrecognizedcommand import UnrecognizedCommand
 from responseoptions import ResponseOptions
+from websearch import Websearch
 
 '''
 Details:
