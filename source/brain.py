@@ -126,6 +126,8 @@ class Brain:
             response = self._get_timenow_response()
         elif interpretation == ResponseOptions.ADJECTIVE:
             response = self._get_adjective_response(message)
+        elif interpretation == ResponseOptions.WEBSEARCH:
+            response = self._get_websearch_response(message)
 
         return response
 
