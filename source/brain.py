@@ -346,10 +346,10 @@ class Brain:
             joke_selection = randint(0, 1)
 
             if joke_selection == 0:
-                submission = self._reddit.subreddit("jokes").random()
+                submission = self.reddit.subreddit('jokes').random()
                 message = f'{submission.title}\n||{submission.selftext}||'
             else:
-                submission = self._reddit.subreddit("ProgrammerHumor").random()
+                submission = self.reddit.subreddit('ProgrammerHumor').random()
                 message =  f'{submission.title}\n{submission.url}'
             
             if len(message) < Brain.DISCORD_MSG_LENGTH_LIMIT:
