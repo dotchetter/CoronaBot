@@ -276,27 +276,29 @@ class Brain:
         If the bot recieves a message with proper syntax, create
         an Event instance. Save this object in the Reminder object.
         '''
-        invalid_format = 'Ogiltigt format, försök igen. Exempel:\n\n**Hej rob, kan '\
-                        'du komma ihåg; händelse, 2019-01-01-09:00, plats**.\n\nDet är '\
+        invalid_format = 'Ogiltigt format, försök igen. Exempel:\n\n**rob, kan '\
+                        'du komma ihåg; Nyår!, 2019-12-31-00:00\n\nDet är '\
                         'viktigt att ange ett semikolon och sedan separera med '\
                         'mellanslag och kommatecken. Datumformatet måste vara '\
-                        'ÅR-MÅNAD-DAG-TIMME:MINUT.'
-
-        success = 'Det ska jag påminna om :smiley:'
-
+                        'MÅNAD-DAG-TIMME:MINUT.'
+        
+        invalid_date = 'Försöker du lägga in en påminnelse bakåt i tiden...?'
+        success = 'Det kommer en påminnelse en halvtimme innan :slight_smile:'
+        
         try:
-            task = message.content.split(';')[-1].split(', ')
-            body = task[0]
+            task = message.content.split(';')[-1].split(',')
+            body = task[0].strip()
             event_date = datetime.strptime(task[1].strip(), '%Y-%m-%d-%H:%M')
-            location = task[2]
+            if datetime.now() > event_date:
+                return invalid_date
         except Exception as e:
             return invalid_format
         else:
             self.reminder.add(Event(
-                body = body, location = location, 
+                body = body, 
                 date = event_date.date(), 
                 time = time(hour = event_date.hour, minute = event_date.minute),
-                alarm = timedelta(hours = 1)))
+                alarm = timedelta(minutes = 30)))
         return success
 
     def _get_adjective_response(self, message):

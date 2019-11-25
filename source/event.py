@@ -34,15 +34,14 @@ class Event:
             setattr(self, key, kwargs[key])
 
     def __repr__(self):
-        what = self.body
-        where = self.location
-        
-        if self.date:
-            when = f'{self.date} - {self.time.strftime("%H:%M")}'
-        else:
-            when = self.time.strftime("%H:%M")
-        
-        return f'Vad: {what}\nNär: {when}\nVar: {where}\n'
+        if self.curriculum_event:
+            if self.date:
+                when = f'{self.date} - {self.time.strftime("%H:%M")}'
+            else:
+                when = self.time.strftime("%H:%M")
+            
+            return f'{self.body}\nNär: {when}\nVar: {self.location}\n'
+        return self.body
 
     @property
     def curriculum_event(self):
