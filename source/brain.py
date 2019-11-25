@@ -128,6 +128,8 @@ class Brain:
             response = self._get_adjective_response(message)
         elif interpretation == ResponseOptions.WEBSEARCH:
             response = self._get_websearch_response(message)
+        elif interpretation == ResponseOptions.LUNCHMENU:
+            response = self._get_lunchmenu_response()
 
         return response
 
@@ -329,6 +331,17 @@ class Brain:
         if result is None:
             return 'Hmm.. hittade inget på det. Prova på engelska! :slight_smile:'
         return result
+
+    def _get_lunchmenu_response(self):
+        '''
+        Get the lunch menu from the lunch_menu object, and return
+        the correct menu for today. If no menu is available, return
+        a phrase to indicate this for the user.
+        '''
+        todays_menu = self.lunch_menu.get()
+        if not len(todays_menu):
+            return 'Det verkar inte finnas något på menyn idag!'
+        return f'Detta serveras idag :slight_smile:\n\n{todays_menu}'
 
     def _joke(self):
         '''
