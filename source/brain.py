@@ -14,6 +14,7 @@ from pathlib import Path
 from unrecognizedcommand import UnrecognizedCommand
 from responseoptions import ResponseOptions
 from websearch import Websearch
+from scraper import Scraper
 
 '''
 Details:
@@ -73,7 +74,18 @@ class Brain:
         'du är': ResponseOptions.ADJECTIVE,
         'klockan': ResponseOptions.TIMENOW,
         '?': ResponseOptions.WEBSEARCH,
-        'vad är': ResponseOptions.WEBSEARCH
+        'vad är': ResponseOptions.WEBSEARCH,
+        'hur': ResponseOptions.WEBSEARCH,
+        'varför': ResponseOptions.WEBSEARCH,
+        'vilken': ResponseOptions.WEBSEARCH,
+        'vilket': ResponseOptions.WEBSEARCH,
+        'vilka': ResponseOptions.WEBSEARCH,
+        'vet du': ResponseOptions.WEBSEARCH,
+        'har du': ResponseOptions.WEBSEARCH,
+        'mat': ResponseOptions.LUNCHMENU,
+        'lunch':ResponseOptions.LUNCHMENU,
+        'käk':ResponseOptions.LUNCHMENU,
+        'krubb':ResponseOptions.LUNCHMENU
     }
 
     DISCORD_MSG_LENGTH_LIMIT = 2000
