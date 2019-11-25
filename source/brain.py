@@ -108,7 +108,7 @@ class Brain:
                                 client_secret = kwargs['reddit_client_secret'],
                                 user_agent = kwargs['reddit_user_agent'])
 
-        self.lunch_menu = Scraper(url = kwargs['lunch_menu_url'])
+        self.lunch_menu_scraper = Scraper(url = kwargs['lunch_menu_url'])
 
 
     def respond_to(self, message):
@@ -358,7 +358,7 @@ class Brain:
         the correct menu for today. If no menu is available, return
         a phrase to indicate this for the user.
         '''
-        todays_menu = self.lunch_menu.get()
+        todays_menu = self.lunch_menu_scraper.get()
 
         if isinstance(todays_menu, ScrapingError):
             return 'Jag kunde inte hitta matsedeln just nu :cry:'
