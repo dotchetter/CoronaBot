@@ -357,7 +357,10 @@ class Brain:
         a phrase to indicate this for the user.
         '''
         todays_menu = self.lunch_menu.get()
-        if not len(todays_menu):
+
+        if isinstance(todays_menu, ScrapingError):
+            return 'Jag kunde inte hitta matsedeln just nu :cry:'
+        elif not len(todays_menu):
             return 'Det verkar inte finnas något på menyn idag!'
         return f'Detta serveras idag :slight_smile:\n\n{todays_menu}'
 
