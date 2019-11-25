@@ -42,12 +42,13 @@ class RobBotClient(discord.Client):
         self._guild = kwargs['DISCORD_GUILD']
 
         self.brain = Brain(hourdelta = kwargs['hourdelta'],
-                            schedule_url = kwargs['TIMEEDIT_URL'], 
-                            google_api_key = kwargs['GOOGLE_API_KEY'],
-                            google_cse_id = kwargs['GOOGLE_CSE_ID'],
-                            reddit_client_id = kwargs['REDDIT_CLIENT_ID'],
-                            reddit_client_secret = kwargs['REDDIT_CLIENT_SECRET'],
-                            reddit_user_agent = kwargs['REDDIT_USER_AGENT'])
+                           schedule_url = kwargs['TIMEEDIT_URL'],
+                           lunch_menu_url = kwargs['LUNCH_MENU_URL'],
+                           google_api_key = kwargs['GOOGLE_API_KEY'],
+                           google_cse_id = kwargs['GOOGLE_CSE_ID'],
+                           reddit_client_id = kwargs['REDDIT_CLIENT_ID'],
+                           reddit_client_secret = kwargs['REDDIT_CLIENT_SECRET'],
+                           reddit_user_agent = kwargs['REDDIT_USER_AGENT'])
 
         if not os.path.isdir(self.brain.LOG_DIR):
             os.mkdir(self.brain.LOG_DIR)
@@ -167,6 +168,7 @@ def load_environment():
     env_var_strings = [
         'DISCORD_GUILD',
         'TIMEEDIT_URL',
+        'LUNCH_MENU_URL',
         'REDDIT_CLIENT_ID',
         'REDDIT_CLIENT_SECRET',
         'REDDIT_USER_AGENT',
