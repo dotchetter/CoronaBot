@@ -84,7 +84,7 @@ class RobBotClient(discord.Client):
         '''
         now = datetime.now().strftime('%Y-%m-%d -- %H:%M:%S')
     
-        if message.content.lower().startswith("rob") and message.author != client.user:
+        if message.content.lower().startswith('rob') and message.author != client.user:
             response = self.brain.respond_to(message)
             await message.channel.send(response)
             logging.info(f'{message.author} said: {message.content}')
@@ -96,7 +96,7 @@ class RobBotClient(discord.Client):
         defined on a certain day and a certain time. 
         '''
         await client.wait_until_ready()
-        channel = self.get_channel(618476154688634890)
+        channel = self.get_channel(634122441677078560) # DEV
         
         while not self.is_closed():
             await asyncio.sleep(1)
