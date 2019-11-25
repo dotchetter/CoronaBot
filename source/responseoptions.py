@@ -32,3 +32,4 @@ class ResponseOptions(Enum):
     JOKE = auto()
     TIMENOW = auto()
     WEBSEARCH = auto()
+    LUNCHMENU = auto()
