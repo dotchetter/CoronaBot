@@ -65,7 +65,3 @@ class Scraper:
 			elif 'kontakta' in tag.text.lower():
 				endsat = index
 		return Menu(menu[startsat:endsat])
-
-if __name__ == '__main__':
-	s = Scraper(url = 'http://restauranghjulet.se/lunch-meny/')
-	print(s.get())
