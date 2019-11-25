@@ -51,7 +51,8 @@ class Websearch:
 					num = 1).execute()
 		
 		if int(result['queries']['request'][0]['totalResults']) > 0:
-			return f"{choice(prefixes)} :slight_smile:\n{result['items'][0]['link']}"
+			link = result['items'][0]['link']
+			return f"{choice(prefixes)} :slight_smile:\n{link}"
 		return None
 
 	@property
