@@ -70,22 +70,26 @@ class Brain:
         'events': ResponseOptions.SHOW_EVENTS,
         'aktiviteter': ResponseOptions.SHOW_EVENTS,
         'skämt': ResponseOptions.JOKE,
+        'skratt': ResponseOptions.JOKE,
+        'en meme': ResponseOptions.JOKE,
         'rob är': ResponseOptions.ADJECTIVE,
         'du är': ResponseOptions.ADJECTIVE,
         'klockan': ResponseOptions.TIMENOW,
+        'mat idag': ResponseOptions.LUNCHMENU,
+        'lunch idag':ResponseOptions.LUNCHMENU,
+        'käk idag':ResponseOptions.LUNCHMENU,
+        'krubb idag':ResponseOptions.LUNCHMENU,
+        'matsalen': ResponseOptions.LUNCHMENU,
+        'matsedel': ResponseOptions.LUNCHMENU,
         '?': ResponseOptions.WEBSEARCH,
-        'vad är': ResponseOptions.WEBSEARCH,
+        'vad': ResponseOptions.WEBSEARCH,
         'hur': ResponseOptions.WEBSEARCH,
         'varför': ResponseOptions.WEBSEARCH,
         'vilken': ResponseOptions.WEBSEARCH,
         'vilket': ResponseOptions.WEBSEARCH,
         'vilka': ResponseOptions.WEBSEARCH,
         'vet du': ResponseOptions.WEBSEARCH,
-        'har du': ResponseOptions.WEBSEARCH,
-        'mat': ResponseOptions.LUNCHMENU,
-        'lunch':ResponseOptions.LUNCHMENU,
-        'käk':ResponseOptions.LUNCHMENU,
-        'krubb':ResponseOptions.LUNCHMENU
+        'har du': ResponseOptions.WEBSEARCH
     }
 
     DISCORD_MSG_LENGTH_LIMIT = 2000
