@@ -47,16 +47,18 @@ class Scraper:
 	@property
 	def soup(self):
 		if self.response is not None:
-			return BeautifulSoup(self.response, 'html.parser') 
+			return BeautifulSoup(self.response, 'html.parser')
+		else:
+			return None
 
 	def get(self):
 		'''
 		Scrape the website for menu text. Returns Menu
 		instance.
 		'''
-		if self.soup is not None:
+		try:
 			menu = self.soup.find_all('strong')
-		else:
+		except Exception:
 			return ScrapingError('Invalid response')
 		
 		for index, tag in enumerate(menu):
