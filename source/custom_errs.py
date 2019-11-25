@@ -32,3 +32,6 @@ class UnrecognizedCommandLoggingError(Exception):
 
 class AccessViolation(Exception):
     pass
+
+class ScrapingError(Exception):
+    pass
