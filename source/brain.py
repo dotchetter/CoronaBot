@@ -85,13 +85,15 @@ class Brain:
         self.reminder = Reminder()
         self.schedule = Schedule(kwargs['schedule_url'])
         self.schedule.adjust_event_hours(hourdelta = kwargs['hourdelta'])
-        
         self.websearch = Websearch(developerKey = kwargs['google_api_key'],
                                 customsearch_id = kwargs['google_cse_id'])
-       
+
         self.reddit = praw.Reddit(client_id = kwargs['reddit_client_id'], 
                                 client_secret = kwargs['reddit_client_secret'],
                                 user_agent = kwargs['reddit_user_agent'])
+
+        self.lunch_menu = Scraper(url = kwargs['lunch_menu_url'])
+
 
     def respond_to(self, message):
         '''
