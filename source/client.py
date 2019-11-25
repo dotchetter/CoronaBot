@@ -128,6 +128,7 @@ class RobBotClient(discord.Client):
                 self.brain.schedule.adjust_event_hours(hourdelta = self._hourdelta)
                 self.setup_reminders()
                 removed_activities = self.brain.reminder.purge()
+                self.brain.lunch_menu_scraper.purge_cache()
 
             except Exception as e:
                 logging.error(f'Error occured while cleaning up: {e}')

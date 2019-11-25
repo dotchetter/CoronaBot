@@ -27,6 +27,27 @@ class Scraper:
 
 	def __init__(self, url = None):
 		self.url = url
+		self._cache = None
+
+	def _cache_menu(self, menu_obj):
+		'''
+		Cache the Menu object created, if there is none
+		present. This reduces network traffic and increases
+		response time when multiple users query the bot for
+		the lunch menu simultaneously.
+		'''
+		if self._cache is None:
+			self._cache = menu_obj
+
+	def purge_cache(self):
+		'''
+		Purge the cached menu item upon call.
+		'''
+		self._cache = None
+
+	@property
+	def cache(self):
+		return self._cache
 
 	@property
 	def url(self):
@@ -56,6 +77,9 @@ class Scraper:
 		Scrape the website for menu text. Returns Menu
 		instance.
 		'''
+		if self.cache and self.cache.creation_date == datetime.today().date():
+			return self.cache
+
 		try:
 			menu = self.soup.find_all('strong')
 		except Exception:
@@ -66,4 +90,7 @@ class Scraper:
 				startsat = index + 1
 			elif 'kontakta' in tag.text.lower():
 				endsat = index
-		return Menu(menu[startsat:endsat])
+
+		menu_obj = Menu(menu[startsat:endsat])
+		self._cache_menu(menu_obj)
+		return self.cache

@@ -27,12 +27,13 @@ class Menu:
 		self.soup = soup
 		self.daily_menu = {0:[], 1:[], 2:[], 3:[], 4:[], 5:[], 6:[]}
 		self.todays_menu = self.serialize()[datetime.now().weekday()]
-		
+		self.creation_date = datetime.today().date()
+
 	def __repr__(self):
 		if not len(self):
 			return None
-		self.todays_menu = [f'**{i}**\n' for i in self.todays_menu]
-		return str().join(self.todays_menu)
+		todays_menu_str = [f'**{i}**\n' for i in self.todays_menu]
+		return str().join(todays_menu_str)
 
 	def __len__(self):
 		return len(self.todays_menu)
@@ -54,6 +55,14 @@ class Menu:
 				continue
 			self.daily_menu[key_count].append(item.text)
 		return self.daily_menu
+	
+	@property
+	def creation_date(self):
+		return self._creation_date
+
+	@creation_date.setter
+	def creation_date(self, value):
+		self._creation_date = value
 	
 	@property
 	def soup(self):
