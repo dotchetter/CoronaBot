@@ -2,8 +2,10 @@
 
 
 
-This is a Discord bot-project for my college classmates. I thought it could be a cool feature to have a bot tell us all in the class server where we're supposed to be, every morning or every night before. Haven't really decided yet. 
+The Rob Bot project is a chat bot, specifically written to be of assistance for me and my college mates.
 
+The initial purpose was to inform us in the chat every morning which classroom we were seated in for the day. However this quickly opened up my eyes as to just how much the bot could actually do for us. Reminders, automatic messages on schedule, scraping the lunch menu site, Google Custom Search integration etcetera. 
 
+The project has now grown in to a full-blown assistant for our class and it keeps on growing. Want to contribute? 
+Send a PR or ask about collaboration. The more the merrier!
 
-The idea is to parse a subscribed calendar and get the name of the classroom and the time of class, then give us this data in the server.
