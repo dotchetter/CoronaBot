@@ -159,7 +159,7 @@ class Brain:
         by separate method.
         '''
         for keyword in Brain.KEYWORDS.keys():
-            if keyword in message:
+            if keyword in message.lower():
                 action = Brain.KEYWORDS[keyword]
                 return action
         return False
