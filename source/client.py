@@ -87,8 +87,12 @@ class RobBotClient(discord.Client):
         if message.content.lower().startswith('rob') and message.author != client.user:
             response = self.brain.respond_to(message)
             await message.channel.send(response)
-            logging.info(f'{message.author} said: {message.content}')
-            logging.info(f'Bot said: {response}')
+            try:
+                logging.info(f'{message.author} said: {message.content}')
+            except Exception:
+                pass
+            else:
+                logging.info(f'Bot said: {response}')
     
     async def auto_message(self):
         '''
@@ -96,14 +100,17 @@ class RobBotClient(discord.Client):
         defined on a certain day and a certain time. 
         '''
         await client.wait_until_ready()
-        channel = self.get_channel(634122441677078560) # DEV
+        channel = self.get_channel(649625065754722315) # DEV
         
         while not self.is_closed():
             await asyncio.sleep(1)
             event = self.brain.reminder.get()
             if event:
                 await channel.send(event)
-                logging.info(f'Bot said: {event}')
+                try:
+                    logging.info(f'Bot said: {event}')
+                except Exception as e:
+                    logging.error(f'Message could not log correctly. Error:\n {e}')
                 
     async def purge_runtime(self):
         '''
@@ -130,8 +137,8 @@ class RobBotClient(discord.Client):
                 removed_activities = self.brain.reminder.purge()
                 self.brain.lunch_menu_scraper.purge_cache()
 
-            except Exception as e:
-                logging.error(f'Error occured while cleaning up: {e}')
+            except Exception:
+                pass
             else:
                 logging.info('Nightly purge and cleanup completed.')
                 await asyncio.sleep(1)            
