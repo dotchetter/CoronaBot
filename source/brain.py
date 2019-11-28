@@ -320,10 +320,10 @@ class Brain:
         the user and returning the phrase back to the user.
         '''
 
-        if 'rob du är' in message.content:
+        if 'rob du är' in message.content.lower():
             phrase = str(message.content.split('är')[-1]).strip()
             return f'{message.author.mention} **du** är {phrase}'
-        elif 'rob du' in message.content:
+        elif 'rob du' in message.content.lower():
             phrase = str(message.content.split('du')[-1]).strip()
             return f'{message.author.mention} **du** {phrase}'
         else:
