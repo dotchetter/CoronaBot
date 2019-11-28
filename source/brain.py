@@ -49,9 +49,7 @@ class Brain:
     
     MISUNDERSTOOD_PHRASES = (
         'Haha!',
-        'Mjaa det låter bra!',
-        'Ja visst!',
-        'Jag håller med.',
+        'Jassårru??',
         'Säger du det?',
         'Menar du det?'
     )
@@ -72,8 +70,10 @@ class Brain:
         'skämt': ResponseOptions.JOKE,
         'skratt': ResponseOptions.JOKE,
         'en meme': ResponseOptions.JOKE,
+        'rob du': ResponseOptions.ADJECTIVE,
+        'rob luktar': ResponseOptions.ADJECTIVE,
+        'rob suger': ResponseOptions.ADJECTIVE,
         'rob är': ResponseOptions.ADJECTIVE,
-        'du är': ResponseOptions.ADJECTIVE,
         'klockan': ResponseOptions.TIMENOW,
         'mat': ResponseOptions.LUNCHMENU,
         'lunch':ResponseOptions.LUNCHMENU,
@@ -320,14 +320,15 @@ class Brain:
         the user and returning the phrase back to the user.
         '''
 
-        suffixes = (
-            ', oftast i alla fall :smirk:', 
-            '... ibland :sunglasses:', ':laughing:',
-            ':slight_smile:'
-        ) 
-        suffix = choice(suffixes)
-        phrase = str(message.content.split('är')[-1]).strip()
-        return f'{message.author.mention} du är {phrase} {suffix}' 
+        if 'rob du är' in message.content:
+            phrase = str(message.content.split('är')[-1]).strip()
+            return f'{message.author.mention} **du** är {phrase}'
+        elif 'rob du' in message.content:
+            phrase = str(message.content.split('du')[-1]).strip()
+            return f'{message.author.mention} **du** {phrase}'
+        else:
+            phrase = str(message.content.split('rob')[-1]).strip()
+            return f'{message.author.mention} {phrase}'
 
     def _get_remembered_events(self):
         '''
