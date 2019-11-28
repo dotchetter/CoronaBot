@@ -151,6 +151,21 @@ class Brain:
 
         return response
 
+    def _interpret(self, message = str):
+        '''
+        If the bot is given a message, evaluate what it cntains.    
+        Provide sufficient response to the given message by using
+        class methods to get data for each response. Return enum
+        instance, depending on which keyword matches which key in 
+        the keyword dict property. Action will be taken accordingly
+        by separate method.
+        '''
+        for keyword in Brain.KEYWORDS.keys():
+            if keyword in message:
+                action = Brain.KEYWORDS[keyword]
+                return action
+        return False
+
     def greet(self, member = str):
         '''
         Return a greeting string, introducing ourselves
@@ -162,6 +177,19 @@ class Brain:
                 return f'{greeting} {member}! :smile:'
         except FileNotFoundError:
             return 'Ett fel uppstod - jag hittar inte filen. Hjälp!'
+
+    def load_unrecognized_message_history(self):
+        '''
+        Upon bot launch, load previously cached non-recognized phrases
+        in to self._unrecognized_commands field.
+        '''
+        try:
+            if os.path.isfile(Brain.UNRECOGNIZED_CMDS_CACHE_FULLPATH):
+                with open(Brain.UNRECOGNIZED_CMDS_CACHE_FULLPATH, 'r',
+                    encoding = 'utf-8') as f:
+                        self._unrecognized_commands = json.loads(f.read())
+        except Exception as e:
+            raise UnrecognizedCommandLoggingError(f'Could not load file. {e}')
 
     def _log_unrecognized_message(self, message):
         '''
@@ -188,19 +216,6 @@ class Brain:
         
         except Exception as e:
             raise UnrecognizedCommandLoggingError(e)
-
-    def load_unrecognized_message_history(self):
-        '''
-        Upon bot launch, load previously cached non-recognized phrases
-        in to self._unrecognized_commands field.
-        '''
-        try:
-            if os.path.isfile(Brain.UNRECOGNIZED_CMDS_CACHE_FULLPATH):
-                with open(Brain.UNRECOGNIZED_CMDS_CACHE_FULLPATH, 'r',
-                    encoding = 'utf-8') as f:
-                        self._unrecognized_commands = json.loads(f.read())
-        except Exception as e:
-            raise UnrecognizedCommandLoggingError(f'Could not load file. {e}')
 
     def _get_bot_commands(self):
         '''
@@ -345,7 +360,7 @@ class Brain:
         If no results were found, return phrase that indicates
         this to the user.
         '''
-        query = message.content.split('rob')[-1].strip()
+        query = message.content.lower().split('rob')[-1].strip()
         result = self.websearch.search(query)
 
         if result is None:
@@ -394,21 +409,6 @@ class Brain:
                 message = f'Jag kommer inte på något... :cry:'
                 break
         return message
-
-    def _interpret(self, message = str):
-        '''
-        If the bot is given a message, evaluate what it cntains.    
-        Provide sufficient response to the given message by using
-        class methods to get data for each response. Return enum
-        instance, depending on which keyword matches which key in 
-        the keyword dict property. Action will be taken accordingly
-        by separate method.
-        '''
-        for keyword in Brain.KEYWORDS.keys():
-            if keyword in message:
-                action = Brain.KEYWORDS[keyword]
-                return action
-        return False
 
     @property
     def next_lesson_response(self):
