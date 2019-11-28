@@ -295,14 +295,14 @@ class Brain:
                         'mellanslag och kommatecken. Datumformatet måste vara '\
                         'MÅNAD-DAG-TIMME:MINUT.'
         
-        invalid_date = 'Försöker du lägga in en påminnelse bakåt i tiden...?'
+        invalid_date = 'Du måste skapa en påminnelse minst 30 minuter i framtiden.'
         success = 'Det kommer en påminnelse en halvtimme innan :slight_smile:'
         
         try:
             task = message.content.split(';')[-1].split(',')
             body = task[0].strip()
             event_date = datetime.strptime(task[1].strip(), '%Y-%m-%d-%H:%M')
-            if datetime.now() > event_date:
+            if datetime.now() > event_date or ((event_date - datetime.now()).seconds / 60) < 30.0:
                 return invalid_date
         except Exception as e:
             return invalid_format
