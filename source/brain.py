@@ -172,7 +172,7 @@ class Brain:
         try:
             with open('greeting.dat', 'r', encoding = 'utf-8') as f:
                 greeting = str().join(f.readlines())
-                return f'{greeting} {member}! :smile:'
+                return f'{greeting} :smile:'
         except FileNotFoundError:
             return 'Ett fel uppstod - jag hittar inte filen. Hjälp!'
 
