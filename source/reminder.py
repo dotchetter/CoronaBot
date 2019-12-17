@@ -1,5 +1,5 @@
 from datetime import datetime, time
-from schedule import Weekdays
+from source.schedule import Weekdays
 
 '''
 Details:

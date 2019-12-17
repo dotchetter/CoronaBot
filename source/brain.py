@@ -1,20 +1,20 @@
 import os
 import json
 import praw
-from custom_errs import *
-from enum import Enum, auto
 from datetime import datetime, time, timedelta
-from schedule import Schedule
-from event import Event
-from reminder import Reminder
-from random import choice, seed, randint
-from operator import attrgetter
+from enum import Enum, auto
 from dataclasses import dataclass
 from pathlib import Path
-from unrecognizedcommand import UnrecognizedCommand
-from responseoptions import ResponseOptions
-from websearch import Websearch
-from scraper import Scraper
+from operator import attrgetter
+from random import choice, seed, randint
+from source.custom_errs import *
+from source.schedule import Schedule
+from source.event import Event
+from source.reminder import Reminder
+from source.unrecognizedcommand import UnrecognizedCommand
+from source.responseoptions import ResponseOptions
+from source.websearch import Websearch
+from source.scraper import Scraper
 
 '''
 Details:

@@ -2,10 +2,10 @@ import ics
 import json
 import os
 from enum import Enum, auto
-from custom_errs import *
-from datetime import date, datetime, timedelta, time
 from urllib.request import urlopen
-from weekdays import Weekdays
+from datetime import date, datetime, timedelta, time
+from source.custom_errs import *
+from source.weekdays import Weekdays
 
 '''
 Details:

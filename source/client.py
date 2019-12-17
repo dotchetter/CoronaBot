@@ -2,15 +2,15 @@ import os
 import discord
 import asyncio
 import logging
-from custom_errs import *
 from datetime import datetime, time, timedelta
-from schedule import Schedule
-from event import Event
-from weekdays import Weekdays
 from dotenv import load_dotenv
-from brain import Brain
-from reminder import Reminder
 from pathlib import Path
+from source.custom_errs import *
+from source.schedule import Schedule
+from source.event import Event
+from source.weekdays import Weekdays
+from source.brain import Brain
+from source.reminder import Reminder
 
 '''
 Details:

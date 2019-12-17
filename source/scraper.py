@@ -1,8 +1,8 @@
 from datetime import datetime
 from bs4 import BeautifulSoup
 from urllib import request
-from custom_errs import ScrapingError
-from menu import Menu
+from source.custom_errs import ScrapingError
+from source.menu import Menu
 '''
 Details:
     2019-11-24
