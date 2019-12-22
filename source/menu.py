@@ -26,35 +26,33 @@ class Menu:
 	def __init__(self, soup = []):
 		self.soup = soup
 		self.daily_menu = {0:[], 1:[], 2:[], 3:[], 4:[], 5:[], 6:[]}
-		self.todays_menu = self.serialize()[datetime.now().weekday()]
 		self.creation_date = datetime.today().date()
+		self._serialize()
 
 	def __repr__(self):
 		if not len(self):
 			return None
-		todays_menu_str = [f'**{i}**\n' for i in self.todays_menu]
+		todays_menu_str = [f'**{i}**\n' for i in self.daily_menu]
 		return str().join(todays_menu_str)
 
 	def __len__(self):
-		return len(self.todays_menu)
+		return len(self.daily_menu)
 
-	def serialize(self):
+	def _serialize(self):
 		'''
 		Return dictionary representation of the items
 		in self.soup. Divide the menu in to dict keys
 		corresponding to weekday indexing, and add any
 		lines of text to corresponsing list in the dict.
 		'''
-		swe_weekdays = ['måndag','tisdag',
-						'onsdag','torsdag', 
-						'fredag']
 		key_count = 0
+		swe_weekdays = ['måndag','tisdag','onsdag','torsdag','fredag']
+
 		for item in self.soup:
 			if item.text.lower() in swe_weekdays:
 				key_count += 1
 				continue
 			self.daily_menu[key_count].append(item.text)
-		return self.daily_menu
 	
 	@property
 	def creation_date(self):
