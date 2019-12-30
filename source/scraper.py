@@ -71,11 +71,54 @@ class Scraper:
 		if self._cache is None:
 			self._cache = menu_obj
 
+	def _cache_web_content(self):
+		'''
+		Caches the content if this is the firs time
+		the instance scrapes the website. This is done
+		to shorten response time and to spare the server
+		from requests.
+		'''
+		try:
+			html = self.soup.find_all('strong')
+		except Exception:
+			return ScrapingError('Invalid response')
+		
+		for index, tag in enumerate(html):
+			if 'måndag' in tag.text.lower():
+				startsat = index + 1
+			elif 'kontakta' in tag.text.lower():
+				endsat = index
+
+		self._cache_menu(Menu(html[startsat:endsat]))
+
 	def purge_cache(self):
 		'''
 		Purge the cached menu item upon call.
 		'''
 		self._cache = None
+
+	def get_menu_for_weekday(self, weekday):
+		'''
+		Scrape the website for menu text. Returns Menu
+		instance. Expects Weekday enum for getting list
+		of dishes for specific day of week. 
+		'''
+		if not self.cache:
+			self._cache_web_content()
+		try:
+			return self.cache[weekday]
+		except Exception:
+			return None
+		return menu
+
+	def get_menu_for_week(self):
+		'''
+		Return the entire menu for the whole week, scraped
+		from the website.
+		'''
+		if not self.cache:
+			self._cache_web_content()
+		return self._cache[0:5]
 
 	@property
 	def cache(self):
