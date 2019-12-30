@@ -1,4 +1,5 @@
 from datetime import datetime
+from source.weekdays import Weekdays
 '''
 Details:
     2019-11-24
@@ -25,37 +26,51 @@ class Menu:
 	'''
 	def __init__(self, soup = []):
 		self.soup = soup
-		self.daily_menu = {0:[], 1:[], 2:[], 3:[], 4:[], 5:[], 6:[]}
-		self.todays_menu = self.serialize()[datetime.now().weekday()]
+		self._weekly_menu = {
+			'måndag': [], 
+			'tisdag': [], 
+			'onsdag': [],
+			'torsdag': [], 
+			'fredag': []
+		}
+
+		self._index_lookup = {
+			Weekdays.MONDAY.value: self._weekly_menu['måndag'],
+			Weekdays.TUESDAY.value: self._weekly_menu['tisdag'],
+			Weekdays.WEDNESDAY.value: self._weekly_menu['onsdag'],
+			Weekdays.THURSDAY.value: self._weekly_menu['torsdag'],
+			Weekdays.FRIDAY.value: self._weekly_menu['fredag'],
+		}
+
 		self.creation_date = datetime.today().date()
+		self._serialize()
 
-	def __repr__(self):
-		if not len(self):
-			return None
-		todays_menu_str = [f'**{i}**\n' for i in self.todays_menu]
-		return str().join(todays_menu_str)
+	def __getitem__(self, index):
+		
+		try:
+			return self._index_lookup[index.value]
+		except KeyError as e:
+			return e
+		except AttributeError:
+			return f'Index must be of type Weekdays, got {type(index)}'
 
-	def __len__(self):
-		return len(self.todays_menu)
-
-	def serialize(self):
+	def _serialize(self):
 		'''
-		Return dictionary representation of the items
-		in self.soup. Divide the menu in to dict keys
-		corresponding to weekday indexing, and add any
-		lines of text to corresponsing list in the dict.
+		Iterate over the HTML content found in the 
+		soup object received. Look for the weekday
+		markers, denoted by the keys in the 
 		'''
-		swe_weekdays = ['måndag','tisdag',
-						'onsdag','torsdag', 
-						'fredag']
-		key_count = 0
-		for item in self.soup:
-			if item.text.lower() in swe_weekdays:
-				key_count += 1
+		selected_weekday = None
+
+		for html in self.soup:			
+			if html.text.lower() in self._weekly_menu:
+				selected_weekday = html.text.lower()
 				continue
-			self.daily_menu[key_count].append(item.text)
-		return self.daily_menu
-	
+			
+			if selected_weekday:
+				self._weekly_menu[selected_weekday].append(html.text.lower())
+
+
 	@property
 	def creation_date(self):
 		return self._creation_date
@@ -73,9 +88,9 @@ class Menu:
 		self._soup = value
 
 	@property
-	def daily_menu(self):
+	def _weekly_menu(self):
 		return self._daily_menu
 	
-	@daily_menu.setter
-	def daily_menu(self, value):
+	@_weekly_menu.setter
+	def _weekly_menu(self, value):
 		self._daily_menu = value
