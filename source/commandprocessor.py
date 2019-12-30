@@ -284,10 +284,10 @@ class CommandProcessor:
 		self._schedule = Schedule('https://cloud.timeedit.net/nackademin/web/1/ri6555Qy1446n6QZ0YQ4Q7ZQZ5607.ics')
 		self._scraper = Scraper(url = 'http://restauranghjulet.se/lunch-meny/')
 		
-		self._lunch_menu_command_identifier = LunchMenuCommandIdentifier()
-		self._joke_command_identifier = JokeCommandIdentifier()
-		self._schedule_command_identifier = ScheduleCommandIdentifier()
-		self._reminder_command_identifier = ReminderCommandIdentifier()
+		self._lunch_menu_command_identifier = LunchMenuFeatureCommandParser()
+		self._joke_command_identifier = JokeCommandFeatureCommandParser()
+		self._schedule_command_identifier = ScheduleFeatureCommandParser()
+		self._reminder_command_identifier = ReminderFeatureCommandParser()
 
 		self._category_identifiers = (
 			self._reminder_command_identifier,
