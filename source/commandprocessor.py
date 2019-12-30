@@ -121,7 +121,7 @@ class PronounLookupTable:
 			return sorted(set(pronouns))
 		return [CommandPronouns.UNIDENTIFIED]
 
-class FeatureCommandIdentifier(ABC):
+class AbstractFeatureCommandParser(ABC):
 	'''
 	Describe a data structure that binds certain
 	keywords to a certain feature. As the feature
@@ -144,12 +144,12 @@ class FeatureCommandIdentifier(ABC):
 
 	def get_subcategory(self, message):
 		for word in message:
-			word = word.strip(FeatureCommandIdentifier.IGNORED_CHARS)
+			word = word.strip(AbstractFeatureCommandParser.IGNORED_CHARS)
 			if word in self._subcategories:
 				return self._subcategories[word]
 		return ResponseOptions.UNIDENTIFIED
 
-class LunchMenuCommandIdentifier(FeatureCommandIdentifier):
+class LunchMenuFeatureCommandParser(AbstractFeatureCommandParser):
 	def __init__(self):
 		super().__init__()
 		self._keywords = (
@@ -159,28 +159,32 @@ class LunchMenuCommandIdentifier(FeatureCommandIdentifier):
 		)
 
 		self._subcategories = {
+			'igår': ResponseOptions.LUNCH_YESTERDAY,
 			'idag': ResponseOptions.LUNCH_TODAY,
 			'imorgon': ResponseOptions.LUNCH_TOMORROW,
 			'imorn': ResponseOptions.LUNCH_TOMORROW,
 			'imorron': ResponseOptions.LUNCH_TOMORROW,
 			'imorrn': ResponseOptions.LUNCH_TOMORROW,
+			'övermorgon': ResponseOptions.LUNCH_DAY_AFTER_TOMORROW,
+			'övermorn': ResponseOptions.LUNCH_DAY_AFTER_TOMORROW,
+			'övermorrn': ResponseOptions.LUNCH_DAY_AFTER_TOMORROW,
 			'vecka': ResponseOptions.LUNCH_FOR_WEEK,
 			'veckan': ResponseOptions.LUNCH_FOR_WEEK
 		}
 
 	def __getitem__(self, iterable):
 		for word in iterable:
-			if word.strip(FeatureCommandIdentifier.IGNORED_CHARS) in self:
+			if word.strip(AbstractFeatureCommandParser.IGNORED_CHARS) in self:
 				return CommandCategory.LUNCH_MENU
 
 	def get_subcategory(self, message):
 		for word in message:
-			word = word.strip(FeatureCommandIdentifier.IGNORED_CHARS)
+			word = word.strip(AbstractFeatureCommandParser.IGNORED_CHARS)
 			if word in self._subcategories:
 				return self._subcategories[word]
 		return ResponseOptions.LUNCH_TODAY
 
-class JokeCommandIdentifier(FeatureCommandIdentifier):
+class JokeCommandFeatureCommandParser(AbstractFeatureCommandParser):
 	def __init__(self):
 		super().__init__()
 		self._keywords = (
@@ -202,10 +206,10 @@ class JokeCommandIdentifier(FeatureCommandIdentifier):
 	
 	def __getitem__(self, iterable):
 		for word in iterable:
-			if word.strip(FeatureCommandIdentifier.IGNORED_CHARS) in self:
+			if word.strip(AbstractFeatureCommandParser.IGNORED_CHARS) in self:
 				return CommandCategory.TELL_JOKE	
 	
-class ScheduleCommandIdentifier(FeatureCommandIdentifier):
+class ScheduleFeatureCommandParser(AbstractFeatureCommandParser):
 	def __init__(self):
 		super().__init__()
 		self._keywords = (
@@ -226,10 +230,10 @@ class ScheduleCommandIdentifier(FeatureCommandIdentifier):
 
 	def __getitem__(self, iterable):
 		for word in iterable: 
-			if word.strip(FeatureCommandIdentifier.IGNORED_CHARS) in self:
+			if word.strip(AbstractFeatureCommandParser.IGNORED_CHARS) in self:
 				return CommandCategory.SCHEDULE
 		
-class ReminderCommandIdentifier(FeatureCommandIdentifier):
+class ReminderFeatureCommandParser(AbstractFeatureCommandParser):
 	def __init__(self):
 		super().__init__()
 		self._keywords = (
@@ -249,7 +253,7 @@ class ReminderCommandIdentifier(FeatureCommandIdentifier):
 
 	def __getitem__(self, iterable):
 		for word in iterable: 
-			if word.strip(FeatureCommandIdentifier.IGNORED_CHARS) in self:
+			if word.strip(AbstractFeatureCommandParser.IGNORED_CHARS) in self:
 				return CommandCategory.REMINDER
 
 @dataclass
