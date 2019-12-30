@@ -2,6 +2,8 @@ from enum import Enum, auto
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
 from source.schedule import Schedule
+from source.scraper import Scraper
+from datetime import datetime
 
 import timeit
 
@@ -178,7 +180,6 @@ class LunchMenuCommandIdentifier(FeatureCommandIdentifier):
 				return self._subcategories[word]
 		return ResponseOptions.LUNCH_TODAY
 
-
 class JokeCommandIdentifier(FeatureCommandIdentifier):
 	def __init__(self):
 		super().__init__()
@@ -202,8 +203,7 @@ class JokeCommandIdentifier(FeatureCommandIdentifier):
 	def __getitem__(self, iterable):
 		for word in iterable:
 			if word.strip(FeatureCommandIdentifier.IGNORED_CHARS) in self:
-				return CommandCategory.TELL_JOKE
-	
+				return CommandCategory.TELL_JOKE	
 	
 class ScheduleCommandIdentifier(FeatureCommandIdentifier):
 	def __init__(self):
@@ -221,15 +221,14 @@ class ScheduleCommandIdentifier(FeatureCommandIdentifier):
 			'idag': ResponseOptions.SCHEDULE_TODAYS_LESSONS,
 			'imorgon': ResponseOptions.SCHEDULE_TOMORROWS_LESSONS,
 			'schema': ResponseOptions.SCHEDULE_SCHEDULE,
-			'schemat': ResponseOptions.SCHEDULE_TOMORROWS_LESSONS
+			'schemat': ResponseOptions.SCHEDULE_SCHEDULE
 		}
 
 	def __getitem__(self, iterable):
 		for word in iterable: 
 			if word.strip(FeatureCommandIdentifier.IGNORED_CHARS) in self:
 				return CommandCategory.SCHEDULE
-	
-	
+		
 class ReminderCommandIdentifier(FeatureCommandIdentifier):
 	def __init__(self):
 		super().__init__()
@@ -279,6 +278,7 @@ class CommandProcessor:
 		self._pronoun_lookup_table = PronounLookupTable()
 		self._command_variations = []
 		self._schedule = Schedule('https://cloud.timeedit.net/nackademin/web/1/ri6555Qy1446n6QZ0YQ4Q7ZQZ5607.ics')
+		self._scraper = Scraper(url = 'http://restauranghjulet.se/lunch-meny/')
 		
 		self._lunch_menu_command_identifier = LunchMenuCommandIdentifier()
 		self._joke_command_identifier = JokeCommandIdentifier()
@@ -291,6 +291,42 @@ class CommandProcessor:
 			self._joke_command_identifier,
 			self._schedule_command_identifier
 		)
+	
+	def __call__(self, message):
+
+		binding = {
+			ResponseOptions.SCHEDULE_NEXT_LESSON: self._wrap(self._schedule.next_lesson),
+			ResponseOptions.SCHEDULE_TODAYS_LESSONS: self._wrap(self._schedule.next_lesson),
+			ResponseOptions.SCHEDULE_SCHEDULE: self._wrap(self._schedule.curriculum),
+			ResponseOptions.LUNCH_TODAY: self._wrap(self._scraper.get)
+		}
+		try:
+			return binding[self._process(message)]
+		except KeyError:
+			return self._wrap(datetime.now)
+
+	def _process(self, message = str):
+		'''
+		Process an Interpretation object, and evaluate
+		a sufficient response phrase for a given
+		Interpretation object instance, depending upon
+		command type, identified pronouns and identified
+		response.
+		'''
+		message = message.lower().split(' ')
+		interpretation = self._interpret(message)
+	
+		if interpretation.response == CommandCategory.LUNCH_MENU:
+			return self._lunch_menu_command_identifier.get_subcategory(message)
+		elif interpretation.response == CommandCategory.SCHEDULE:
+			return self._schedule_command_identifier.get_subcategory(message)
+		elif interpretation.response == CommandCategory.TELL_JOKE:
+			return self._joke_command_identifier.get_subcategory(message)
+		elif interpretation.response == CommandCategory.REMINDER:
+			return self._reminder_command_identifier.get_subcategory(message)
+		elif CommandPronouns.INTERROGATIVE in interpretation.command_type:
+			return ResponseOptions.WEBSEARCH
+		return ResponseOptions.UNIDENTIFIED
 
 	def _interpret(self, message):
 		'''
@@ -316,40 +352,20 @@ class CommandProcessor:
 			return Interpretation(found_pronouns, CommandCategory.WEB_SEARCH, message)
 		return Interpretation(found_pronouns, CommandCategory.UNIDENTIFIED, message)
 
-	def process(self, message = str):
-		'''
-		Process an Interpretation object, and evaluate
-		a sufficient response phrase for a given
-		Interpretation object instance, depending upon
-		command type, identified pronouns and identified
-		response.
-		'''
-		message = message.lower().split(' ')
-		interpretation = self._interpret(message)
-	
-		if interpretation.response == CommandCategory.LUNCH_MENU:
-			return self._lunch_menu_command_identifier.get_subcategory(message)
-		elif interpretation.response == CommandCategory.SCHEDULE:
-			return self._schedule_command_identifier.get_subcategory(message)
-		elif interpretation.response == CommandCategory.TELL_JOKE:
-			return self._joke_command_identifier.get_subcategory(message)
-		elif interpretation.response == CommandCategory.REMINDER:
-			return self._reminder_command_identifier.get_subcategory(message)
-		elif CommandPronouns.INTERROGATIVE in interpretation.command_type:
-			return ResponseOptions.WEBSEARCH
-		return ResponseOptions.UNIDENTIFIED
-
-	@staticmethod
-	def wrap(func):
+	def _wrap(self, func):
 		def inner():
-			return func
+			return func()
 		return inner
 
-if __name__ == '__main__':
+def main():
 
 	processor = CommandProcessor()
-	while True:
-		cmd = input('-> ')
-		if not len(cmd): 
-			continue
-		print(f'chatbot: {processor.process(cmd).name}\n')
+	
+	#while True:
+	#	cmd = input('-> ')
+	#	if not len(cmd): 
+	#		continue
+	#	print(f'chatbot: {processor.process(cmd).name}\n')
+	
+	cmd = 'lunch idag?'
+	return processor(cmd)
