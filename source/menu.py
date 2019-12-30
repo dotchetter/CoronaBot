@@ -73,7 +73,6 @@ class Menu:
 			if selected_weekday:
 				self._weekly_menu[selected_weekday].append(html.text.lower())
 
-
 	@property
 	def creation_date(self):
 		return self._creation_date
