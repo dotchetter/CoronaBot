@@ -35,24 +35,27 @@ class Menu:
 		}
 
 		self._index_lookup = {
-			Weekdays.MONDAY.value: self._weekly_menu['måndag'],
-			Weekdays.TUESDAY.value: self._weekly_menu['tisdag'],
-			Weekdays.WEDNESDAY.value: self._weekly_menu['onsdag'],
-			Weekdays.THURSDAY.value: self._weekly_menu['torsdag'],
-			Weekdays.FRIDAY.value: self._weekly_menu['fredag'],
+			0: self._weekly_menu['måndag'],
+			1: self._weekly_menu['tisdag'],
+			2: self._weekly_menu['onsdag'],
+			3: self._weekly_menu['torsdag'],
+			4: self._weekly_menu['fredag'],
+			5: None,
+			6: None
 		}
 
 		self.creation_date = datetime.today().date()
 		self._serialize()
 
 	def __getitem__(self, index):
-		
+		if isinstance(index, slice):
+			start, stop, step = index.indices(len(self._weekly_menu))
+			return tuple(self[i] for i in range(start, stop, step))
 		try:
-			return self._index_lookup[index.value]
-		except KeyError as e:
-			return e
-		except AttributeError:
-			return f'Index must be of type Weekdays, got {type(index)}'
+			item = self._index_lookup[index]
+		except Exception as e:
+			raise Exception(e)
+		return item
 
 	def _serialize(self):
 		'''
