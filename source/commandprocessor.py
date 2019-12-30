@@ -298,16 +298,23 @@ class CommandProcessor:
 	
 	def __call__(self, message):
 
-		binding = {
-			ResponseOptions.SCHEDULE_NEXT_LESSON: self._wrap(self._schedule.next_lesson),
-			ResponseOptions.SCHEDULE_TODAYS_LESSONS: self._wrap(self._schedule.next_lesson),
-			ResponseOptions.SCHEDULE_SCHEDULE: self._wrap(self._schedule.curriculum),
-			ResponseOptions.LUNCH_TODAY: self._wrap(self._scraper.get)
+		today = datetime.now().weekday()
+		feature_method_lookup = {
+			ResponseOptions.SCHEDULE_NEXT_LESSON: lambda: self._schedule_feature.next_lesson,
+			ResponseOptions.SCHEDULE_TODAYS_LESSONS: lambda: self._schedule_feature.next_lesson,
+			ResponseOptions.SCHEDULE_SCHEDULE: lambda: self._schedule_feature.curriculum,
+			ResponseOptions.LUNCH_YESTERDAY: lambda: self._scraper_feature.get_menu_for_weekday(today - 1),
+			ResponseOptions.LUNCH_TODAY: lambda: self._scraper_feature.get_menu_for_weekday(today),
+			ResponseOptions.LUNCH_TOMORROW: lambda: self._scraper_feature.get_menu_for_weekday(today + 1),
+			ResponseOptions.LUNCH_DAY_AFTER_TOMORROW: lambda: self._scraper_feature.get_menu_for_weekday(today + 2),
+			ResponseOptions.LUNCH_FOR_WEEK: lambda: self._scraper_feature.get_menu_for_week(),
+			ResponseOptions.WEBSEARCH: lambda: self._websearch_feature.search(message)
+			# ResponseOptions.REMINDER_REMEMBER_EVENT: self._reminder_feature. // Break out logic from brain and implement in reminder object
 		}
 		try:
-			return binding[self._process(message)]
+			return feature_method_lookup[self._process(message)]
 		except KeyError:
-			return self._wrap(datetime.now)
+			return ResponseOptions.UNIDENTIFIED
 
 	def _process(self, message = str):
 		'''
