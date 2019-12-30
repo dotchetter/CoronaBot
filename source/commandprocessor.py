@@ -363,12 +363,7 @@ class CommandProcessor:
 			return Interpretation(found_pronouns, CommandCategory.WEB_SEARCH, message)
 		return Interpretation(found_pronouns, CommandCategory.UNIDENTIFIED, message)
 
-	def _wrap(self, func):
-		def inner():
-			return func()
-		return inner
-
-def main():
+if __name__ == "__main__":
 
 	processor = CommandProcessor()
 	
