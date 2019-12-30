@@ -146,26 +146,3 @@ class Scraper:
 			return BeautifulSoup(self.response, 'html.parser')
 		else:
 			return None
-
-	def get(self):
-		'''
-		Scrape the website for menu text. Returns Menu
-		instance.
-		'''
-		if self.cache and self.cache.creation_date == datetime.today().date():
-			return self.cache
-
-		try:
-			menu = self.soup.find_all('strong')
-		except Exception:
-			return ScrapingError('Invalid response')
-		
-		for index, tag in enumerate(menu):
-			if 'måndag' in tag.text.lower():
-				startsat = index + 1
-			elif 'kontakta' in tag.text.lower():
-				endsat = index
-
-		menu_obj = Menu(menu[startsat:endsat])
-		self._cache_menu(menu_obj)
-		return self.cache
