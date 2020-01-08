@@ -36,15 +36,23 @@ class Schedule:
         self._activities = []
         self.set_calendar()
         self.truncate_event_name()
+        self._adjust_event_hours()
         
-    def adjust_event_hours(self, hourdelta = int):
+    def _adjust_event_hours(self):
         '''
-        Adjust the hour in a calendar event by (n) hours.
-        Create a time() property for both the event begin and 
-        event end, with corrected hour stamps according to hourdelta
-        parameter. The instance attribute will be accessible through
+        Adjust the hour in a calendar event by 1 or 2 hours,
+        depending on daylight savings time (dst). This is evaluated
+        automatically through the system local time by the datetime
+        instance. This method adds a time() property for both the event 
+        begin and event end, with corrected hour stamps according to 
+        hourdelta parameter. The instance attribute will be accessible through
         self.begin.time and self.end.time.
         '''
+        if datetime.now().dst():
+            hourdelta = 2
+        else:
+            hourdelta = 1
+
         for event in self.curriculum:
             try:
                 year = self.current_time.year
