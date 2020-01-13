@@ -586,6 +586,41 @@ class LunchMenuFeature(FeatureBase):
             command_parser = self.command_parser, 
             command_mapping = self.command_mapping)
 
+    def menu_for_week(self) -> str:
+        '''
+        Return the entire week's menu with one empty line
+        separating the lists of entries.
+        '''
+        days = ('**Måndag**', '**Tisdag**', '**Onsdag**', '**Torsdag**', '**Fredag**')
+        menu_for_week = self.interface.get_menu_for_week()
+        
+        for index, day in enumerate(menu_for_week):
+            day.insert(0, days[index])
+            if not len(day):
+                day.append('Meny inte tillgänglig.')
+            day.append('\n')
+        return f'Här är veckans meny :slight_smile:\n{menu_for_week}'
+    
+    def menu_for_weekday_prase(self, weekday: int) -> str:
+        '''
+        Return a user-friendly variant of the content
+        retreived by the interface object's methods,
+        for display on front end. 
+        '''
+        
+        day_lookup = {
+            self.today_as_int(): 'idag',
+            (self.today_as_int() - 1): 'igår',
+            (self.today_as_int() + 1): 'imorgon',
+            (self.today_as_int() + 2): 'i övermorgon'
+        }
+
+        if self.interface.get_menu_for_weekday(weekday) is None:
+            return f'Jag ser inget på menyn för {day_lookup[weekday]}'
+        return f'Detta serveras {day_lookup[weekday]} :slight_smile: \
+                {self.interface.get_menu_for_weekday(weekday)}'
+
+
 class JokeFeature(FeatureBase):
 
     FEATURE_KEYWORDS = (
