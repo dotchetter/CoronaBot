@@ -513,7 +513,7 @@ class LunchMenuFeature(FeatureBase):
     }
 
     def __init__(self, **kwargs):
-        today = lambda: datetime.now().weekday()
+        self.today_as_int = lambda: datetime.now().weekday()
         
         self.command_parser = LunchMenuFeatureCommandParser(
             keywords = LunchMenuFeature.FEATURE_KEYWORDS,
@@ -522,11 +522,11 @@ class LunchMenuFeature(FeatureBase):
         )
         
         self.command_mapping = {
-            CommandSubcategory.LUNCH_YESTERDAY: lambda: self.interface.get_menu_for_weekday(today() - 1),
-            CommandSubcategory.LUNCH_TODAY: lambda: self.interface.get_menu_for_weekday(today()),
-            CommandSubcategory.LUNCH_TOMORROW: lambda: self.interface.get_menu_for_weekday(today() + 1),
-            CommandSubcategory.LUNCH_DAY_AFTER_TOMORROW: lambda: self.interface.get_menu_for_weekday(today() + 2),
-            CommandSubcategory.LUNCH_FOR_WEEK: lambda: self.interface.get_menu_for_week()
+            CommandSubcategory.LUNCH_YESTERDAY: lambda: self.menu_for_weekday_prase(self.today_as_int() - 1),
+            CommandSubcategory.LUNCH_TODAY: lambda: self.interface.get_menu_for_weekday(self.today_as_int()),
+            CommandSubcategory.LUNCH_TOMORROW: lambda: self.interface.get_menu_for_weekday(self.today_as_int() + 1),
+            CommandSubcategory.LUNCH_DAY_AFTER_TOMORROW: lambda: self.interface.get_menu_for_weekday(self.today_as_int() + 2),
+            CommandSubcategory.LUNCH_FOR_WEEK: lambda: self.menu_for_week()
         }
 
         self.mapped_pronouns = (
