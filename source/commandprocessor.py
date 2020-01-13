@@ -469,7 +469,7 @@ class FeatureBase(FeatureABC):
     '''
 
     def __init__(self, *args, **kwargs):
-        self.interactive_methods = []
+        self.interactive_methods = tuple()
         super().__init__(*args, **kwargs)
 
     def __call__(self, message: list):
