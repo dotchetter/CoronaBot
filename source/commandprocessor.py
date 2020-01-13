@@ -103,7 +103,7 @@ class PronounLookupTable:
                 'sitt', 'sina')
         }
 
-    def lookup(self, sentence: list) -> tuple:
+    def lookup(self, message: list) -> tuple:
         '''
         Split a given string by space if present, to iterate
         over a sentence of words. Returns a tuple with enum
@@ -164,11 +164,11 @@ class FeatureCommandParserABC(ABC):
         pass
 
     @abstractmethod
-    def get_category(self, message: str) -> CommandCategory:
+    def get_category(self, message: list) -> CommandCategory:
         return
     
     @abstractmethod
-    def get_subcategory(self, message: str) -> CommandSubcategory:
+    def get_subcategory(self, message: list) -> CommandSubcategory:
         '''
         Returns a ResponseOption enum type that indicates more 
         precisely which method for a feature that the command 
