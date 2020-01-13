@@ -707,9 +707,11 @@ class ScheduleFeature(FeatureBase):
         'klassrum': CommandSubcategory.SCHEDULE_NEXT_LESSON,
         'idag': CommandSubcategory.SCHEDULE_TODAYS_LESSONS,
         'imorgon': CommandSubcategory.SCHEDULE_TOMORROWS_LESSONS,
+        'imorn': CommandSubcategory.SCHEDULE_TOMORROWS_LESSONS,
+        'imorrn': CommandSubcategory.SCHEDULE_TOMORROWS_LESSONS,
         'schema': CommandSubcategory.SCHEDULE_CURRICULUM,
         'schemat': CommandSubcategory.SCHEDULE_CURRICULUM
-        }
+    }
     
     def __init__(self, *args, **kwargs):
         self.command_parser = ScheduleFeatureCommandParser(
