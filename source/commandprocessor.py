@@ -270,7 +270,7 @@ class FeatureCommandParserBase(FeatureCommandParserABC):
                 return self._category
         return None
     
-    def get_subcategory(self, message: str) -> CommandSubcategory:
+    def get_subcategory(self, message: list) -> CommandSubcategory:
         for word in message.split(' '):
             word = word.strip(FeatureCommandParserBase.IGNORED_CHARS)
             if word in self._subcategories:
@@ -322,7 +322,7 @@ class LunchMenuFeatureCommandParser(FeatureCommandParserBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
     
-    def get_subcategory(self, message: str) -> CommandSubcategory:
+    def get_subcategory(self, message: list) -> CommandSubcategory:
         for word in message.split(' '):
             word = word.strip(FeatureCommandParserABC.IGNORED_CHARS)
             if word in self._subcategories:
@@ -410,7 +410,7 @@ class FeatureABC(ABC):
             setattr(self, key, kwargs[key])
 
     @abstractmethod
-    def __call__(self, message: str):
+    def __call__(self, message: list):
         pass
 
      @property
@@ -472,7 +472,7 @@ class FeatureBase(FeatureABC):
         self.interactive_methods = []
         super().__init__(*args, **kwargs)
 
-    def __call__(self, message: str):
+    def __call__(self, message: list):
         try:
             command_subcategory = self._command_parser.get_subcategory(message)
             if self.command_mapping[command_subcategory] in self.interactive_methods:
