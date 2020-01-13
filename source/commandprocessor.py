@@ -677,8 +677,10 @@ class ReminderFeature(FeatureBase):
         invalid_date = 'Du måste skapa en påminnelse minst 30 minuter i framtiden.'
         success = 'Det kommer en påminnelse en halvtimme innan :slight_smile:'
         
+        message_as_str = ' '.join(message)
+
         try:
-            task = message.split(';')[-1].split(',')
+            task = message_as_str.split(';')[-1].split(',')
             body = task[0].strip()
             event_date = datetime.strptime(task[1].strip(), '%Y-%m-%d-%H:%M')
             if datetime.now() > event_date or ((event_date - datetime.now()).seconds / 60) < 30.0:
