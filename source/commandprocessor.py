@@ -924,4 +924,30 @@ class CommandProcessor:
         self._features = features
 
 if __name__ == "__main__":
-    pass
+
+    import source.client as client
+    environment_vars = client.load_environment()
+
+    processor = CommandProcessor(pronoun_lookup_table = PronounLookupTable())
+   
+    processor.features = (
+        ReminderFeature(),
+        ScheduleFeature(url = environment_vars['TIMEEDIT_URL']),
+        LunchMenuFeature(url = environment_vars['LUNCH_MENU_URL']),
+        JokeFeature(client_id = environment_vars['REDDIT_CLIENT_ID'], 
+                    client_secret = environment_vars['REDDIT_CLIENT_SECRET'],
+                    user_agent = environment_vars['REDDIT_USER_AGENT']))
+
+    while True:
+        query = input('->')
+        before = timer()
+        a = processor.process(query)
+        after = timer()
+        
+        print(f'Responded in {round(1000 * (after - before), 3)} milliseconds')
+
+        if callable(a.response):
+            print(f'\nINTERPRETATION:\n{a}\n\nEXECUTED METHOD: {a.response()}')
+        else:
+            print(f'was not callable: {a}')
+        
