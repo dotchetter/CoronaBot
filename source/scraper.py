@@ -85,7 +85,7 @@ class Scraper:
 		
 		for index, tag in enumerate(html):
 			if 'måndag' in tag.text.lower():
-				startsat = index + 1
+				startsat = index
 			elif 'kontakta' in tag.text.lower():
 				endsat = index
 
