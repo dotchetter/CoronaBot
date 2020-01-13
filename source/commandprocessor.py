@@ -638,6 +638,9 @@ class ReminderFeature(FeatureBase):
 
     FEATURE_SUBCATEGORIES = {
         'ihåg': CommandSubcategory.REMINDER_REMEMBER_EVENT,
+        'memorera': CommandSubcategory.REMINDER_REMEMBER_EVENT,
+        'påminna': CommandSubcategory.REMINDER_REMEMBER_EVENT,
+        'spara': CommandSubcategory.REMINDER_REMEMBER_EVENT,
         'påminna': CommandSubcategory.REMINDER_REMEMBER_EVENT,
         'event': CommandSubcategory.REMINDER_SHOW_EVENTS,
         'påminnelser': CommandSubcategory.REMINDER_SHOW_EVENTS,
@@ -645,13 +648,11 @@ class ReminderFeature(FeatureBase):
     }
 
     def __init__(self, *args, **kwargs):
-        self.interactive_methods = []
         self.command_parser = ReminderFeatureCommandParser(
             keywords = ReminderFeature.FEATURE_KEYWORDS,
             category = CommandCategory.REMINDER,
             subcategories = ReminderFeature.FEATURE_SUBCATEGORIES
         )
-        self.command_parser.replace_all(';', ' ')
 
         self.command_mapping = {
             CommandSubcategory.REMINDER_SHOW_EVENTS: lambda: self.interface.events,
