@@ -90,9 +90,9 @@ class Menu:
 		self._soup = value
 
 	@property
-	def _weekly_menu(self):
+	def weekly_menu(self):
 		return self._daily_menu
 	
-	@_weekly_menu.setter
-	def _weekly_menu(self, value):
+	@weekly_menu.setter
+	def weekly_menu(self, value):
 		self._daily_menu = value
