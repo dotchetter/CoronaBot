@@ -673,7 +673,7 @@ class ReminderFeature(FeatureBase):
         self.command_parser.ignore_all(';')
         self.interactive_methods = (self._remember_event,)
     
-    def _remember_event(self, message: str):
+    def _remember_event(self, message: list):
 
         invalid_format = 'Ogiltigt format, försök igen. Exempel:\n\n**rob, kan '\
                          'du komma ihåg; Nyår!, 2020-12-31-00:00\n\nDet är '\
