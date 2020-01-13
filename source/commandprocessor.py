@@ -119,7 +119,7 @@ class PronounLookupTable:
         '''
         pronouns = []
 
-        for word in sentence:
+        for word in message:
             for key in self._lookup_table:
                 if word in self._lookup_table[key]:
                     pronouns.append(key)
@@ -134,14 +134,34 @@ class PronounLookupTable:
 class Interpretation:
     '''
     This object represents the output from the
-    CommandProcessor class, where this instance
-    represents the action to take, after parsing
-    and trying to understand the command, question
-    or other sentence body that was provided.
+    CommandProcessor class. 
+
+    command_pronouns: A collection of pronouns
+    identified in the message.
+
+    command_category: A single instance of
+    CommandCategory telling which feature the 
+    message was ultimately matched against.
+
+    command_subcategory: A single instance of
+    CommandSubcategory telling which method the
+    message was ultimately matched with.
+
+    original_message: The original message in 
+    a tuple, split by space.
+
+    response: The callable object that was returned
+    from the Feature.
+
+    error: Any exception that was caught upon parsing
+    the message.
     '''
-    command_type: set(CommandPronoun)
-    response: str
-    original_message: str
+    command_pronouns: tuple(CommandPronoun) = ()
+    command_category: CommandCategory = None,
+    command_subcategory: CommandSubcategory = None,
+    original_message: tuple = ()
+    response: callable = None
+    error: Exception = None
 
 class FeatureCommandParserABC(ABC):
     '''
@@ -155,7 +175,7 @@ class FeatureCommandParserABC(ABC):
     IGNORED_CHARS = '?=)(/&%¤#"!,.-;:_^*`´><|'
 
     def __init__(self, *args, **kwargs):
-        self.replace_table = dict()
+        self.ignored_chars = dict()
         super().__init__()
         for key in kwargs:
             setattr(self, key, kwargs[key])
@@ -165,11 +185,18 @@ class FeatureCommandParserABC(ABC):
         return
 
     @abstractmethod
-    def replace_all(self, char: str, replacement: str):
+    def ignore_all(self, char: str):
         pass
 
     @abstractmethod
     def get_category(self, message: list) -> CommandCategory:
+        '''
+        Iterate over the words in received message, and 
+        see if any of the words line up with the keywords
+        provided for an instance of this class. If a match
+        is found, the CommandCategory of the instance should
+        return, otherwise None.
+        '''
         return
     
     @abstractmethod
@@ -215,12 +242,12 @@ class FeatureCommandParserABC(ABC):
 
     @property
     @abstractmethod
-    def replace_table(self) -> dict:
+    def ignored_chars(self) -> dict:
         return
 
-    @replace_table.setter
+    @ignored_chars.setter
     @abstractmethod
-    def replace_table(self, table: dict):
+    def ignored_chars(self, table: dict):
         pass
 
 class FeatureCommandParserBase(FeatureCommandParserABC):
@@ -231,16 +258,17 @@ class FeatureCommandParserBase(FeatureCommandParserABC):
     def __contains__(self, word: str) -> bool:
         return word in self._keywords
 
-    def replace_all(self, char: str, replacement: str):
-        self.replace_table[char] = replacement
+    def ignore_all(self, char: str):
+        self.ignored_chars[char] = ''
 
-    def get_category(self, message: str) -> CommandCategory:
-        for key in self.replace_table:
-            word = word.replace(key, self.replace_table[key])
+    def get_category(self, message: list) -> CommandCategory:
+        for key in self.ignored_chars:
+            message = [word.replace(key, self._ignored_chars[key]) for word in message]
 
-        for word in message.split(' '):
+        for word in message:
             if word.strip(FeatureCommandParserBase.IGNORED_CHARS) in self:
                 return self._category
+        return None
     
     def get_subcategory(self, message: str) -> CommandSubcategory:
         for word in message.split(' '):
@@ -280,14 +308,14 @@ class FeatureCommandParserBase(FeatureCommandParserABC):
         self._subcategories = subcategories
 
     @property
-    def replace_table(self) -> dict:
-        return self._replace_table
+    def ignored_chars(self) -> dict:
+        return self._ignored_chars
 
-    @replace_table.setter
-    def replace_table(self, table: dict):
+    @ignored_chars.setter
+    def ignored_chars(self, table: dict):
         if not isinstance(table, dict):
             raise TypeError(f'category must be dict, got {type(table)}')
-        self._replace_table = table
+        self._ignored_chars = table
     
 class LunchMenuFeatureCommandParser(FeatureCommandParserBase):
 
