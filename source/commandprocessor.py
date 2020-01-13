@@ -475,6 +475,9 @@ class FeatureBase(FeatureABC):
     def __call__(self, message: list):
         try:
             command_subcategory = self._command_parser.get_subcategory(message)
+            if command_subcategory == CommandSubcategory.UNIDENTIFIED:
+                return CommandSubcategory.UNIDENTIFIED
+
             if self.command_mapping[command_subcategory] in self.interactive_methods:
                 return lambda message = message: self.command_mapping[command_subcategory](message)
             return self.command_mapping[command_subcategory]
