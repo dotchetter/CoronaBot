@@ -670,7 +670,8 @@ class ReminderFeature(FeatureBase):
             interface = Reminder()
         )
 
-        self.interactive_methods.append(self._remember_event)
+        self.command_parser.ignore_all(';')
+        self.interactive_methods = (self._remember_event,)
     
     def _remember_event(self, message: str):
 
