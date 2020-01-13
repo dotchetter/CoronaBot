@@ -344,62 +344,6 @@ class ReminderFeatureCommandParser(FeatureCommandParserBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-class CommandProcessor:
-    '''
-    This object, while integrated to a front end
-    works as a way to parse and understand what a
-    human is asking for. An object containing the 
-    representation of the interpretation of said
-    sentence or word is returned of class 
-    Interpretation.
-    '''
-
-    def __init__(self, pronoun_lookup_table: PronounLookupTable):
-        self._pronoun_lookup_table = pronoun_lookup_table
-        self._features = []
-
-    def process(self, message: str) -> CommandSubcategory:
-        message = message.lower().split(' ')
-        interpretation = self._interpret(message)
-        return interpretation
-
-    def _interpret(self, message: list) -> Interpretation:
-
-        mapped_features = self._find_pronoun_mapped_features(message)
-
-        if CommandPronoun.PERSONAL in found_pronouns:
-            return Interpretation(found_pronouns, CommandCategory.PERSONAL, message)
-        return Interpretation(found_pronouns, CommandCategory.UNIDENTIFIED, message)
-
-    def _find_pronoun_mapped_features(self, message: list) -> tuple:
-        '''
-        return tuple with features that matched the message
-        pronoun set.
-        '''
-        any_in = lambda iter_a, iter_b: True if any([i in iter_a for i in iter_b]) else False
-        mapped_features = []
-        found_pronouns = self._pronoun_lookup_table.lookup(message)
-        
-        for feature in self._features:
-            if any_in(found_pronouns, feature.mapped_pronouns):
-                mapped_features.append(feature)
-        return tuple(mapped_features)
-
-    @property
-    def features(self) -> tuple:
-        return self._features
-    
-    @features.setter
-    def features(self, features: tuple):
-        if not isinstance(features, tuple):
-            raise TypeError(f'expected tuple, got {type(features)}')
-
-        for feature in features:
-            if not isinstance(feature, FeatureABC):
-                raise TypeError(f'All features must inherit from FeatureABC, got {type(feature)}')
-            
-        self._features = features
-
 class FeatureABC(ABC):
     ''' 
     Represent the template for a complete and 
