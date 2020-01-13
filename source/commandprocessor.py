@@ -128,7 +128,7 @@ class PronounLookupTable:
 
         if len(pronouns):
             return tuple(sorted(set(pronouns)))
-        return tuple(CommandPronoun.UNIDENTIFIED)
+        return (CommandPronoun.UNIDENTIFIED,)
 
 @dataclass
 class Interpretation:
@@ -577,6 +577,10 @@ class LunchMenuFeature(FeatureBase):
             CommandSubcategory.LUNCH_FOR_WEEK: lambda: self.interface.get_menu_for_week()
         }
 
+        self.mapped_pronouns = (
+            CommandPronoun.INTERROGATIVE,
+        )        
+
         super().__init__(
             interface = Scraper(url = kwargs['url']),
             command_parser = self.command_parser, 
@@ -611,6 +615,10 @@ class JokeFeature(FeatureBase):
         self.command_mapping = {
             CommandSubcategory.TELL_JOKE: lambda: self.interface.get()
         }
+        
+        self.mapped_pronouns = (
+            CommandPronoun.INTERROGATIVE,
+        )
 
         super().__init__(
             command_parser = self.command_parser,
@@ -715,6 +723,10 @@ class ScheduleFeature(FeatureBase):
             CommandSubcategory.SCHEDULE_CURRICULUM: lambda: self._get_curriculum(),
             CommandSubcategory.SCHEDULE_TODAYS_LESSONS: lambda: self._get_todays_lessons()
         }
+
+        self.mapped_pronouns = (
+            CommandPronoun.INTERROGATIVE,
+        )
 
         super().__init__(
             command_parser = self.command_parser,
