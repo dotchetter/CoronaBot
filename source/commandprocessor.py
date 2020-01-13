@@ -658,6 +658,12 @@ class ReminderFeature(FeatureBase):
             CommandSubcategory.REMINDER_REMEMBER_EVENT: self._remember_event,
         }
 
+        self.mapped_pronouns = (
+            CommandPronoun.INTERROGATIVE,
+            CommandPronoun.PERSONAL,
+            CommandPronoun.POSSESSIVE
+        )
+
         super().__init__(
             command_parser = self.command_parser,
             command_mapping = self.command_mapping,
