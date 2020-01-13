@@ -493,6 +493,10 @@ class FeatureBase(FeatureABC):
             if not isinstance(item, CommandPronoun):
                 raise TypeError(f'object at index {i} is not a CommandPronoun.')
 
+        self._mapped_pronouns = [i for i in pronouns]
+        self._mapped_pronouns.insert(0, CommandPronoun.UNIDENTIFIED)
+        self._mapped_pronouns = tuple(self._mapped_pronouns)
+
     @property
     def interface(self) -> object:
         return self._interface
