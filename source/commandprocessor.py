@@ -271,7 +271,7 @@ class FeatureCommandParserBase(FeatureCommandParserABC):
         return None
     
     def get_subcategory(self, message: list) -> CommandSubcategory:
-        for word in message.split(' '):
+        for word in message:
             word = word.strip(FeatureCommandParserBase.IGNORED_CHARS)
             if word in self._subcategories:
                 return self._subcategories[word]
@@ -323,7 +323,7 @@ class LunchMenuFeatureCommandParser(FeatureCommandParserBase):
         super().__init__(*args, **kwargs)
     
     def get_subcategory(self, message: list) -> CommandSubcategory:
-        for word in message.split(' '):
+        for word in message:
             word = word.strip(FeatureCommandParserABC.IGNORED_CHARS)
             if word in self._subcategories:
                 return self._subcategories[word]
