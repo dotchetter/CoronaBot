@@ -744,7 +744,7 @@ class ScheduleFeature(FeatureBase):
         '''
         curriculum = []
         last_date = self.interface.curriculum[0].begin.date()
-        allowed_length = Brain.DISCORD_MSG_LENGTH_LIMIT
+        allowed_length = 2000
         
         for index, event in enumerate(self.interface.curriculum):
             if event.begin.date() >= self.interface.today:
