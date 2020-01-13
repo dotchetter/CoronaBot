@@ -528,13 +528,13 @@ class FeatureBase(FeatureABC):
         self._command_mapping = command_mapping
 
     @property
-    def interactive_methods(self) -> list:
+    def interactive_methods(self) -> tuple:
         return self._interactive_methods
     
     @interactive_methods.setter
-    def interactive_methods(self, arg: list):
-        if not isinstance(arg, list):
-            raise TypeError(f'command_parser must be list, got {type(arg)}')
+    def interactive_methods(self, arg: tuple):
+        if not isinstance(arg, tuple):
+            raise TypeError(f'command_parser must be tuple, got {type(arg)}')
         self._interactive_methods = arg
 
 class LunchMenuFeature(FeatureBase):
