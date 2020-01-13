@@ -1,7 +1,12 @@
+import praw
+import random
+from os import system
 from datetime import datetime, timedelta, time
 from enum import Enum, auto
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
+from timeit import default_timer as timer
+
 from source.schedule import Schedule
 from source.scraper import Scraper
 from source.reminder import Reminder
