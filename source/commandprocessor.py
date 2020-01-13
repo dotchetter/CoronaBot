@@ -803,5 +803,124 @@ class ScheduleFeature(FeatureBase):
             return f'Här är schemat för dagen:\n{lessons}'
         return 'Det finns inga lektioner på schemat idag :sunglasses:'
 
+class CommandProcessor:
+    '''
+    This object, while integrated to a front end
+    works as a way to parse and understand what a
+    human is asking for. An object containing the 
+    representation of the interpretation of said
+    sentence or word is returned of class 
+    Interpretation.
+    '''
+    NO_IMPLEMENTATION = 'Det har mina utvecklare inte lagt in något svar för än :sad:'
+
+    NO_SUBCATEGORY = (
+        'Jag förstod nästan vad du menade, kan du uttrycka dig annorlunda?',
+        'Hmm, jag har det på tungan. Kan du kontrollera stavningen?',
+        'Nja... kan inte riktigt förstå vad du menar, säg igen?'
+    )
+
+    NO_RESPONSE = (
+        'Jag har inget bra svar på det.',
+        'Hm, vet inte vad du menar riktigt?',
+        'Jag vet inte?',
+        '?',
+        'Vad menas? :thinking:'
+    )
+
+    def __init__(self, pronoun_lookup_table: PronounLookupTable):
+        self._pronoun_lookup_table = pronoun_lookup_table
+        self._feature_pronoun_mapping = dict()
+
+    def process(self, message: str) -> CommandSubcategory:
+        '''
+        Part of the public interface. This method takes a 
+        message in str format and splits it on space characters
+        turning it in to a list. The message is decomposed by the
+        private _interpret method for identifying pronouns, which
+        funnel the message to the appropriate features in the 
+        self._features collection. As an instance of Interpretation
+        is returned from this call, it is passed on to the caller.
+        '''
+        message = message.lower().split(' ')
+        interpretation = self._interpret(message)
+        if interpretation:
+            return interpretation
+        return f'doh!'
+
+    def _interpret(self, message: list) -> Interpretation:
+        '''
+        Identify the pronouns in the given message. Try to 
+        match the pronouns aganst the mapped pronouns property
+        for each featrure. If multiple features match the set of
+        pronouns, the message is given to each feature for keyword
+        matching. The feature that returns a match is given the
+        message for further processing and ultimately returning
+        the response.
+        '''
+        mapped_features = []
+        any_in = lambda iter_a, iter_b: True if any([i in iter_a for i in iter_b]) else False
+        found_pronouns = self._pronoun_lookup_table.lookup(message)
+        
+        for feature in self._features:
+            if any_in(self._feature_pronoun_mapping[feature], found_pronouns):
+                category = feature.command_parser.get_category(message)
+                if category is None:
+                    continue
+                mapped_features.append(feature)
+
+        if not len(mapped_features):
+            return Interpretation(
+                    command_pronouns = found_pronouns,
+                    command_category = CommandCategory.UNIDENTIFIED,
+                    original_message = (message,),
+                    response = lambda: random.choice(CommandProcessor.NO_RESPONSE))
+      
+        for feature in mapped_features:
+            try:
+                subcategory = feature.command_parser.get_subcategory(message)
+                return_callable = feature(message)
+            except NotImplementedError as e:
+                return Interpretation(
+                        command_pronouns = found_pronouns,
+                        command_category = feature.command_parser.category,
+                        command_subcategory = subcategory,
+                        response = lambda: CommandProcessor.NO_IMPLEMENTATION,
+                        original_message = (message,),
+                        error = e)
+            else:
+                if return_callable == CommandSubcategory.UNIDENTIFIED:
+                    continue
+                return Interpretation(
+                        command_pronouns = found_pronouns,
+                        command_category = feature.command_parser.category,
+                        command_subcategory = subcategory,
+                        response = return_callable,
+                        original_message = (message,))
+
+        return Interpretation(
+                command_pronouns = found_pronouns,
+                command_category = feature.command_parser.category,
+                command_subcategory = CommandSubcategory.UNIDENTIFIED,
+                response = lambda: random.choice(CommandProcessor.NO_SUBCATEGORY),
+                original_message = (message,))
+
+    @property
+    def features(self) -> tuple:
+        return self._features
+    
+    @features.setter
+    def features(self, features: tuple):
+        if not isinstance(features, tuple):
+            raise TypeError(f'expected tuple, got {type(features)}')
+
+        for feature in features:
+            if not isinstance(feature, FeatureABC):
+                raise TypeError(f'All features must inherit from FeatureABC, got {type(feature)}')
+        
+        for feature in features:
+            self._feature_pronoun_mapping[feature] = feature.mapped_pronouns
+        
+        self._features = features
 if __name__ == "__main__":
     pass
