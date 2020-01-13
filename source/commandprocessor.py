@@ -549,6 +549,7 @@ class LunchMenuFeature(FeatureBase):
         'igår': CommandSubcategory.LUNCH_YESTERDAY,
         'idag': CommandSubcategory.LUNCH_TODAY,
         'imor': CommandSubcategory.LUNCH_TOMORROW,
+        'imorn': CommandSubcategory.LUNCH_TOMORROW,
         'imorgon': CommandSubcategory.LUNCH_TOMORROW,
         'imoron': CommandSubcategory.LUNCH_TOMORROW,
         'imorron': CommandSubcategory.LUNCH_TOMORROW,
