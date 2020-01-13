@@ -426,19 +426,20 @@ class FeatureBase(FeatureABC):
                 return lambda message = message: self.command_mapping[command_subcategory](message)
             return self.command_mapping[command_subcategory]
         except KeyError:
-            raise NotImplementedError(f'no mapped function call for {command_subcategory} in self.')
+            raise NotImplementedError(f'no mapped function call for {command_subcategory} in self')
     
     @property
     def mapped_pronouns(self) -> tuple:
-        return self.mapped_pronouns
+        return self._mapped_pronouns
 
     @mapped_pronouns.setter
-    def mapped_pronouns(self, pronouns: tuple):
+    def mapped_pronouns(self, pronouns: tuple = ()):
         if not isinstance(pronouns, tuple):
-            raise TypeError(f'pronouns must be enclosed in a tuple.')
-        for i, item in enumerate(pronouns:
+            raise TypeError(f'pronouns must be enclosed in a tuple, got {type(pronouns)}')
+                
+        for i, item in enumerate(pronouns):
             if not isinstance(item, CommandPronoun):
-                raise TypeError(f'object at index {i} is not a CommandPronoun.')
+                raise TypeError(f'object at index {i} is not a CommandPronoun')
 
         self._mapped_pronouns = [i for i in pronouns]
         self._mapped_pronouns.insert(0, CommandPronoun.UNIDENTIFIED)
@@ -611,7 +612,6 @@ class JokeFeature(FeatureBase):
             command_parser = self.command_parser,
             command_mapping = self.command_mapping,
             interface = RedditJoke(reddit_client = praw.Reddit(**kwargs))
-                
         )
 
 class ReminderFeature(FeatureBase):
