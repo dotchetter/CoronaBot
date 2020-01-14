@@ -329,7 +329,7 @@ class LunchMenuFeatureCommandParser(FeatureCommandParserBase):
                 return self._subcategories[word]
         return CommandSubcategory.LUNCH_TODAY
 
-class JokeCommandFeatureCommandParser(FeatureCommandParserBase):
+class JokeFeatureCommandParser(FeatureCommandParserBase):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -573,7 +573,6 @@ class LunchMenuFeature(FeatureBase):
         return f'Detta serveras {day_lookup[weekday]} :slight_smile: \
                 {self.interface.get_menu_for_weekday(weekday)}'
 
-
 class JokeFeature(FeatureBase):
 
     FEATURE_KEYWORDS = (
@@ -594,7 +593,7 @@ class JokeFeature(FeatureBase):
     }
 
     def __init__(self, *args, **kwargs):
-        self.command_parser = JokeCommandFeatureCommandParser(
+        self.command_parser = JokeFeatureCommandParser(
             keywords = JokeFeature.FEATURE_KEYWORDS,
             category = CommandCategory.TELL_JOKE,
             subcategories = JokeFeature.FEATURE_SUBCATEGORIES
