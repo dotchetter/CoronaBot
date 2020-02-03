@@ -109,7 +109,6 @@ class Scraper:
 			return self.cache[weekday]
 		except Exception:
 			return None
-		return menu
 
 	def get_menu_for_week(self):
 		'''
