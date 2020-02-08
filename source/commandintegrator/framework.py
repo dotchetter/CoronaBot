@@ -541,16 +541,15 @@ class CommandProcessor:
         return Interpretation(command_pronouns = found_pronouns,
                     command_category = feature.command_parser.category,
                     command_subcategory = CommandSubcategory.UNIDENTIFIED,
-                command_category = feature.command_parser.category,
-                command_subcategory = CommandSubcategory.UNIDENTIFIED,
-                response = lambda: random.choice(CommandProcessor.NO_SUBCATEGORY),
-                original_message = (message,))
-
                     response = lambda: random.choice(self._default_responses['NoSubCategory']),
                     original_message = (message,))
 
 
 if __name__ == "__main__":
+
+    arg_parser = argparse.ArgumentParser()
+    arg_parser.add_argument('-testmode', action = 'store_true')
+    args = arg_parser.parse_args()
 
     import source.client as client
     from source.features.ReminderFeature import ReminderFeature
@@ -570,8 +569,8 @@ if __name__ == "__main__":
         ScheduleFeature(url = environment_vars['TIMEEDIT_URL']),
         LunchMenuFeature(url = environment_vars['LUNCH_MENU_URL']),
         RedditJokeFeature(client_id = environment_vars['REDDIT_CLIENT_ID'], 
-                    client_secret = environment_vars['REDDIT_CLIENT_SECRET'],
-                    user_agent = environment_vars['REDDIT_USER_AGENT']))
+            client_secret = environment_vars['REDDIT_CLIENT_SECRET'],
+            user_agent = environment_vars['REDDIT_USER_AGENT']))
 
     # --- FOR TESTING THE COMMANDPROCESSOR CLASS --- 
 
