@@ -80,6 +80,9 @@ class PronounLookupTable:
                 'sitt', 'sina')
         }
 
+    def __repr__(self):
+        return f'PronounLookupTable({self._lookup_table})'
+
     def lookup(self, message: list) -> tuple:
         '''
         Split a given string by space if present, to iterate
@@ -230,23 +233,26 @@ class FeatureCommandParserBase(FeatureCommandParserABC):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+    def __repr__(self):
+        return f'FeatureCommandParser({self.category})'
+
     def __contains__(self, word: str) -> bool:
         return word in self._keywords
 
     def ignore_all(self, char: str):
         self.ignored_chars[char] = ''
 
-    def get_category(self, message: list) -> CommandCategory:
+    def get_category(self, message: discord.Message) -> CommandCategory:
         for key in self.ignored_chars:
-            message = [word.replace(key, self._ignored_chars[key]) for word in message]
+            message.content = [word.replace(key, self._ignored_chars[key]) for word in message.content]
 
-        for word in message:
+        for word in message.content:
             if word.strip(FeatureCommandParserBase.IGNORED_CHARS) in self:
                 return self._category
         return None
     
-    def get_subcategory(self, message: list) -> CommandSubcategory:
-        for word in message:
+    def get_subcategory(self, message: discord.Message) -> CommandSubcategory:
+        for word in message.content:
             stripped_word = word.strip(FeatureCommandParserBase.IGNORED_CHARS) 
             if stripped_word in self._subcategories:
                 return self._subcategories[stripped_word]
@@ -377,6 +383,9 @@ class FeatureBase(FeatureABC):
             return self.command_mapping[command_subcategory]
         except KeyError:
             raise NotImplementedError(f'no mapped function call for {command_subcategory} in self')
+
+    def __repr__(self):
+        return f'Feature({self.command_parser.category})'
     
     @property
     def mapped_pronouns(self) -> tuple:
