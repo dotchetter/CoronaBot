@@ -455,25 +455,11 @@ class CommandProcessor:
     sentence or word is returned of class 
     Interpretation.
     '''
-    NO_IMPLEMENTATION = 'Det har mina utvecklare inte lagt in något svar för än :sad:'
 
-    NO_SUBCATEGORY = (
-        'Jag förstod nästan vad du menade, kan du uttrycka dig annorlunda?',
-        'Hmm, jag har det på tungan. Kan du kontrollera stavningen?',
-        'Nja... kan inte riktigt förstå vad du menar, säg igen?'
-    )
-
-    NO_RESPONSE = (
-        'Jag har inget bra svar på det.',
-        'Hm, vet inte vad du menar riktigt?',
-        'Jag vet inte?',
-        '?',
-        'Vad menas? :thinking:'
-    )
-
-    def __init__(self, pronoun_lookup_table: PronounLookupTable):
+    def __init__(self, pronoun_lookup_table: PronounLookupTable, default_responses: dict):
         self._pronoun_lookup_table = pronoun_lookup_table
         self._feature_pronoun_mapping = dict()
+        self._default_responses = default_responses
 
     @property
     def features(self) -> tuple:
@@ -532,7 +518,7 @@ class CommandProcessor:
             return Interpretation(
                     command_pronouns = found_pronouns,
                     command_category = CommandCategory.UNIDENTIFIED,
-                    original_message = (message,),
+                response = lambda: random.choice(self._default_responses['NoResponse']))
                     response = lambda: random.choice(CommandProcessor.NO_RESPONSE))
       
         for feature in mapped_features:
@@ -543,7 +529,7 @@ class CommandProcessor:
                 return Interpretation(
                         command_pronouns = found_pronouns,
                         command_category = feature.command_parser.category,
-                        command_subcategory = subcategory,
+                            response = lambda: random.choice(self._default_responses['NoImplementation']),
                         response = lambda: CommandProcessor.NO_IMPLEMENTATION,
                         original_message = (message,),
                         error = e)
@@ -564,6 +550,7 @@ class CommandProcessor:
                 response = lambda: random.choice(CommandProcessor.NO_SUBCATEGORY),
                 original_message = (message,))
 
+                    response = lambda: random.choice(self._default_responses['NoSubCategory']),
 
 
 if __name__ == "__main__":
@@ -574,9 +561,13 @@ if __name__ == "__main__":
     from source.features.RedditJokeFeature import RedditJokeFeature
     from source.features.ScheduleFeature import ScheduleFeature
 
+    with open('commandprocessor.default.response.json', 'r', encoding = 'utf-8') as f:
+        default_responses = json.loads(f.read())
+
     environment_vars = client.load_environment()
-    processor = CommandProcessor(pronoun_lookup_table = PronounLookupTable())
-   
+    processor = CommandProcessor(pronoun_lookup_table = PronounLookupTable(), 
+                                default_responses = default_responses)
+    
     processor.features = (
         ReminderFeature(),
         ScheduleFeature(url = environment_vars['TIMEEDIT_URL']),
