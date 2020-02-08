@@ -1,3 +1,4 @@
+import discord
 import source.commandintegrator.framework as fw
 from source.commandintegrator.enumerators import CommandPronoun, CommandCategory, CommandSubcategory
 from source.reminder import Reminder
@@ -57,7 +58,7 @@ class ReminderFeature(fw.FeatureBase):
         self.command_parser.ignore_all(';')
         self.interactive_methods = (self._remember_event,)
     
-    def _remember_event(self, message: list):
+    def _remember_event(self, message: discord.Message):
 
         invalid_format = 'Ogiltigt format, försök igen. Exempel:\n\n**rob, kan '\
                          'du komma ihåg; Nyår!, 2020-12-31-00:00\n\nDet är '\
@@ -68,7 +69,7 @@ class ReminderFeature(fw.FeatureBase):
         invalid_date = 'Du måste skapa en påminnelse minst 30 minuter i framtiden.'
         success = 'Det kommer en påminnelse en halvtimme innan :slight_smile:'
         
-        message_as_str = ' '.join(message)
+        message_as_str = ' '.join(message.content)
 
         try:
             task = message_as_str.split(';')[-1].split(',')

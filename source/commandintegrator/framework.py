@@ -19,6 +19,7 @@ Details:
     CommandIntegrator framework source file
 
       --- ABSOLUTELY DO NOT MODIFY THIS FILE ---
+
     Any changes or suggestions for improvement to this
     framework should be appealed by cloning this file
     and sending a pull request to the repository with 
@@ -166,7 +167,7 @@ class FeatureCommandParserABC(ABC):
         pass
 
     @abstractmethod
-    def get_category(self, message: list) -> CommandCategory:
+    def get_category(self, message: discord.Message) -> CommandCategory:
         '''
         Iterate over the words in received message, and 
         see if any of the words line up with the keywords
@@ -177,7 +178,7 @@ class FeatureCommandParserABC(ABC):
         return
     
     @abstractmethod
-    def get_subcategory(self, message: list) -> CommandSubcategory:
+    def get_subcategory(self, message: discord.Message) -> CommandSubcategory:
         '''
         Returns a ResponseOption enum type that indicates more 
         precisely which method for a feature that the command 
@@ -372,7 +373,7 @@ class FeatureBase(FeatureABC):
         self.interactive_methods = tuple()
         super().__init__(*args, **kwargs)
 
-    def __call__(self, message: list):
+    def __call__(self, message: discord.Message) -> callable:
         try:
             command_subcategory = self._command_parser.get_subcategory(message)
             if command_subcategory == CommandSubcategory.UNIDENTIFIED:
@@ -488,24 +489,25 @@ class CommandProcessor:
 
         self._features = features
 
-    def process(self, message: str) -> CommandSubcategory:
+    def process(self, message: discord.Message) -> CommandSubcategory:
         '''
-        Part of the public interface. This method takes a 
-        message in str format and splits it on space characters
+        Part of the public interface. This method takes a discord.Message
+        object  and splits the .content property on space characters
         turning it in to a list. The message is decomposed by the
         private _interpret method for identifying pronouns, which
         funnel the message to the appropriate features in the 
         self._features collection. As an instance of Interpretation
         is returned from this call, it is passed on to the caller.
         '''
-        message = message.lower().split(' ')
-        interpretation = self._interpret(message)
-        if interpretation:
-            return interpretation
-        return f'doh!'
-
+        message.content = message.content.lower().split(' ')
+        try:
+            return self._interpret(message)
+        except Exception as e:
+            return Interpretation(error = traceback.format_exc(),
+                        response = lambda: f'CommandProcessor: Internal error',
+                        original_message = message)
    
-    def _interpret(self, message: list) -> Interpretation:
+    def _interpret(self, message: discord.Message) -> Interpretation:
         '''
         Identify the pronouns in the given message. Try to 
         match the pronouns aganst the mapped pronouns property
@@ -517,7 +519,7 @@ class CommandProcessor:
         '''
         mapped_features = []
         any_in = lambda iter_a, iter_b: True if any([i in iter_a for i in iter_b]) else False
-        found_pronouns = self._pronoun_lookup_table.lookup(message)
+        found_pronouns = self._pronoun_lookup_table.lookup(message.content)
         
         for feature in self._features:
             if any_in(self._feature_pronoun_mapping[feature], found_pronouns):
@@ -583,15 +585,23 @@ if __name__ == "__main__":
                     client_secret = environment_vars['REDDIT_CLIENT_SECRET'],
                     user_agent = environment_vars['REDDIT_USER_AGENT']))
 
-    while True:
-        query = input('->')
-        before = timer()
-        a = processor.process(query)
-        after = timer()
-        
-        print(f'Responded in {round(1000 * (after - before), 3)} milliseconds')
+    # --- FOR TESTING THE COMMANDPROCESSOR CLASS --- 
 
-        if callable(a.response):
-            print(f'\nINTERPRETATION:\n{a}\n\nEXECUTED METHOD: {a.response()}')
-        else:
-            print(f'was not callable: {a}')
+    mock_message = discord.Message
+
+    if args.testmode:
+        while True:
+            mock_message.content = input('->')
+            before = timer()
+            a = processor.process(mock_message)
+            after = timer()
+            
+            print(f'Responded in {round(1000 * (after - before), 3)} milliseconds')
+
+            if callable(a.response):
+                print(f'\nINTERPRETATION:\n{a}\n\nEXECUTED METHOD: {a.response()}')
+                if a.error:
+                    print('Errors occured, see caught traceback below.')
+                    pprint(a.error)
+            else:
+                print(f'was not callable: {a}')

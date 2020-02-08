@@ -1,3 +1,4 @@
+import discord
 import source.commandintegrator.framework as fw
 from source.commandintegrator.enumerators import CommandPronoun, CommandCategory, CommandSubcategory
 from source.scraper import Scraper
@@ -8,15 +9,14 @@ class LunchMenuFeatureCommandParser(fw.FeatureCommandParserBase):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-    
-    def get_subcategory(self, message: list) -> CommandSubcategory:
-        for word in message:
-            word = word.strip(fw.FeatureCommandParserABC.IGNORED_CHARS)
-            if word in self._subcategories:
-                return self._subcategories[word]
+
+    def get_subcategory(self, message: discord.Message) -> CommandSubcategory:
+        for word in message.content:
+            stripped_word = word.strip(fw.FeatureCommandParserBase.IGNORED_CHARS) 
+            if stripped_word in self._subcategories:
+                return self._subcategories[stripped_word]
         return CommandSubcategory.LUNCH_TODAY
-
-
+    
 class LunchMenuFeature(fw.FeatureBase):
 
     FEATURE_KEYWORDS = (

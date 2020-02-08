@@ -1,3 +1,4 @@
+import discord
 import praw
 import source.commandintegrator.framework as fw
 from source.commandintegrator.enumerators import CommandPronoun, CommandCategory, CommandSubcategory
