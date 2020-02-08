@@ -1,4 +1,9 @@
+import argparse
 import random
+import json
+import discord
+import traceback
+from pprint import pprint
 from os import system
 from datetime import datetime, timedelta, time
 from enum import Enum, auto
