@@ -48,10 +48,7 @@ class Schedule:
         hourdelta parameter. The instance attribute will be accessible through
         self.begin.time and self.end.time.
         '''
-        if datetime.now().dst():
-            hourdelta = 2
-        else:
-            hourdelta = 1
+        hourdelta = 2 if datetime.now().dst() else 1
 
         for event in self.curriculum:
             try:
