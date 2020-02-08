@@ -472,7 +472,6 @@ class CommandProcessor:
         
         for feature in features:
             self._feature_pronoun_mapping[feature] = feature.mapped_pronouns
-
         self._features = features
 
     def process(self, message: discord.Message) -> CommandSubcategory:
@@ -510,47 +509,45 @@ class CommandProcessor:
         for feature in self._features:
             if any_in(self._feature_pronoun_mapping[feature], found_pronouns):
                 category = feature.command_parser.get_category(message)
-                if category is None:
-                    continue
-                mapped_features.append(feature)
+                
+                if category is not None: mapped_features.append(feature)
 
         if not len(mapped_features):
-            return Interpretation(
-                    command_pronouns = found_pronouns,
-                    command_category = CommandCategory.UNIDENTIFIED,
+            return Interpretation(command_pronouns = found_pronouns,
+                command_category = CommandCategory.UNIDENTIFIED,
+                original_message = (message,),
                 response = lambda: random.choice(self._default_responses['NoResponse']))
-                    response = lambda: random.choice(CommandProcessor.NO_RESPONSE))
-      
+
         for feature in mapped_features:
             try:
                 subcategory = feature.command_parser.get_subcategory(message)
                 return_callable = feature(message)
             except NotImplementedError as e:
-                return Interpretation(
-                        command_pronouns = found_pronouns,
-                        command_category = feature.command_parser.category,
+                return Interpretation(command_pronouns = found_pronouns,
+                            command_category = feature.command_parser.category,
+                            command_subcategory = subcategory,
                             response = lambda: random.choice(self._default_responses['NoImplementation']),
-                        response = lambda: CommandProcessor.NO_IMPLEMENTATION,
-                        original_message = (message,),
-                        error = e)
+                            original_message = (message,),
+                            error = e)
             else:
                 if return_callable == CommandSubcategory.UNIDENTIFIED:
                     continue
-                return Interpretation(
-                        command_pronouns = found_pronouns,
-                        command_category = feature.command_parser.category,
-                        command_subcategory = subcategory,
-                        response = return_callable,
-                        original_message = (message,))
+                return Interpretation(command_pronouns = found_pronouns,
+                            command_category = feature.command_parser.category,
+                            command_subcategory = subcategory,
+                            response = return_callable,
+                            original_message = (message,))
 
-        return Interpretation(
-                command_pronouns = found_pronouns,
+        return Interpretation(command_pronouns = found_pronouns,
+                    command_category = feature.command_parser.category,
+                    command_subcategory = CommandSubcategory.UNIDENTIFIED,
                 command_category = feature.command_parser.category,
                 command_subcategory = CommandSubcategory.UNIDENTIFIED,
                 response = lambda: random.choice(CommandProcessor.NO_SUBCATEGORY),
                 original_message = (message,))
 
                     response = lambda: random.choice(self._default_responses['NoSubCategory']),
+                    original_message = (message,))
 
 
 if __name__ == "__main__":
