@@ -397,7 +397,7 @@ class FeatureBase(FeatureABC):
         if not isinstance(pronouns, tuple):
             raise TypeError(f'pronouns must be enclosed in a tuple, got {type(pronouns)}')
                 
-        self._mapped_pronouns = [i for i in pronouns]
+        self._mapped_pronouns = list(pronouns)
         self._mapped_pronouns.insert(0, CommandPronoun.UNIDENTIFIED)
         self._mapped_pronouns = tuple(self._mapped_pronouns)
 
@@ -502,17 +502,15 @@ class CommandProcessor:
         message for further processing and ultimately returning
         the response.
         '''
-        mapped_features = []
-        any_in = lambda iter_a, iter_b: True if any([i in iter_a for i in iter_b]) else False
+        mapped_features = list()
         found_pronouns = self._pronoun_lookup_table.lookup(message.content)
         
         for feature in self._features:
-            if any_in(self._feature_pronoun_mapping[feature], found_pronouns):
-                category = feature.command_parser.get_category(message)
-                
+            if bool(set(self._feature_pronoun_mapping[feature]).intersection(found_pronouns)):
+                category = feature.command_parser.get_category(message)                
                 if category is not None: mapped_features.append(feature)
 
-        if not len(mapped_features):
+        if not mapped_features:
             return Interpretation(command_pronouns = found_pronouns,
                 command_category = CommandCategory.UNIDENTIFIED,
                 original_message = (message,),
