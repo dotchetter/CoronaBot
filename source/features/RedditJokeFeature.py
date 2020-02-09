@@ -37,7 +37,7 @@ class RedditJokeFeature(fw.FeatureBase):
             subcategories = RedditJokeFeature.FEATURE_SUBCATEGORIES
         )
 
-        self.command_mapping = {
+        self.callbacks = {
             CommandSubcategory.TELL_JOKE: lambda: self.interface.get()
         }
         
@@ -47,6 +47,6 @@ class RedditJokeFeature(fw.FeatureBase):
 
         super().__init__(
             command_parser = self.command_parser,
-            command_mapping = self.command_mapping,
+            callbacks = self.callbacks,
             interface = RedditJoke(reddit_client = praw.Reddit(**kwargs))
         )

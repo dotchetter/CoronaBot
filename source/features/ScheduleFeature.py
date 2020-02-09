@@ -37,7 +37,7 @@ class ScheduleFeature(fw.FeatureBase):
             subcategories = ScheduleFeature.FEATURE_SUBCATEGORIES
         )
 
-        self.command_mapping = {
+        self.callbacks = {
             CommandSubcategory.SCHEDULE_NEXT_LESSON: lambda: self._get_next_lesson(),
             CommandSubcategory.SCHEDULE_CURRICULUM: lambda: self._get_curriculum(),
             CommandSubcategory.SCHEDULE_TODAYS_LESSONS: lambda: self._get_todays_lessons()
@@ -49,7 +49,7 @@ class ScheduleFeature(fw.FeatureBase):
 
         super().__init__(
             command_parser = self.command_parser,
-            command_mapping = self.command_mapping,
+            callbacks = self.callbacks,
             interface = Schedule(**kwargs)
         )
 

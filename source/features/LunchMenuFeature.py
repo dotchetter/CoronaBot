@@ -51,7 +51,7 @@ class LunchMenuFeature(fw.FeatureBase):
             subcategories = LunchMenuFeature.FEATURE_SUBCATEGORIES
         )
         
-        self.command_mapping = {
+        self.callbacks = {
             CommandSubcategory.LUNCH_YESTERDAY: lambda: 
                 self.menu_for_weekday_phrase(
                     weekday = datetime.now() - timedelta(days = 1),
@@ -83,7 +83,7 @@ class LunchMenuFeature(fw.FeatureBase):
         super().__init__(
             interface = Scraper(url = kwargs['url']),
             command_parser = self.command_parser, 
-            command_mapping = self.command_mapping)
+            callbacks = self.callbacks)
 
     def menu_for_week(self) -> str:
         '''

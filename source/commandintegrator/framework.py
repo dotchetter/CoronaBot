@@ -343,12 +343,12 @@ class FeatureABC(ABC):
 
     @property
     @abstractmethod
-    def command_mapping(self) -> dict:
+    def callbacks(self) -> dict:
         return
     
-    @command_mapping.setter
+    @callbacks.setter
     @abstractmethod
-    def command_mapping(self, command_mapping: dict):
+    def callbacks(self, callbacks: dict):
         pass
 
     @property
@@ -379,9 +379,9 @@ class FeatureBase(FeatureABC):
             if command_subcategory == CommandSubcategory.UNIDENTIFIED:
                 return CommandSubcategory.UNIDENTIFIED
 
-            if self.command_mapping[command_subcategory] in self.interactive_methods:
-                return lambda message = message: self.command_mapping[command_subcategory](message)
-            return self.command_mapping[command_subcategory]
+            if self.callbacks[command_subcategory] in self.interactive_methods:
+                return lambda message = message: self.callbacks[command_subcategory](message)
+            return self.callbacks[command_subcategory]
         except KeyError:
             raise NotImplementedError(f'no mapped function call for {command_subcategory} in self')
 
@@ -420,20 +420,20 @@ class FeatureBase(FeatureABC):
         self._command_parser = command_parser
 
     @property
-    def command_mapping(self) -> dict:
-        return self._command_mapping
+    def callbacks(self) -> dict:
+        return self._callbacks
     
-    @command_mapping.setter
-    def command_mapping(self, command_mapping: dict):
-        if not isinstance(command_mapping, dict):
-            raise TypeError(f'command_parser must be dict, got {type(command_mapping)}')
+    @callbacks.setter
+    def callbacks(self, callbacks: dict):
+        if not isinstance(callbacks, dict):
+            raise TypeError(f'command_parser must be dict, got {type(callbacks)}')
         
-        for key in command_mapping:
+        for key in callbacks:
             if not isinstance(key, Enum):
                 raise TypeError(f'key must be CommandSubcategory Enum, got {type(key)}')
-            elif not callable(command_mapping[key]):
-                raise TypeError(f'"{command_mapping[key]}" is not callable.')
-        self._command_mapping = command_mapping
+            elif not callable(callbacks[key]):
+                raise TypeError(f'"{callbacks[key]}" is not callable.')
+        self._callbacks = callbacks
 
     @property
     def interactive_methods(self) -> tuple:

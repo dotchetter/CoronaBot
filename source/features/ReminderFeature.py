@@ -38,7 +38,7 @@ class ReminderFeature(fw.FeatureBase):
             subcategories = ReminderFeature.FEATURE_SUBCATEGORIES
         )
 
-        self.command_mapping = {
+        self.callbacks = {
             CommandSubcategory.REMINDER_SHOW_EVENTS: lambda: self.interface.events,
             CommandSubcategory.REMINDER_REMEMBER_EVENT: self._remember_event,
         }
@@ -51,7 +51,7 @@ class ReminderFeature(fw.FeatureBase):
 
         super().__init__(
             command_parser = self.command_parser,
-            command_mapping = self.command_mapping,
+            callbacks = self.callbacks,
             interface = Reminder()
         )
 
