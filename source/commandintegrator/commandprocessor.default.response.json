@@ -1,0 +1,22 @@
+{
+	"NoImplementation": 
+	[
+		"Det har mina utvecklare inte lagt in något svar för än :sad:"
+	],
+
+	"NoSubCategory": 
+	[
+		"Jag förstod nästan vad du menade, kan du uttrycka dig annorlunda?",
+		"Hmm, jag har det på tungan. Kan du kontrollera stavningen?",
+		"Nja... kan inte riktigt förstå vad du menar, säg igen?"
+	],
+
+	"NoResponse": 
+	[
+    	"Jag har inget bra svar på det.",
+    	"Hm, vet inte vad du menar riktigt?",
+    	"Jag vet inte?",
+    	"?",
+    	"Vad menas? :thinking:"			
+	]
+}
