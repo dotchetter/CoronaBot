@@ -40,7 +40,8 @@ class ScheduleFeature(fw.FeatureBase):
         self.callbacks = {
             CommandSubcategory.SCHEDULE_NEXT_LESSON: lambda: self._get_next_lesson(),
             CommandSubcategory.SCHEDULE_CURRICULUM: lambda: self._get_curriculum(),
-            CommandSubcategory.SCHEDULE_TODAYS_LESSONS: lambda: self._get_todays_lessons()
+            CommandSubcategory.SCHEDULE_TODAYS_LESSONS: lambda: self._get_todays_lessons(),
+            CommandSubcategory.SCHEDULE_TOMORROWS_LESSONS: lambda: self._get_tomorrows_lessons()
         }
 
         self.mapped_pronouns = (
@@ -110,3 +111,21 @@ class ScheduleFeature(fw.FeatureBase):
             lessons = '\n'.join(self.interface.todays_lessons)
             return f'Här är schemat för dagen:\n{lessons}'
         return 'Det finns inga lektioner på schemat idag :sunglasses:'
+
+    def _get_tomorrows_lessons(self) -> str:
+        '''
+        Returns the lessons in schedule for the day 
+        after parsed date upon method execution, if any
+        are present, otherwise a message delivering the
+        absence of lessons.
+        '''
+        NO_LESSONS = 'Jag ser inga lektioner på schemat imorgon.'
+
+        if self.interface.tomorrows_lessons:
+            for event in self.interface.tomorrows_lessons:
+                name = event.name.split(',')[-1].strip()
+                event_start = event.begin.adjusted_time.strftime('%H:%M')
+                event_end = event.end.adjusted_time.strftime('%H:%M')
+                output.append(f'{name}, {event_start} - {event_end} i {event.location}')
+            return output
+        return NO_LESSONS
