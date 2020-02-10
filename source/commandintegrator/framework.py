@@ -37,7 +37,7 @@ Module details:
     of the application. This framework provides base classes
     to inherit from with a strict set of rules and methods
     already provided to make it easier for the application 
-    to scale, as well as letting developers easilt integrate
+    to scale, as well as letting developers easily integrate
     their software to the front end with their own interfaces.
 
     To read instructions and see examples how to use this 
