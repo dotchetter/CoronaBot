@@ -176,3 +176,10 @@ class Schedule:
     @property
     def next_lesson_date(self):
         return f'{self.next_lesson.begin.date()}'
+
+    @property
+    def tomorrows_lessons(self):
+        _tomorrow = self.today + timedelta(days = 1)
+        _events = [i for i in self.curriculum if i.begin.date() + timedelta(days = 1) == _tomorrow]
+
+        return _events if _events else None    
