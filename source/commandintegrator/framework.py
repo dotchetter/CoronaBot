@@ -562,13 +562,12 @@ if __name__ == "__main__":
     processor = CommandProcessor(pronoun_lookup_table = PronounLookupTable(), 
                                 default_responses = default_responses)
     
-    processor.features = (
-        ReminderFeature(),
-        ScheduleFeature(url = environment_vars['TIMEEDIT_URL']),
-        LunchMenuFeature(url = environment_vars['LUNCH_MENU_URL']),
-        RedditJokeFeature(client_id = environment_vars['REDDIT_CLIENT_ID'], 
-            client_secret = environment_vars['REDDIT_CLIENT_SECRET'],
-            user_agent = environment_vars['REDDIT_USER_AGENT']))
+    processor.features = (ReminderFeature(),
+                          ScheduleFeature(url = environment_vars['TIMEEDIT_URL']),
+                          LunchMenuFeature(url = environment_vars['LUNCH_MENU_URL']),
+                          RedditJokeFeature(client_id = environment_vars['REDDIT_CLIENT_ID'], 
+                                            client_secret = environment_vars['REDDIT_CLIENT_SECRET'],
+                                            user_agent = environment_vars['REDDIT_USER_AGENT']))
 
     # --- FOR TESTING THE COMMANDPROCESSOR CLASS --- 
 
