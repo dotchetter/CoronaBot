@@ -1,16 +1,22 @@
 import os
+import json
 import discord
 import asyncio
 import logging
 from datetime import datetime, time, timedelta
+from source.commandintegrator.framework import CommandProcessor, PronounLookupTable
 from dotenv import load_dotenv
 from pathlib import Path
 from source.custom_errs import *
-from source.schedule import Schedule
 from source.event import Event
 from source.weekdays import Weekdays
-from source.brain import Brain
-from source.reminder import Reminder
+from source.features.ReminderFeature import ReminderFeature
+from source.features.LunchMenuFeature import LunchMenuFeature
+from source.features.RedditJokeFeature import RedditJokeFeature
+from source.features.ScheduleFeature import ScheduleFeature
+#from source.schedule import Schedule
+#from source.brain import Brain
+#from source.reminder import Reminder
 
 '''
 Details:
@@ -34,29 +40,22 @@ class RobBotClient(discord.Client):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        self.loop.create_task(self.auto_message())
-        self.loop.create_task(self.purge_runtime())
-        
-        self._hourdelta = kwargs['hourdelta']
+        #self.loop.create_task(self.auto_message())
+        #self.loop.create_task(self.purge_runtime())        
         self._guild = kwargs['DISCORD_GUILD']
+        self.processor = commandprocessor= (ScheduleFeature(url = kwargs['TIMEEDIT_URL']),
+                                  LunchMenuFeature(url = kwargs['LUNCH_MENU_URL']),
+                                  RedditJokeFeature(client_id = kwargs['REDDIT_CLIENT_ID'], 
+                                                    client_secret = kwargs['REDDIT_CLIENT_SECRET'],
+                                                    user_agent = kwargs['REDDIT_USER_AGENT']))
 
-        self.brain = Brain(hourdelta = kwargs['hourdelta'],
-                           schedule_url = kwargs['TIMEEDIT_URL'],
-                           lunch_menu_url = kwargs['LUNCH_MENU_URL'],
-                           google_api_key = kwargs['GOOGLE_API_KEY'],
-                           google_cse_id = kwargs['GOOGLE_CSE_ID'],
-                           reddit_client_id = kwargs['REDDIT_CLIENT_ID'],
-                           reddit_client_secret = kwargs['REDDIT_CLIENT_SECRET'],
-                           reddit_user_agent = kwargs['REDDIT_USER_AGENT'])
+        # if not os.path.isdir(self.brain.LOG_DIR):
+        #     os.mkdir(self.brain.LOG_DIR)
 
-        if not os.path.isdir(self.brain.LOG_DIR):
-            os.mkdir(self.brain.LOG_DIR)
-
-        logging.basicConfig(
-            level = logging.INFO, 
-            filename = RobBotClient.LOG_FILE_FULLPATH, 
-            format = RobBotClient.LOGFORMAT)
+        # logging.basicConfig(
+        #     level = logging.INFO, 
+        #     filename = RobBotClient.LOG_FILE_FULLPATH, 
+        #     format = RobBotClient.LOGFORMAT)
 
     async def on_ready(self):
         '''
@@ -85,8 +84,7 @@ class RobBotClient(discord.Client):
         now = datetime.now().strftime('%Y-%m-%d -- %H:%M:%S')
     
         if message.content.lower().startswith('rob') and message.author != client.user:
-            response = self.brain.respond_to(message)
-            await message.channel.send(response)
+            await message.channel.send(processor.process(message).response())
             try:
                 logging.info(f'{message.author} said: {message.content}')
             except Exception:
@@ -192,8 +190,23 @@ def load_environment():
 
 if __name__ == '__main__':
     
+    commandintegrator_dir = Path('commandintegrator')
+    response_file = 'commandprocessor.default.response.json'
+    response_file_path = commandintegrator_dir / response_file
+
+    with open(response_file_path, 'r', encoding = 'utf-8') as f:
+        default_responses = json.loads(f.read())
+
     environment_vars = load_environment()
-    environment_vars['hourdelta'] = 1
+    processor = CommandProcessor(pronoun_lookup_table = PronounLookupTable(), 
+                                default_responses = default_responses)
+    
+    processor.features = (ScheduleFeature(url = environment_vars['TIMEEDIT_URL']),
+                          LunchMenuFeature(url = environment_vars['LUNCH_MENU_URL']),
+                          RedditJokeFeature(client_id = environment_vars['REDDIT_CLIENT_ID'], 
+                                            client_secret = environment_vars['REDDIT_CLIENT_SECRET'],
+                                            user_agent = environment_vars['REDDIT_USER_AGENT']))
+
 
     friday = Event(body = 'Fredag, wohoo! :beers:',
                 weekdays = [Weekdays.FRIDAY],
@@ -201,6 +214,5 @@ if __name__ == '__main__':
                 alarm = timedelta(minutes = 30))
     
     client = RobBotClient(**environment_vars)
-    client.setup_reminders(reoccuring = [friday])
-    client.brain.load_unrecognized_message_history()
+    #client.setup_reminders(reoccuring = [friday])
     client.run(environment_vars['DISCORD_TOKEN'])

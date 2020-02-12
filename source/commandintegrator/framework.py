@@ -131,7 +131,7 @@ class Interpretation:
     from the Feature.
 
     error: Any exception that was caught upon parsing
-    the message.
+    the message. 
     '''
     command_pronouns: tuple(CommandPronoun) = ()
     command_category: CommandCategory = None,
