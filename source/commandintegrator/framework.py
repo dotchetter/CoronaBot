@@ -12,7 +12,7 @@ from abc import ABC, abstractmethod
 from timeit import default_timer as timer
 from source.commandintegrator.enumerators import CommandPronoun, CommandCategory, CommandSubcategory
 
-'''
+"""
 Details:
     2019-12-23
 
@@ -44,15 +44,17 @@ Module details:
     framework with your application - please read the full
     documentation.
 
-'''
+"""
+
+
 
 class PronounLookupTable:
-    '''
+    """
     Provide a grammatic framework that 
     returns a tuple of matches for certain
     grammatic classes of words found in a given
     sentence. 
-    '''
+    """
 
     def __init__(self):
         self._lookup_table = {
@@ -85,14 +87,14 @@ class PronounLookupTable:
         return f'PronounLookupTable({self._lookup_table})'
 
     def lookup(self, message: list) -> tuple:
-        '''
+        """
         Split a given string by space if present, to iterate
         over a sentence of words. Returns a tuple with enum
         instances representing the pronouns that make up the
         composition of the string received. If none is found,
         a tuple with a single CommandPronoun.UNIDENTIFIED is 
         returned.
-        '''
+        """
         pronouns = []
 
         for word in message:
@@ -109,7 +111,7 @@ class PronounLookupTable:
 
 @dataclass
 class Interpretation:
-    '''
+    """
     This object represents the output from the
     CommandProcessor class. 
 
@@ -132,7 +134,7 @@ class Interpretation:
 
     error: Any exception that was caught upon parsing
     the message. 
-    '''
+    """
     command_pronouns: tuple(CommandPronoun) = ()
     command_category: CommandCategory = None,
     command_subcategory: CommandSubcategory = None,
@@ -142,14 +144,14 @@ class Interpretation:
 
 
 class FeatureCommandParserABC(ABC):
-    '''
+    """
     Describe a data structure that binds certain
     keywords to a certain feature. As the feature
     stack grows, this class is used as a template
     for base classes that work with decomposing 
     a message string, trying to understand its context
     and intent.
-    '''
+    """
     IGNORED_CHARS = '?=)(/&%¤#"!,.-;:_^*`´><|'
 
     def __init__(self, *args, **kwargs):
@@ -168,24 +170,24 @@ class FeatureCommandParserABC(ABC):
 
     @abstractmethod
     def get_category(self, message: discord.Message) -> CommandCategory:
-        '''
+        """
         Iterate over the words in received message, and 
         see if any of the words line up with the keywords
         provided for an instance of this class. If a match
         is found, the CommandCategory of the instance should
         return, otherwise None.
-        '''
+        """
         return
     
     @abstractmethod
     def get_subcategory(self, message: discord.Message) -> CommandSubcategory:
-        '''
+        """
         Returns a ResponseOption enum type that indicates more 
         precisely which method for a feature that the command 
         is matched against. This method should be overloaded if 
         a different return behaviour in a no-match-found scenario
         is desired.
-        '''
+        """
         return
 
     @property
@@ -301,10 +303,10 @@ class FeatureCommandParserBase(FeatureCommandParserABC):
     
 
 class FeatureABC(ABC):
-    ''' 
+    """ 
     Represent the template for a complete and 
     ready-to-use feature. 
-    '''
+    """
     def __init__(self, *args, **kwargs):
         for key in kwargs:
             setattr(self, key, kwargs[key])
@@ -363,11 +365,11 @@ class FeatureABC(ABC):
 
 
 class FeatureBase(FeatureABC):
-    '''
+    """
     Base class for features coupled to the chatbot. 
     Use this class as a base class to inherit from when
     connecting your feature's interface to the bot.
-    '''
+    """
 
     def __init__(self, *args, **kwargs):
         self.interactive_methods = tuple()
@@ -447,14 +449,14 @@ class FeatureBase(FeatureABC):
 
 
 class CommandProcessor:
-    '''
+    """
     This object, while integrated to a front end
     works as a way to parse and understand what a
     human is asking for. An object containing the 
     representation of the interpretation of said
     sentence or word is returned of class 
     Interpretation.
-    '''
+    """
 
     def __init__(self, pronoun_lookup_table: PronounLookupTable, default_responses: dict):
         self._pronoun_lookup_table = pronoun_lookup_table
@@ -475,7 +477,7 @@ class CommandProcessor:
         self._features = features
 
     def process(self, message: discord.Message) -> CommandSubcategory:
-        '''
+        """
         Part of the public interface. This method takes a discord.Message
         object  and splits the .content property on space characters
         turning it in to a list. The message is decomposed by the
@@ -483,7 +485,7 @@ class CommandProcessor:
         funnel the message to the appropriate features in the 
         self._features collection. As an instance of Interpretation
         is returned from this call, it is passed on to the caller.
-        '''
+        """
         message.content = message.content.lower().split(' ')
         try:
             return self._interpret(message)
@@ -493,7 +495,7 @@ class CommandProcessor:
                         original_message = message)
    
     def _interpret(self, message: discord.Message) -> Interpretation:
-        '''
+        """
         Identify the pronouns in the given message. Try to 
         match the pronouns aganst the mapped pronouns property
         for each featrure. If multiple features match the set of
@@ -501,7 +503,7 @@ class CommandProcessor:
         matching. The feature that returns a match is given the
         message for further processing and ultimately returning
         the response.
-        '''
+        """
         mapped_features = list()
         found_pronouns = self._pronoun_lookup_table.lookup(message.content)
         
@@ -554,8 +556,8 @@ if __name__ == "__main__":
     from source.features.RedditJokeFeature import RedditJokeFeature
     from source.features.ScheduleFeature import ScheduleFeature
 
-    with open('commandprocessor.default.response.json', 'r', encoding = 'utf-8') as f:
-        default_responses = json.loads(f.read())
+    with open('commandintegrator.settings.json', 'r', encoding = 'utf-8') as f:
+        default_responses = json.loads(f.read())['default_responses']
 
     environment_vars = client.load_environment()
     processor = CommandProcessor(pronoun_lookup_table = PronounLookupTable(), 
