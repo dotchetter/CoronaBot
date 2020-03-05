@@ -49,14 +49,6 @@ class RobBotClient(discord.Client):
                                                     client_secret = kwargs['REDDIT_CLIENT_SECRET'],
                                                     user_agent = kwargs['REDDIT_USER_AGENT']))
 
-        # if not os.path.isdir(self.brain.LOG_DIR):
-        #     os.mkdir(self.brain.LOG_DIR)
-
-        # logging.basicConfig(
-        #     level = logging.INFO, 
-        #     filename = RobBotClient.LOG_FILE_FULLPATH, 
-        #     format = RobBotClient.LOGFORMAT)
-
     async def on_ready(self):
         '''
         This method is called as soon as the bot is online.
