@@ -1,8 +1,8 @@
 import os
 import json
 import logging
+import functools
 from pathlib import Path
-from functools import wraps
 
 """
 Module details:
@@ -14,7 +14,10 @@ Module details:
 """
 
 LOGFORMAT = "%(asctime)s::%(levelname)s::%(name)s::%(message)s"
-LOG_DIR = Path(json.loads('commandintegrator.settings.json'))['log_dir'])
+
+with open ('commandintegrator.settings.json', 'r', encoding = 'utf-8') as f:
+    LOG_DIR = Path(json.loads(f.read())['log_dir'])
+
 LOG_FILE = 'runtime.log'
 LOG_FILE_FULLPATH = LOG_DIR / LOG_FILE
 
