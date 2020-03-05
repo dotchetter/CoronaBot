@@ -1,14 +1,14 @@
 
 {
-	"log_dir": "C:\\Users\\admin\\git\\RobBotTheRobot",
+	"log_dir": "C:\\Users\\si\\git\\RobBotTheRobot",
 	
-	"default_responses": [
-
+	"default_responses": {
 		"NoImplementation": 
 		[
 			"Det har mina utvecklare inte lagt in något svar för än :sad:",
 			"Doh! Jag ser att jag ska kunna svara på det men utvecklarna har inte lagt in någon callback!"
 		],
+			
 
 		"NoSubCategory": 
 		[
@@ -24,6 +24,6 @@
 	    	":man_shrugging:",
 	    	"No comprendo",
 	    	"404 - not found :robot:"
-		]
-	]
+		]	
+	}
 }
