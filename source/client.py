@@ -140,9 +140,6 @@ class RobBotClient(discord.Client):
             for element in reoccuring:
                 self.brain.reminder.add_reoccuring(element)
 
-        if self.brain.reminder.events:
-            logging.info(f'Added reminders:\n{self.brain.reminder.events}')
-
 def load_environment():
     
     load_dotenv()
