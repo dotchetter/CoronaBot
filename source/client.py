@@ -2,15 +2,14 @@ import os
 import json
 import discord
 import asyncio
-import logging
 from datetime import datetime, time, timedelta
 from source.commandintegrator.framework import CommandProcessor, PronounLookupTable
+from source.commandintegrator.logger import logger
 from dotenv import load_dotenv
 from pathlib import Path
 from source.custom_errs import *
 from source.event import Event
 from source.weekdays import Weekdays
-from source.features.ReminderFeature import ReminderFeature
 from source.features.LunchMenuFeature import LunchMenuFeature
 from source.features.RedditJokeFeature import RedditJokeFeature
 from source.features.ScheduleFeature import ScheduleFeature
@@ -33,22 +32,17 @@ Synposis:
 
 class RobBotClient(discord.Client):
     
-    LOGFORMAT = "%(asctime)s::%(levelname)s::%(name)s::%(message)s"
-    LOG_DIR = Path('runtime_logs')
-    LOG_FILE = 'runtime.log'
-    LOG_FILE_FULLPATH = LOG_DIR / LOG_FILE
-    
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         #self.loop.create_task(self.auto_message())
         #self.loop.create_task(self.purge_runtime())        
         self._guild = kwargs['DISCORD_GUILD']
         self.processor = commandprocessor= (ScheduleFeature(url = kwargs['TIMEEDIT_URL']),
-                                  LunchMenuFeature(url = kwargs['LUNCH_MENU_URL']),
-                                  RedditJokeFeature(client_id = kwargs['REDDIT_CLIENT_ID'], 
-                                                    client_secret = kwargs['REDDIT_CLIENT_SECRET'],
-                                                    user_agent = kwargs['REDDIT_USER_AGENT']))
-
+                                            LunchMenuFeature(url = kwargs['LUNCH_MENU_URL']),
+                                            RedditJokeFeature(client_id = kwargs['REDDIT_CLIENT_ID'], 
+                                                              client_secret = kwargs['REDDIT_CLIENT_SECRET'],
+                                                              user_agent = kwargs['REDDIT_USER_AGENT']))
+    @logger
     async def on_ready(self):
         '''
         This method is called as soon as the bot is online.
@@ -56,34 +50,30 @@ class RobBotClient(discord.Client):
         for guild_name in client.guilds:
             if guild_name == self._guild:
                 break
-        logging.info(f'Bot is online at {guild_name}')
+        
 
+    @logger
     async def on_member_join(self, member):
         '''
         If a new member just joined our server, greet them warmly!
         '''
         greeting_phrase = self.brain.greet(member.name)
-    
         await member.create_dm()
         await member.dm_channel.send(greeting_phrase)
-        logging.info(f'Bot said {greeting_phrase}')
-    
+        
+
+    @logger
     async def on_message(self, message):
         '''
         Respond to a message in the channel if someone
         calls on the bot by name, asking for commands.
         '''
-        now = datetime.now().strftime('%Y-%m-%d -- %H:%M:%S')
-    
+        now = datetime.now().strftime('%Y-%m-%d -- %H:%M:%S')    
         if message.content.lower().startswith('rob') and message.author != client.user:
             await message.channel.send(processor.process(message).response())
-            try:
-                logging.info(f'{message.author} said: {message.content}')
-            except Exception:
-                pass
-            else:
-                logging.info(f'Bot said: {response}')
+                
     
+    @logger
     async def auto_message(self):
         '''
         Loop indefinitely and send messages that are pre-
@@ -96,12 +86,9 @@ class RobBotClient(discord.Client):
             await asyncio.sleep(1)
             event = self.brain.reminder.get()
             if event:
-                await channel.send(event)
-                try:
-                    logging.info(f'Bot said: {event}')
-                except Exception as e:
-                    logging.error(f'Message could not log correctly. Error:\n {e}')
-                
+                await channel.send(event)                    
+    
+    @logger
     async def purge_runtime(self):
         '''
         Refresh the Schedule object with a new updated
@@ -117,8 +104,7 @@ class RobBotClient(discord.Client):
             time_left = (midnight - now)
 
             await asyncio.sleep(time_left.seconds)
-            logging.info('Commencing nightly purge and cleanup...')
-            
+                        
             try:
                 self.brain.schedule.set_calendar()
                 self.brain.schedule.truncate_event_name()
@@ -129,12 +115,10 @@ class RobBotClient(discord.Client):
 
             except Exception:
                 pass
-            else:
-                logging.info('Nightly purge and cleanup completed.')
-                await asyncio.sleep(1)            
-                if len(removed_activities):
-                    logging.info(f"Purged activities: {removed_activities}")
+            else:                
+                await asyncio.sleep(1)
 
+    @logger
     def setup_reminders(self, reoccuring = []):
         '''
         Create Event instances and keep them in Reminders object
