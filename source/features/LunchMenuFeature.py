@@ -1,6 +1,7 @@
 import discord
 import source.commandintegrator.framework as fw
 from source.commandintegrator.enumerators import CommandPronoun, CommandCategory, CommandSubcategory
+from source.commandintegrator.logger import logger
 from source.scraper import Scraper
 from datetime import datetime, timedelta
 
@@ -85,6 +86,7 @@ class LunchMenuFeature(fw.FeatureBase):
             command_parser = self.command_parser, 
             callbacks = self.callbacks)
 
+    @logger
     def menu_for_week(self) -> str:
         '''
         Return the entire week's menu with one empty line
@@ -100,6 +102,7 @@ class LunchMenuFeature(fw.FeatureBase):
             day.append('\n')
         return f'Här är veckans meny :slight_smile:\n{menu_for_week}'
     
+    @logger
     def menu_for_weekday_phrase(self, weekday: datetime, when: CommandSubcategory) -> str:
         '''
         Return a user-friendly variant of the content
