@@ -382,7 +382,8 @@ class FeatureBase(FeatureABC):
                 return CommandSubcategory.UNIDENTIFIED
 
             if self.callbacks[command_subcategory] in self.interactive_methods:
-                return lambda message = message: self.callbacks[command_subcategory](message)
+                method = self.callbacks[command_subcategory]
+                return lambda message = message: method(message)
             return self.callbacks[command_subcategory]
         except KeyError:
             raise NotImplementedError(f'no mapped function call for {command_subcategory} in self')
