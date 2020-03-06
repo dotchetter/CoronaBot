@@ -555,19 +555,36 @@ if __name__ == "__main__":
     from source.features.LunchMenuFeature import LunchMenuFeature
     from source.features.RedditJokeFeature import RedditJokeFeature
     from source.features.ScheduleFeature import ScheduleFeature
+    from source.features.CoronaSpreadFeature import CoronaSpreadFeature
 
     with open('commandintegrator.settings.json', 'r', encoding = 'utf-8') as f:
         default_responses = json.loads(f.read())['default_responses']
 
     environment_vars = client.load_environment()
-    processor = CommandProcessor(pronoun_lookup_table = PronounLookupTable(), 
-                                default_responses = default_responses)
     
-    processor.features = (ScheduleFeature(url = environment_vars['TIMEEDIT_URL']),
-                          LunchMenuFeature(url = environment_vars['LUNCH_MENU_URL']),
-                          RedditJokeFeature(client_id = environment_vars['REDDIT_CLIENT_ID'], 
-                                            client_secret = environment_vars['REDDIT_CLIENT_SECRET'],
-                                            user_agent = environment_vars['REDDIT_USER_AGENT']))
+    processor = CommandProcessor(
+        pronoun_lookup_table = PronounLookupTable(), 
+        default_responses = default_responses
+    )
+    
+    processor.features = (
+        
+        ScheduleFeature(url = environment_vars['TIMEEDIT_URL']),
+        
+        CoronaSpreadFeature(
+            corona_rapidapi_host = environment_vars['CORONA_RAPIDAPI_HOST'],
+            corona_rapidapi_key = environment_vars['CORONA_RAPIDAPI_KEY'],
+            uri = environment_vars['CORONA-RAPIDAPI-URI']
+        ),
+
+        LunchMenuFeature(
+            url = environment_vars['LUNCH_MENU_URL']),
+            RedditJokeFeature(
+                client_id = environment_vars['REDDIT_CLIENT_ID'], 
+                client_secret = environment_vars['REDDIT_CLIENT_SECRET'],
+                user_agent = environment_vars['REDDIT_USER_AGENT']
+            )
+        )
 
     # --- FOR TESTING THE COMMANDPROCESSOR CLASS --- 
 
