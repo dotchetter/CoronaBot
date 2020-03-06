@@ -444,7 +444,10 @@ class FeatureBase(FeatureABC):
     @interactive_methods.setter
     def interactive_methods(self, arg: tuple):
         if not isinstance(arg, tuple):
-            raise TypeError(f'command_parser must be tuple, got {type(arg)}')
+            raise TypeError(f'interactive methods must be enclosed in tuple, got {type(arg)}')
+        for i in arg:
+            if not callable(i):
+                raise TypeError(f'Warning: interactive method not callable: {i}')
         self._interactive_methods = arg
 
 
