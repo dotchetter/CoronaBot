@@ -153,7 +153,10 @@ def load_environment():
         'REDDIT_USER_AGENT',
         'GOOGLE_API_KEY',
         'GOOGLE_CSE_ID',
-        'DISCORD_TOKEN'
+        'DISCORD_TOKEN',
+        'CORONA-RAPIDAPI-URI',
+        'CORONA_RAPIDAPI_HOST',
+        'CORONA_RAPIDAPI_KEY'
     ]
 
     for var in env_var_strings:
