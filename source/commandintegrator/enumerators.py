@@ -31,8 +31,8 @@ class CommandCategory(Enum):
     TELL_JOKE = auto()
     SCHEDULE = auto()
     REMINDER = auto()
-    WEB_SEARCH = auto()
     PERSONAL = auto()
+    CORONA_SPREAD = auto()
     UNIDENTIFIED = auto()
 
 class CommandPronoun(Enum):
