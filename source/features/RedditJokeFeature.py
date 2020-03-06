@@ -35,7 +35,7 @@ class RedditJokeFeature(fw.FeatureBase):
             category = CommandCategory.TELL_JOKE,
             keywords = RedditJokeFeature.FEATURE_KEYWORDS,
             subcategories = RedditJokeFeature.FEATURE_SUBCATEGORIES
-        )
+        )  
 
         self.callbacks = {
             CommandSubcategory.TELL_JOKE: lambda: self.interface.get()
