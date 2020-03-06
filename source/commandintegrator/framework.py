@@ -3,6 +3,8 @@ import random
 import json
 import discord
 import traceback
+from itertools import zip_longest
+from ast import literal_eval
 from pprint import pprint
 from os import system
 from datetime import datetime, timedelta, time
@@ -255,10 +257,32 @@ class FeatureCommandParserBase(FeatureCommandParserABC):
         return None
     
     def get_subcategory(self, message: discord.Message) -> CommandSubcategory:
+
+        strip_chars = lambda string: string.strip(FeatureCommandParserBase.IGNORED_CHARS)
+        complex_subcategories = []
+        simple_subcategories = []
+        
+        for key in self._subcategories.keys():
+            try:
+                complex_subcategories.append(literal_eval(key))
+            except:
+                simple_subcategories.append(key)
+
+        for subcategory in complex_subcategories:
+            for word in message.content:
+                word = strip_chars(word)
+                try:
+                    subset = subcategory[word]
+                except KeyError:
+                    pass
+                else:
+                    if [strip_chars(i) for i in message.content if strip_chars(i) in subset]:
+                        return self._subcategories[str(subcategory)]
+    
         for word in message.content:
-            stripped_word = word.strip(FeatureCommandParserBase.IGNORED_CHARS) 
-            if stripped_word in self._subcategories:
-                return self._subcategories[stripped_word]
+            word = strip_chars(word)
+            if word in simple_subcategories:
+                return self._subcategories[word]
         return CommandSubcategory.UNIDENTIFIED
 
     @property
