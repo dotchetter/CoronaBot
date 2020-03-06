@@ -9,18 +9,32 @@ class CommandSubcategory(Enum):
     SCHEDULE_TODAYS_LESSONS = auto()
     SCHEDULE_TOMORROWS_LESSONS = auto()
     SCHEDULE_CURRICULUM = auto()
+    
     REMINDER_REMEMBER_EVENT = auto()
     REMINDER_SHOW_EVENTS = auto()
-    ADJECTIVE = auto()
+    
     TELL_JOKE = auto()
-    TIMENOW = auto()
-    WEBSEARCH = auto()
+
     LUNCH_TODAY = auto()
     LUNCH_YESTERDAY = auto()
     LUNCH_TOMORROW = auto()
     LUNCH_DAY_AFTER_TOMORROW = auto()
     LUNCH_FOR_WEEK = auto()
-    SHOW_BOT_COMMANDS = auto()
+
+    CORONA_SPREAD_TOTAL_DEATHS = auto()
+    CORONA_SPREAD_TOTAL_RECOVERIES = auto()
+    CORONA_SPREAD_TOTAL_INFECTIONS = auto()
+    CORONA_SPREAD_MOST_DEATHS = auto()
+    CORONA_SPREAD_MOST_RECOVERIES = auto()
+    CORONA_SPREAD_MOST_INFECTIONS = auto()
+    CORONA_SPREAD_LEAST_INFECTIONS = auto()
+    CORONA_SPREAD_LEAST_DEATHS = auto()
+    CORONA_SPREAD_LEAST_RECOVERIES = auto()
+    CORONA_INFECTIONS_BY_QUERY = auto()
+    CORONA_DEATHS_BY_QUERY = auto()
+    CORONA_RECOVERIES_BY_QUERY = auto()
+    CORONA_DATA_TIMESTAMP = auto()
+
     UNIDENTIFIED = auto()
 
 class CommandCategory(Enum):
