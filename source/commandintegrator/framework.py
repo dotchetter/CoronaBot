@@ -601,7 +601,7 @@ if __name__ == "__main__":
     with open('commandintegrator.settings.json', 'r', encoding = 'utf-8') as f:
         default_responses = json.loads(f.read())['default_responses']
 
-    environment_vars = client.load_environment()
+    environment_vars = client.load_environment(enviromnent_strings)
     
     processor = CommandProcessor(
         pronoun_lookup_table = PronounLookupTable(), 
