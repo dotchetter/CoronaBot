@@ -159,34 +159,34 @@ class Client:
 		return self.api_handle.fetch()
 
 	def get_total_recoveries(self) -> int:
-		data = self.api_handle.fetch()
-		return sum([int(i['recovered']) for i in data])
+		data = self.api_handle.fetch()['countries_stat']
+		return sum([int(i['total_recovered'].replace(',','')) for i in data])
 
 	def get_total_infections(self) -> int:
-		data = self.api_handle.fetch()
-		return sum([int(i['cases']) for i in data])
+		data = self.api_handle.fetch()['countries_stat']
+		return sum([int(i['cases'].replace(',','')) for i in data])
 
 	def get_total_deaths(self, sort_by_highest = True) -> str:
-		data = self.api_handle.fetch()
-		return sum([int(i['deaths']) for i in data])
+		data = self.api_handle.fetch()['countries_stat']
+		return sum([int(i['deaths'].replace(',','')) for i in data])
 
 	def get_recoveries(self, sort_by_highest = True) -> str:
-		sorter = lambda i: int(i['recovered'])
-		data = self.api_handle.fetch()
+		sorter = lambda i: int(i['total_recovered'].replace(',',''))
+		data = self.api_handle.fetch()['countries_stat']
 		data.sort(key = sorter, reverse = sort_by_highest)
 		translated_country = self._translate(data[0]['country_name'], 'english')
-		return f"{translated_country}: {data[0]['recovered']}"
+		return f"{translated_country}: {data[0]['total_recovered']}"
 
 	def get_infections(self, sort_by_highest = True) -> str:
-		sorter = lambda i: int(i['cases'])
-		data = self.api_handle.fetch()
+		sorter = lambda i: int(i['cases'].replace(',',''))
+		data = self.api_handle.fetch()['countries_stat']
 		data.sort(key = sorter, reverse = sort_by_highest)
 		translated_country = self._translate(data[0]['country_name'], 'english')
 		return f"{translated_country}: {data[0]['cases']}"
 
 	def get_deaths(self, sort_by_highest = True) -> str:
-		sorter = lambda i: int(i['deaths'])
-		data = self.api_handle.fetch()
+		sorter = lambda i: int(i['deaths'].replace(',',''))
+		data = self.api_handle.fetch()['countries_stat']
 		data.sort(key = sorter, reverse = sort_by_highest)
 		translated_country = self._translate(data[0]['country_name'], 'english')
 		return f"{translated_country}: {data[0]['deaths']}"	
@@ -205,9 +205,9 @@ class Client:
 			string
 		"""
 
-		data = self.api_handle.fetch()
+		data = self.api_handle.fetch()['countries_stat']
 		for country in data:
-			if country['country'].lower() == self._translate(country_name, 'swedish'):
+			if country['country_name'].lower() == self._translate(country_name, 'swedish'):
 				return country[query]
 		raise KeyError(f'No such key: {country_name}')
 
@@ -219,4 +219,4 @@ class Client:
 		:returns:
 			string, datetime
 		"""
-		return self.api_handle.last_api_call
+		return self.api_handle.fetch()['statistic_taken_at']

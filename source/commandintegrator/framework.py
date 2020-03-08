@@ -585,7 +585,9 @@ if __name__ == "__main__":
         'GOOGLE_API_KEY',
         'GOOGLE_CSE_ID',
         'DISCORD_TOKEN',
-        'CORONA-API-URI'
+        'CORONA_API_URI',
+        'CORONA_API_RAPIDAPI_HOST',
+        'CORONA_API_RAPIDAPI_KEY'
     ]
 
     arg_parser = argparse.ArgumentParser()
@@ -613,7 +615,9 @@ if __name__ == "__main__":
         ScheduleFeature(url = environment_vars['TIMEEDIT_URL']),
         
         CoronaSpreadFeature(
-            uri = environment_vars['CORONA-API-URI'],
+            CORONA_API_URI = environment_vars['CORONA_API_URI'],
+            CORONA_API_RAPIDAPI_HOST = environment_vars['CORONA_API_RAPIDAPI_HOST'],
+            CORONA_API_RAPIDAPI_KEY = environment_vars['CORONA_API_RAPIDAPI_KEY'],
             translation_file_path = 'C:\\users\\admin\\git\\robbottherobot\\source\\country_eng_swe_translations.json'
         ),
 

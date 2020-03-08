@@ -23,7 +23,7 @@ class CoronaSpreadFeature(fw.FeatureBase):
     data_timestamp_2 = {'hur': ('gammal', 'data', 'datan')}
 
     total_deaths = {'totalt': ('dött', 'omkommit', 'döda')}
-    total_recoveries = {'totalt': ('friska', 'tillfrisknat')}
+    total_recoveries = {'totalt': ('friska', 'tillfrisknat', 'återhämtat')}
     total_cases = {'totalt': ('smittade', 'smittats', 'sjuka')}
 
     most_deaths = {'flest': ('döda', 'dödsfall', 'omkommit', 'omkomna', 'dött')}
@@ -93,8 +93,9 @@ class CoronaSpreadFeature(fw.FeatureBase):
             CommandPronoun.INTERROGATIVE,
         )
 
-        api_handle = coronafeatureclient.ApiHandle(uri = kwargs['uri'])
-        api_handle.add_header('User-Agent', fake_useragent.UserAgent().random)
+        api_handle = coronafeatureclient.ApiHandle(uri = kwargs['CORONA_API_URI'])
+        api_handle.add_header('x-rapidapi-host', kwargs['CORONA_API_RAPIDAPI_HOST'])
+        api_handle.add_header('x-rapidapi-key', kwargs['CORONA_API_RAPIDAPI_KEY'])
 
         super().__init__(
             command_parser = self.command_parser,
@@ -106,8 +107,7 @@ class CoronaSpreadFeature(fw.FeatureBase):
     @logger
     def get_total_deaths(self):
         response = self.interface.get_total_deaths()
-        #return f'Totalt har {response} omkommit globalt'
-        return self.interface.get_raw_data()
+        return f'Totalt har {response} omkommit globalt'
     
     @logger
     def get_total_recoveries(self):
