@@ -128,7 +128,7 @@ class Client:
 		self.api_handle = api_handle
 		self.translation_file_path = translation_file_path
 
-	def _translate_country(self, country: str, from_language: str) -> str:
+	def _translate(self, country: str, from_language: str) -> str:
 		"""
 		Return the value behind key country parameter
 		which is the swedish translated string of given
@@ -174,21 +174,21 @@ class Client:
 		sorter = lambda i: int(i['recovered'])
 		data = self.api_handle.fetch()
 		data.sort(key = sorter, reverse = sort_by_highest)
-		translated_country = self._translate_country(data[0]['country_name'], 'english')
+		translated_country = self._translate(data[0]['country_name'], 'english')
 		return f"{translated_country}: {data[0]['recovered']}"
 
 	def get_infections(self, sort_by_highest = True) -> str:
 		sorter = lambda i: int(i['cases'])
 		data = self.api_handle.fetch()
 		data.sort(key = sorter, reverse = sort_by_highest)
-		translated_country = self._translate_country(data[0]['country_name'], 'english')
+		translated_country = self._translate(data[0]['country_name'], 'english')
 		return f"{translated_country}: {data[0]['cases']}"
 
 	def get_deaths(self, sort_by_highest = True) -> str:
 		sorter = lambda i: int(i['deaths'])
 		data = self.api_handle.fetch()
 		data.sort(key = sorter, reverse = sort_by_highest)
-		translated_country = self._translate_country(data[0]['country_name'], 'english')
+		translated_country = self._translate(data[0]['country_name'], 'english')
 		return f"{translated_country}: {data[0]['deaths']}"	
 
 	def get_by_query(self, query: str, country_name: str) -> str:
@@ -207,7 +207,7 @@ class Client:
 
 		data = self.api_handle.fetch()
 		for country in data:
-			if country['country'].lower() == self._translate_country(country_name, 'swedish'):
+			if country['country'].lower() == self._translate(country_name, 'swedish'):
 				return country[query]
 		raise KeyError(f'No such key: {country_name}')
 
