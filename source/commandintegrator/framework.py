@@ -633,10 +633,14 @@ if __name__ == "__main__":
     if args.testmode:
         while True:
             mock_message.content = input('->')
+
+            if not len(mock_message.content):
+                continue
+
             before = timer()
             a = processor.process(mock_message)
             after = timer()
-            
+
             print(f'Responded in {round(1000 * (after - before), 3)} milliseconds')
 
             if callable(a.response):
