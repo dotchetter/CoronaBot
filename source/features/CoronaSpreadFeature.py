@@ -176,7 +176,7 @@ class CoronaSpreadFeature(fw.FeatureBase):
         """
         try:
             country = message.content[-1].strip(fw.FeatureCommandParserBase.IGNORED_CHARS)
-            response = self.interface.get_by_query(query = 'total_recovered', country_name = country)
+            response = self.interface.get_by_query(query = 'recovered', country_name = country)
             return f'{response} har tillfrisknat i corona i {country}'
         except Exception as e:
             return f'Ogiltigt land: "{e}"'
