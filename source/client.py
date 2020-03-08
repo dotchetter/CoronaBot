@@ -140,24 +140,10 @@ class RobBotClient(discord.Client):
             for element in reoccuring:
                 self.brain.reminder.add_reoccuring(element)
 
-def load_environment():
+def load_environment(env_var_strings: list):
     
     load_dotenv()
     var_dict = {}
-    env_var_strings = [
-        'DISCORD_GUILD',
-        'TIMEEDIT_URL',
-        'LUNCH_MENU_URL',
-        'REDDIT_CLIENT_ID',
-        'REDDIT_CLIENT_SECRET',
-        'REDDIT_USER_AGENT',
-        'GOOGLE_API_KEY',
-        'GOOGLE_CSE_ID',
-        'DISCORD_TOKEN',
-        'CORONA-RAPIDAPI-URI',
-        'CORONA_RAPIDAPI_HOST',
-        'CORONA_RAPIDAPI_KEY'
-    ]
 
     for var in env_var_strings:
         var_dict[var] = os.getenv(var)

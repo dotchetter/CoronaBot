@@ -575,6 +575,19 @@ class CommandProcessor:
 
 if __name__ == "__main__":
 
+    enviromnent_strings = [
+        'DISCORD_GUILD',
+        'TIMEEDIT_URL',
+        'LUNCH_MENU_URL',
+        'REDDIT_CLIENT_ID',
+        'REDDIT_CLIENT_SECRET',
+        'REDDIT_USER_AGENT',
+        'GOOGLE_API_KEY',
+        'GOOGLE_CSE_ID',
+        'DISCORD_TOKEN',
+        'CORONA-API-URI'
+    ]
+
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument('-testmode', action = 'store_true')
     args = arg_parser.parse_args()
