@@ -614,7 +614,7 @@ if __name__ == "__main__":
         
         CoronaSpreadFeature(
             uri = environment_vars['CORONA-API-URI'],
-            translation_file_path = 'C:\\users\\si\\git\\robbottherobot\\source\\country_eng_swe_translations.json'
+            translation_file_path = 'C:\\users\\admin\\git\\robbottherobot\\source\\country_eng_swe_translations.json'
         ),
 
         LunchMenuFeature(
