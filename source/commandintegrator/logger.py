@@ -59,7 +59,6 @@ def logger(func) -> 'class function':
         except Exception as e:
             logging.debug(f'Exception occured in {func.__name__}: {e}')
             raise e
-        return results
     return inner
 
 
