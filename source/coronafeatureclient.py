@@ -1,8 +1,8 @@
-from urllib.request import Request, urlopen
-from datetime import datetime, timedelta
-from pathlib import Path
 import json
 import os
+import requests
+from datetime import datetime, timedelta
+from pathlib import Path
 
 """
 This module contains the interface class used by the 
