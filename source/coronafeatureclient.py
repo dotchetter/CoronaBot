@@ -46,11 +46,6 @@ class ApiHandle:
 		self._cached_response: dict = None
 		self._headers = {}
 
-		try:
-			self.fetch()
-		except Exception as e:
-			return f'ApiHandle error: The request failed:\n{e}'
-
 	@property
 	def uri(self) -> str:
 		return self._uri
@@ -112,7 +107,6 @@ class ApiHandle:
 		self._cached_response = response
 		self.last_api_call = datetime.now()
 		return response
-
 
 
 class Client:
