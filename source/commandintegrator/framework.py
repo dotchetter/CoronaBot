@@ -613,9 +613,8 @@ if __name__ == "__main__":
         ScheduleFeature(url = environment_vars['TIMEEDIT_URL']),
         
         CoronaSpreadFeature(
-            corona_rapidapi_host = environment_vars['CORONA_RAPIDAPI_HOST'],
-            corona_rapidapi_key = environment_vars['CORONA_RAPIDAPI_KEY'],
-            uri = environment_vars['CORONA-RAPIDAPI-URI']
+            uri = environment_vars['CORONA-API-URI'],
+            translation_file_path = 'C:\\users\\si\\git\\robbottherobot\\source\\country_eng_swe_translations.json'
         ),
 
         LunchMenuFeature(
