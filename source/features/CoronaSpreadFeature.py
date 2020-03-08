@@ -1,8 +1,9 @@
-import source.commandintegrator.framework as fw
 import discord
+import source.commandintegrator.framework as fw
+import fake_useragent
+import source.coronafeatureclient as coronafeatureclient
 from source.commandintegrator.enumerators import CommandPronoun, CommandCategory, CommandSubcategory
 from source.commandintegrator.logger import logger
-from source.coronafeatureclient import Client, ApiHandle
 
 class CoronaSpreadFeatureCommandParser(fw.FeatureCommandParserBase):
 
@@ -18,46 +19,47 @@ class CoronaSpreadFeature(fw.FeatureBase):
         'coronafall'
     )
 
-    DataRecordTimeStamp_One = {'när': ('uppdaterad', 'uppdaterades')}
-    DataRecordTimeStamp_Two = {'hur': ('gammal', 'data', 'datan')}
+    data_timestamp_1 = {'när': ('uppdaterad', 'uppdaterades', 'statistik', 'statistiken')}
+    data_timestamp_2 = {'hur': ('gammal', 'data', 'datan')}
 
-    TotalDeaths = {'totalt': ('dött', 'omkommit', 'döda')}
-    TotalRecoveries = {'totalt': ('friska', 'tillfrisknat')}
-    TotalCases = {'totalt': ('smittade', 'smittats', 'sjuka')}
+    total_deaths = {'totalt': ('dött', 'omkommit', 'döda')}
+    total_recoveries = {'totalt': ('friska', 'tillfrisknat')}
+    total_cases = {'totalt': ('smittade', 'smittats', 'sjuka')}
 
-    MostDeaths = {'flest': ('döda', 'dödsfall', 'omkommit', 'omkomna', 'dött')}
-    MostRecoveries = {'flest': ('friska', 'tillfrisknat')}
-    MostCases = {'flest': ('smittade', 'sjuka')}
+    most_deaths = {'flest': ('döda', 'dödsfall', 'omkommit', 'omkomna', 'dött')}
+    most_recoveries = {'flest': ('friska', 'tillfrisknat')}
+    most_cases = {'flest': ('smittade', 'sjuka')}
 
-    LeastDeaths = {'minst': ('döda', 'dödsfall', 'omkomna', 'omkommit', 'dött')}
-    LeastRecoveris = {'minst': ('smittade', 'sjuka')}
-    LeastCases = {'minst': ('friska', 'tillfrisknat')}
+    least_deaths = {'minst': ('döda', 'dödsfall', 'omkomna', 'omkommit', 'dött')}
+    least_recoveries = {'minst': ('smittade', 'sjuka')}
+    least_cases = {'minst': ('friska', 'tillfrisknat')}
 
-    InfectionsByQuery_One = {'har': ('smittats', 'sjuka')}
-    InfectionsByQuery_Two = {'är': ('smittade', 'sjuka')}
-    DeathsByQuery = {'har': ('dött', 'omkommit')}
-    RecoveriesByQuery = {'har': ('friska', 'tillfrisknat')}
+    infections_by_query_1 = {'har': ('smittats', 'sjuka')}
+    infections_by_query_2 = {'är': ('smittade', 'sjuka')}
+    deaths_by_query = {'har': ('dött', 'omkommit')}
+    recoveries_by_query = {'har': ('friska', 'tillfrisknat')}
 
 
     FEATURE_SUBCATEGORIES = {
-        str(DataRecordTimeStamp_One): CommandSubcategory.CORONA_DATA_TIMESTAMP,
-        str(DataRecordTimeStamp_Two): CommandSubcategory.CORONA_DATA_TIMESTAMP,
-        str(TotalDeaths): CommandSubcategory.CORONA_SPREAD_TOTAL_DEATHS,
-        str(TotalRecoveries): CommandSubcategory.CORONA_SPREAD_TOTAL_RECOVERIES,
-        str(TotalCases): CommandSubcategory.CORONA_SPREAD_TOTAL_INFECTIONS,
-        str(MostDeaths): CommandSubcategory.CORONA_SPREAD_MOST_DEATHS,
-        str(MostRecoveries): CommandSubcategory.CORONA_SPREAD_MOST_RECOVERIES,
-        str(MostCases): CommandSubcategory.CORONA_SPREAD_MOST_INFECTIONS,
-        str(LeastCases): CommandSubcategory.CORONA_SPREAD_LEAST_INFECTIONS,
-        str(LeastDeaths): CommandSubcategory.CORONA_SPREAD_LEAST_DEATHS,
-        str(LeastRecoveris): CommandSubcategory.CORONA_SPREAD_LEAST_RECOVERIES,
-        str(InfectionsByQuery_One): CommandSubcategory.CORONA_INFECTIONS_BY_QUERY,
-        str(InfectionsByQuery_Two): CommandSubcategory.CORONA_INFECTIONS_BY_QUERY,
-        str(DeathsByQuery): CommandSubcategory.CORONA_DEATHS_BY_QUERY,
-        str(RecoveriesByQuery): CommandSubcategory.CORONA_RECOVERIES_BY_QUERY
+        str(data_timestamp_1): CommandSubcategory.CORONA_DATA_TIMESTAMP,
+        str(data_timestamp_2): CommandSubcategory.CORONA_DATA_TIMESTAMP,
+        str(total_deaths): CommandSubcategory.CORONA_SPREAD_TOTAL_DEATHS,
+        str(total_recoveries): CommandSubcategory.CORONA_SPREAD_TOTAL_RECOVERIES,
+        str(total_cases): CommandSubcategory.CORONA_SPREAD_TOTAL_INFECTIONS,
+        str(most_deaths): CommandSubcategory.CORONA_SPREAD_MOST_DEATHS,
+        str(most_recoveries): CommandSubcategory.CORONA_SPREAD_MOST_RECOVERIES,
+        str(most_cases): CommandSubcategory.CORONA_SPREAD_MOST_INFECTIONS,
+        str(least_cases): CommandSubcategory.CORONA_SPREAD_LEAST_INFECTIONS,
+        str(least_deaths): CommandSubcategory.CORONA_SPREAD_LEAST_DEATHS,
+        str(least_recoveries): CommandSubcategory.CORONA_SPREAD_LEAST_RECOVERIES,
+        str(infections_by_query_1): CommandSubcategory.CORONA_INFECTIONS_BY_QUERY,
+        str(infections_by_query_2): CommandSubcategory.CORONA_INFECTIONS_BY_QUERY,
+        str(deaths_by_query): CommandSubcategory.CORONA_DEATHS_BY_QUERY,
+        str(recoveries_by_query): CommandSubcategory.CORONA_RECOVERIES_BY_QUERY
     }
 
     def __init__(self, *args, **kwargs):
+        self.translation_file_path = kwargs['translation_file_path']
         self.command_parser = CoronaSpreadFeatureCommandParser(
             category = CommandCategory.CORONA_SPREAD,
             keywords = CoronaSpreadFeature.FEATURE_KEYWORDS,
@@ -91,14 +93,13 @@ class CoronaSpreadFeature(fw.FeatureBase):
             CommandPronoun.INTERROGATIVE,
         )
 
-        api_handle = ApiHandle(uri = kwargs['uri'])
-        api_handle.add_header('x-rapidapi-host', kwargs['corona_rapidapi_host'])
-        api_handle.add_header('x-rapidapi-key', kwargs['corona_rapidapi_key'])
+        api_handle = coronafeatureclient.ApiHandle(uri = kwargs['uri'])
+        api_handle.add_header('User-Agent', fake_useragent.UserAgent().random)
 
         super().__init__(
             command_parser = self.command_parser,
             callbacks = self.callbacks,
-            interface = Client(api_handle),
+            interface = coronafeatureclient.Client(api_handle, self.translation_file_path),
             interactive_methods = self.interactive_methods
         )
 
@@ -162,7 +163,7 @@ class CoronaSpreadFeature(fw.FeatureBase):
             response = self.interface.get_by_query(query = 'cases', country_name = country)
             return f'{response} har smittats av corona i {country}'
         except Exception as e:
-            return f'Ingen data: {e}'
+            return f'Ogiltigt land: "{e}"'
 
     @logger
     def get_recoveries_by_country(self, message: discord.Message) -> str:
@@ -178,7 +179,7 @@ class CoronaSpreadFeature(fw.FeatureBase):
             response = self.interface.get_by_query(query = 'total_recovered', country_name = country)
             return f'{response} har tillfrisknat i corona i {country}'
         except Exception as e:
-            return f'Ingen data: {e}'
+            return f'Ogiltigt land: "{e}"'
 
     @logger
     def get_deaths_by_country(self, message: discord.Message) -> str:
