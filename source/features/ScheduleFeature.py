@@ -1,7 +1,7 @@
 import discord
 import source.commandintegrator.framework as fw
 from source.commandintegrator.enumerators import CommandPronoun, CommandCategory, CommandSubcategory
-from source.schedule import Schedule
+from source.timeeditschedule import Schedule
 
 
 class ScheduleFeatureCommandParser(fw.FeatureCommandParserBase):
@@ -88,6 +88,19 @@ class ScheduleFeature(fw.FeatureBase):
         curriculum = '\n'.join(curriculum)        
         return f'**Här är schemat!** :slight_smile:\n\n{curriculum}'
 
+    def get_todays_lessons(self, scheduled_call = False) -> str:
+        '''
+        Return concatenated response phrase with all lessons for 
+        the current date. If none, return a message that explains
+        no lessons for current date.
+        '''
+        if self.interface.todays_lessons:
+            lessons = '\n'.join(self.interface.todays_lessons)
+            return f'Här är schemat för dagen:\n{lessons}'
+        
+        if not scheduled_call:
+            return 'Det finns inga lektioner på schemat idag :sunglasses:'
+
     def _get_next_lesson(self) -> str:
         '''
         Return string with concatenated variable values to tell the
@@ -100,17 +113,6 @@ class ScheduleFeature(fw.FeatureBase):
         except Exception as e:
             return e
         return f'Nästa lektion är i {classroom}, {date}, kl {hour} :slight_smile:'
-
-    def _get_todays_lessons(self) -> str:
-        '''
-        Return concatenated response phrase with all lessons for 
-        the current date. If none, return a message that explains
-        no lessons for current date.
-        '''
-        if self.interface.todays_lessons:
-            lessons = '\n'.join(self.interface.todays_lessons)
-            return f'Här är schemat för dagen:\n{lessons}'
-        return 'Det finns inga lektioner på schemat idag :sunglasses:'
 
     def _get_tomorrows_lessons(self) -> str:
         '''
