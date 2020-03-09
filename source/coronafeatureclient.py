@@ -35,7 +35,10 @@ class ApiHandle:
 	:_cached_response:
 		last response received by the API
 
-	:
+	:_headers_:
+		dictionary which can be added to with the add_header method.
+		Contains headers which will be used upon a request with the 
+		fetch() call.
 	"""
 
 	def __init__(self, uri: str, standby_hours = 2):
