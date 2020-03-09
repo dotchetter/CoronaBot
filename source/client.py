@@ -2,6 +2,7 @@ import os
 import json
 import discord
 import asyncio
+import schedule
 from datetime import datetime, time, timedelta
 from source.commandintegrator.framework import CommandProcessor, PronounLookupTable
 from source.commandintegrator.logger import logger
@@ -13,9 +14,7 @@ from source.weekdays import Weekdays
 from source.features.LunchMenuFeature import LunchMenuFeature
 from source.features.RedditJokeFeature import RedditJokeFeature
 from source.features.ScheduleFeature import ScheduleFeature
-#from source.schedule import Schedule
-#from source.brain import Brain
-#from source.reminder import Reminder
+from source.features.CoronaSpreadFeature import CoronaSpreadFeature
 
 '''
 Details:
@@ -34,14 +33,14 @@ class RobBotClient(discord.Client):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        #self.loop.create_task(self.auto_message())
-        #self.loop.create_task(self.purge_runtime())        
+        self.loop.create_task(self.run_scheduler())  
         self._guild = kwargs['DISCORD_GUILD']
-        self.processor = commandprocessor= (ScheduleFeature(url = kwargs['TIMEEDIT_URL']),
-                                            LunchMenuFeature(url = kwargs['LUNCH_MENU_URL']),
-                                            RedditJokeFeature(client_id = kwargs['REDDIT_CLIENT_ID'], 
-                                                              client_secret = kwargs['REDDIT_CLIENT_SECRET'],
-                                                              user_agent = kwargs['REDDIT_USER_AGENT']))
+        self.processor = commandprocessor= (
+            ScheduleFeature(url = kwargs['TIMEEDIT_URL']),
+            LunchMenuFeature(url = kwargs['LUNCH_MENU_URL']),
+            RedditJokeFeature(client_id = kwargs['REDDIT_CLIENT_ID'], 
+                client_secret = kwargs['REDDIT_CLIENT_SECRET'],
+                user_agent = kwargs['REDDIT_USER_AGENT']))
     @logger
     async def on_ready(self):
         '''
@@ -50,7 +49,6 @@ class RobBotClient(discord.Client):
         for guild_name in client.guilds:
             if guild_name == self._guild:
                 break
-        
 
     @logger
     async def on_member_join(self, member):
@@ -74,19 +72,18 @@ class RobBotClient(discord.Client):
                 
     
     @logger
-    async def auto_message(self):
+    async def run_scheduler(self):
         '''
         Loop indefinitely and send messages that are pre-
         defined on a certain day and a certain time. 
         '''
+
         await client.wait_until_ready()
-        channel = self.get_channel(000000000000000000) # Private. Edit on server.
+        channel = self.get_channel(651080743388446750) # Private. Edit on server.
         
-        while not self.is_closed():
-            await asyncio.sleep(1)
-            event = self.brain.reminder.get()
-            if event:
-                await channel.send(event)                    
+        while not self.is_closed():            
+            result = schedule.run_pending()
+            if result: channel.send(result)
     
     @logger
     async def purge_runtime(self):
@@ -140,6 +137,7 @@ class RobBotClient(discord.Client):
             for element in reoccuring:
                 self.brain.reminder.add_reoccuring(element)
 
+
 def load_environment(env_var_strings: list):
     
     load_dotenv()
@@ -151,30 +149,52 @@ def load_environment(env_var_strings: list):
     return var_dict
 
 if __name__ == '__main__':
+
+    enviromnent_strings = [
+        'DISCORD_GUILD',
+        'TIMEEDIT_URL',
+        'LUNCH_MENU_URL',
+        'REDDIT_CLIENT_ID',
+        'REDDIT_CLIENT_SECRET',
+        'REDDIT_USER_AGENT',
+        'GOOGLE_API_KEY',
+        'GOOGLE_CSE_ID',
+        'DISCORD_TOKEN',
+        'CORONA_API_URI',
+        'CORONA_API_RAPIDAPI_HOST',
+        'CORONA_API_RAPIDAPI_KEY'
+    ]
+
+
+    with open('C:\\users\\admin\\git\\robbottherobot\\source\\commandintegrator\\commandintegrator.settings.json', 'r', encoding = 'utf-8') as f:
+        default_responses = json.loads(f.read())['default_responses']
+
+    environment_vars = load_environment(enviromnent_strings)
     
-    commandintegrator_dir = Path('commandintegrator')
-    response_file = 'commandprocessor.default.response.json'
-    response_file_path = commandintegrator_dir / response_file
-
-    with open(response_file_path, 'r', encoding = 'utf-8') as f:
-        default_responses = json.loads(f.read())
-
-    environment_vars = load_environment()
-    processor = CommandProcessor(pronoun_lookup_table = PronounLookupTable(), 
-                                default_responses = default_responses)
+    processor = CommandProcessor(
+        pronoun_lookup_table = PronounLookupTable(), 
+        default_responses = default_responses
+    )
     
-    processor.features = (ScheduleFeature(url = environment_vars['TIMEEDIT_URL']),
-                          LunchMenuFeature(url = environment_vars['LUNCH_MENU_URL']),
-                          RedditJokeFeature(client_id = environment_vars['REDDIT_CLIENT_ID'], 
-                                            client_secret = environment_vars['REDDIT_CLIENT_SECRET'],
-                                            user_agent = environment_vars['REDDIT_USER_AGENT']))
+    lunchmenu_ft = LunchMenuFeature(url = environment_vars['LUNCH_MENU_URL'])
+    schedule_ft = ScheduleFeature(url = environment_vars['TIMEEDIT_URL'])
+    corona_ft = CoronaSpreadFeature(
+                    CORONA_API_URI = environment_vars['CORONA_API_URI'],
+                    CORONA_API_RAPIDAPI_HOST = environment_vars['CORONA_API_RAPIDAPI_HOST'],
+                    CORONA_API_RAPIDAPI_KEY = environment_vars['CORONA_API_RAPIDAPI_KEY'],
+                    translation_file_path = 'C:\\users\\admin\\git\\robbottherobot\\source\\country_eng_swe_translations.json'
+                )
 
-
-    friday = Event(body = 'Fredag, wohoo! :beers:',
-                weekdays = [Weekdays.FRIDAY],
-                time = time(hour = 16, minute = 0),
-                alarm = timedelta(minutes = 30))
+    redditjoke_ft = RedditJokeFeature(
+                        client_id = environment_vars['REDDIT_CLIENT_ID'], 
+                        client_secret = environment_vars['REDDIT_CLIENT_SECRET'],
+                        user_agent = environment_vars['REDDIT_USER_AGENT']
+                    )
     
+    processor.features = (lunchmenu_ft, lunchmenu_ft, corona_ft, redditjoke_ft)    
+    
+    schedule.every().day.at('08:00').do(schedule_ft.get_todays_lessons, scheduled_call = True)
+    schedule.every(5).seconds.do(schedule_ft.get_todays_lessons, scheduled_call = True)
+
     client = RobBotClient(**environment_vars)
-    #client.setup_reminders(reoccuring = [friday])
     client.run(environment_vars['DISCORD_TOKEN'])
