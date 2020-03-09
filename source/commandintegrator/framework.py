@@ -3,7 +3,6 @@ import random
 import json
 import discord
 import traceback
-from itertools import zip_longest
 from ast import literal_eval
 from pprint import pprint
 from os import system
@@ -12,7 +11,9 @@ from enum import Enum, auto
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
 from timeit import default_timer as timer
-from source.commandintegrator.enumerators import CommandPronoun, CommandCategory, CommandSubcategory
+from source.commandintegrator.enumerators import (CommandPronoun, 
+                                                 CommandCategory, 
+                                                 CommandSubcategory)
 
 """
 Details:
@@ -47,8 +48,6 @@ Module details:
     documentation.
 
 """
-
-
 
 class PronounLookupTable:
     """
