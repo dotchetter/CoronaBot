@@ -5,6 +5,7 @@ import source.coronafeatureclient as coronafeatureclient
 from source.commandintegrator.enumerators import CommandPronoun, CommandCategory, CommandSubcategory
 from source.commandintegrator.logger import logger
 
+
 class CoronaSpreadFeatureCommandParser(fw.FeatureCommandParserBase):
 
     def __init__(self, *args, **kwargs):

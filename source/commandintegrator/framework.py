@@ -617,7 +617,7 @@ if __name__ == "__main__":
             CORONA_API_URI = environment_vars['CORONA_API_URI'],
             CORONA_API_RAPIDAPI_HOST = environment_vars['CORONA_API_RAPIDAPI_HOST'],
             CORONA_API_RAPIDAPI_KEY = environment_vars['CORONA_API_RAPIDAPI_KEY'],
-            translation_file_path = 'C:\\users\\admin\\git\\robbottherobot\\source\\country_eng_swe_translations.json'
+            translation_file_path = 'C:\\users\\si\\git\\robbottherobot\\source\\country_eng_swe_translations.json'
         ),
 
         LunchMenuFeature(

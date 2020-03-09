@@ -2,6 +2,7 @@ import discord
 import source.commandintegrator.framework as fw
 from source.commandintegrator.enumerators import CommandPronoun, CommandCategory, CommandSubcategory
 from source.timeeditschedule import Schedule
+from source.commandintegrator.logger import logger
 
 
 class ScheduleFeatureCommandParser(fw.FeatureCommandParserBase):
@@ -54,6 +55,7 @@ class ScheduleFeature(fw.FeatureBase):
             interface = Schedule(**kwargs)
         )
 
+    @logger
     def _get_curriculum(self) -> str:
         '''
         Return string with the schedule for as long as forseeable
@@ -88,6 +90,7 @@ class ScheduleFeature(fw.FeatureBase):
         curriculum = '\n'.join(curriculum)        
         return f'**Här är schemat!** :slight_smile:\n\n{curriculum}'
 
+    @logger
     def get_todays_lessons(self, scheduled_call = False) -> str:
         '''
         Return concatenated response phrase with all lessons for 
@@ -101,6 +104,7 @@ class ScheduleFeature(fw.FeatureBase):
         if not scheduled_call:
             return 'Det finns inga lektioner på schemat idag :sunglasses:'
 
+    @logger
     def _get_next_lesson(self) -> str:
         '''
         Return string with concatenated variable values to tell the
@@ -114,6 +118,7 @@ class ScheduleFeature(fw.FeatureBase):
             return e
         return f'Nästa lektion är i {classroom}, {date}, kl {hour} :slight_smile:'
 
+    @logger
     def _get_tomorrows_lessons(self) -> str:
         '''
         Returns the lessons in schedule for the day 
@@ -121,7 +126,6 @@ class ScheduleFeature(fw.FeatureBase):
         are present, otherwise a message delivering the
         absence of lessons.
         '''
-        NO_LESSONS = 'Jag ser inga lektioner på schemat imorgon.'
 
         if self.interface.tomorrows_lessons:
             for event in self.interface.tomorrows_lessons:
@@ -130,4 +134,4 @@ class ScheduleFeature(fw.FeatureBase):
                 event_end = event.end.adjusted_time.strftime('%H:%M')
                 output.append(f'{name}, {event_start} - {event_end} i {event.location}')
             return output
-        return NO_LESSONS
+        return 'Jag ser inga lektioner på schemat imorgon.'

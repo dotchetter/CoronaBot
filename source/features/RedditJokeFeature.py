@@ -3,6 +3,7 @@ import praw
 import source.commandintegrator.framework as fw
 from source.commandintegrator.enumerators import CommandPronoun, CommandCategory, CommandSubcategory
 from source.redditjoke import RedditJoke
+from source.commandintegrator.logger import logger
 
 
 class RedditJokeFeatureCommandParser(fw.FeatureCommandParserBase):
@@ -38,7 +39,7 @@ class RedditJokeFeature(fw.FeatureBase):
         )  
 
         self.callbacks = {
-            CommandSubcategory.TELL_JOKE: lambda: self.interface.get()
+            CommandSubcategory.TELL_JOKE: lambda: self.get_random_joke()
         }
         
         self.mapped_pronouns = (
@@ -50,3 +51,7 @@ class RedditJokeFeature(fw.FeatureBase):
             callbacks = self.callbacks,
             interface = RedditJoke(reddit_client = praw.Reddit(**kwargs))
         )
+
+    @logger
+    def get_random_joke(self) -> str:
+        return self.interface.get()

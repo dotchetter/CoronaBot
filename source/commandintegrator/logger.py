@@ -13,9 +13,8 @@ Module details:
 
 """
 
-LOGFORMAT = "%(asctime)s::%(levelname)s::%(name)s::%(message)s"
 
-with open ('C:\\users\\admin\\git\\robbottherobot\\source\\commandintegrator\\commandintegrator.settings.json', 'r', encoding = 'utf-8') as f:
+with open ('C:\\users\\si\\git\\robbottherobot\\source\\commandintegrator\\commandintegrator.settings.json', 'r', encoding = 'utf-8') as f:
     LOG_DIR = Path(json.loads(f.read())['log_dir'])
 
 LOG_FILE = 'runtime.log'
@@ -24,11 +23,18 @@ LOG_FILE_FULLPATH = LOG_DIR / LOG_FILE
 if not os.path.isdir(LOG_DIR):
     os.mkdir(LOG_DIR)
 
-logging.basicConfig(level = logging.DEBUG, 
-                    filename = LOG_FILE_FULLPATH, 
-                    format = LOGFORMAT)
+# logging.basicConfig(
+#     level = logging.DEBUG, 
+#     filename = LOG_FILE, 
+#     format = '%(asctime)s:%(levelname)s:%(name)s: %(message)s')
 
-def logger(func) -> 'class function':
+handler = logging.FileHandler(filename = LOG_FILE_FULLPATH, encoding = 'utf-8', mode = 'w')
+handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+log = logging.getLogger('robbottherobot')
+log.setLevel(logging.DEBUG)
+log.addHandler(handler)
+
+def logger(func) -> 'function':
     """
     Wrapper method for providing logging functionality.
     Use @logger to implement this method where logging
@@ -52,12 +58,13 @@ def logger(func) -> 'class function':
             Output from executed function in parameter func
         """
         try:
-            logging.debug(f'Ran {func.__name__} with args:{args} kwargs: {kwargs}')
+            log.debug(f'Ran method "{func.__name__}" in {func.__module__} ' \
+                      f'with ARGS: {args} & KWARGS: {kwargs}')
             results = func(*args, **kwargs)
-            logging.debug(f'Results: {results}')
+            log.info(f'Results: {results}')
             return results
         except Exception as e:
-            logging.debug(f'Exception occured in {func.__name__}: {e}')
+            log.error(f'Exception occured in {func.__name__}: {e}')
             raise e
     return inner
 
@@ -72,4 +79,4 @@ if __name__ == '__main__':
     def fails(a, b):
         raise Exception('this is the error message')    
 
-    print(test(1,2))
+    fails(1,2)

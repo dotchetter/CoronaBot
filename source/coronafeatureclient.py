@@ -139,7 +139,7 @@ class Client:
 		"""
 		country = country.lower()
 		try:
-			with open(self.translation_file_path, 'r') as f:
+			with open(self.translation_file_path, 'r', encoding = 'utf-8') as f:
 				translation = json.loads(f.read())
 		except Exception as e:
 			raise Exception(f'Could not load translation file. {e}')
