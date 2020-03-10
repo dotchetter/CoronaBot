@@ -169,9 +169,8 @@ if __name__ == '__main__':
                         user_agent = environment_vars['REDDIT_USER_AGENT'])
     
     processor.features = (lunchmenu_ft, lunchmenu_ft, corona_ft, redditjoke_ft)
-    environment_vars['automessage_channel'] = 651080743388446750
+    environment_vars['automessage_channel'] = 686991061427814473
     client = RobBotClient(**environment_vars)
-    
     
 
     """
@@ -181,9 +180,35 @@ if __name__ == '__main__':
     <<< client.scheduler.every(1).minute.do(add_integers, a = 10, b = 5) >>>
     """
 
+    @dataclass
+    class message_mock:
+        content: list
 
-    client.scheduler.every().day.at('08:00').do(schedule_ft.get_todays_lessons)
-    #client.scheduler.every().friday.at()
+    pollcache = PollCache()
+
+    client.scheduler.every().day.at('08:30').do(schedule_ft.get_todays_lessons, return_if_none = False)
+    client.scheduler.every().day.at('13:00').do(redditjoke_ft.get_random_joke)
+
+    swe_cases_request = message_mock
+    swe_cases_request.content = 'hur många har smittats i sverige'.split(' ')
+
+    swe_recoveries_request = message_mock
+    swe_recoveries_request.content = 'hur många har tillfrisknat i sverige'.split(' ')
+
+    swe_deaths_request = message_mock
+    swe_deaths_request.content = 'hur många har omkommit i sverige'.split(' ')
+    
+    client.scheduler.every(1).minutes.do(
+        pollcache, func = corona_ft.get_cases_by_country, message = swe_cases_request)
+
+    client.scheduler.every(1).minutes.do(
+        pollcache, func = corona_ft.get_recoveries_by_country, message = swe_recoveries_request)
+
+    client.scheduler.every(1).minutes.do(
+        pollcache, func = corona_ft.get_deaths_by_country, message = swe_deaths_request)
+
+    client.scheduler.every(1).minutes.do(pollcache, func = datetime.now)
+
 
     # --- Turn the key and start the bot ---
 
