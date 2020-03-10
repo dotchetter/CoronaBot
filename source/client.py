@@ -36,13 +36,27 @@ class RobBotClient(discord.Client):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.loop.create_task(self.run_scheduler(651080743388446750))
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
         self.loop.create_task(self.run_scheduler(self.automessage_channel)) # 
         self._guild = kwargs['DISCORD_GUILD']
         self._scheduler = schedule.Scheduler()
+                        
+    @property
+    def scheduler(self):
+        return self._scheduler
+
+    @property
+    def automessage_channel(self):
+        return self._automessage_channel
+
+    @automessage_channel.setter
+    def automessage_channel(self, val: int):
+        self._automessage_channel = val    
 
     @logger
-    async def on_ready(self):
+    async def on_ready(self) -> None:
         '''
         This method is called as soon as the bot is online.
         '''
@@ -50,7 +64,7 @@ class RobBotClient(discord.Client):
             if guild_name == self._guild:
                 break
     @logger
-    async def on_member_join(self, member: discord.Member):
+    async def on_member_join(self, member: discord.Member) -> None:
         '''
         If a new member just joined our server, greet them warmly!
         '''
@@ -59,7 +73,7 @@ class RobBotClient(discord.Client):
         await member.dm_channel.send(greeting_phrase)
     
     @logger    
-    async def on_message(self, message: discord.Message):
+    async def on_message(self, message: discord.Message) -> None: 
         '''
         Respond to a message in the channel if someone
         calls on the bot by name, asking for commands.
