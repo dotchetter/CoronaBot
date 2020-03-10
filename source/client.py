@@ -84,7 +84,7 @@ class RobBotClient(discord.Client):
             await message.channel.send(response)
 
     @logger            
-    async def run_scheduler(self, channel: int):
+    async def run_scheduler(self, channel: int) -> None:
         '''
         Loop indefinitely and send messages that are pre-
         defined on a certain day and a certain time. 
@@ -102,10 +102,6 @@ class RobBotClient(discord.Client):
                     else: 
                         await channel.send(value)
             await asyncio.sleep(0.1)
-                        
-    @property
-    def scheduler(self):
-        return self._scheduler
    
 
 def load_environment(env_var_strings: list) -> dict:
@@ -157,7 +153,6 @@ if __name__ == '__main__':
         default_responses = default_responses)
     
 
-
     #  --- Instantiate the feature objects used and the discord client object ---
 
     lunchmenu_ft = LunchMenuFeature(url = environment_vars['LUNCH_MENU_URL'])
@@ -173,21 +168,23 @@ if __name__ == '__main__':
                         client_secret = environment_vars['REDDIT_CLIENT_SECRET'],
                         user_agent = environment_vars['REDDIT_USER_AGENT'])
     
-    processor.features = (lunchmenu_ft, lunchmenu_ft, corona_ft, redditjoke_ft)    
+    processor.features = (lunchmenu_ft, lunchmenu_ft, corona_ft, redditjoke_ft)
+    environment_vars['automessage_channel'] = 651080743388446750
     client = RobBotClient(**environment_vars)
     
     
 
     """
- 
     Add scheduled methods here. If your method needs parameters, 
     simply add them after the name of the method. here's an example:
     
     <<< client.scheduler.every(1).minute.do(add_integers, a = 10, b = 5) >>>
-
     """
 
+
     client.scheduler.every().day.at('08:00').do(schedule_ft.get_todays_lessons)
-    client.scheduler.every(10).seconds.do(schedule_ft.get_todays_lessons)
+    #client.scheduler.every().friday.at()
+
+    # --- Turn the key and start the bot ---
 
     client.run(environment_vars['DISCORD_TOKEN'])
