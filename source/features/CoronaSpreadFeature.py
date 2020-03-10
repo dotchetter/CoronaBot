@@ -1,5 +1,5 @@
 import discord
-import source.commandintegrator.framework as fw
+import source.commandintegrator as fw
 import fake_useragent
 import source.coronafeatureclient as coronafeatureclient
 from source.commandintegrator.enumerators import CommandPronoun, CommandCategory, CommandSubcategory

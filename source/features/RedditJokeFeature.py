@@ -1,6 +1,6 @@
 import discord
 import praw
-import source.commandintegrator.framework as fw
+import source.commandintegrator as fw
 from source.commandintegrator.enumerators import CommandPronoun, CommandCategory, CommandSubcategory
 from source.redditjoke import RedditJoke
 from source.commandintegrator.logger import logger
