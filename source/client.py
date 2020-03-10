@@ -37,6 +37,7 @@ class RobBotClient(discord.Client):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.loop.create_task(self.run_scheduler(651080743388446750))
+        self.loop.create_task(self.run_scheduler(self.automessage_channel)) # 
         self._guild = kwargs['DISCORD_GUILD']
         self._scheduler = schedule.Scheduler()
 
