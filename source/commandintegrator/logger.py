@@ -23,10 +23,7 @@ LOG_FILE_FULLPATH = LOG_DIR / LOG_FILE
 if not os.path.isdir(LOG_DIR):
     os.mkdir(LOG_DIR)
 
-# logging.basicConfig(
-#     level = logging.DEBUG, 
-#     filename = LOG_FILE, 
-#     format = '%(asctime)s:%(levelname)s:%(name)s: %(message)s')
+
 
 handler = logging.FileHandler(filename = LOG_FILE_FULLPATH, encoding = 'utf-8', mode = 'w')
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
