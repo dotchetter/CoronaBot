@@ -91,7 +91,7 @@ class ScheduleFeature(fw.FeatureBase):
         return f'**Här är schemat!** :slight_smile:\n\n{curriculum}'
 
     @logger
-    def get_todays_lessons(self, scheduled_call = False) -> str:
+    def get_todays_lessons(self) -> str:
         '''
         Return concatenated response phrase with all lessons for 
         the current date. If none, return a message that explains
@@ -100,9 +100,7 @@ class ScheduleFeature(fw.FeatureBase):
         if self.interface.todays_lessons:
             lessons = '\n'.join(self.interface.todays_lessons)
             return f'Här är schemat för dagen:\n{lessons}'
-        
-        if not scheduled_call:
-            return 'Det finns inga lektioner på schemat idag :sunglasses:'
+        return 'Det finns inga lektioner på schemat idag :sunglasses:'
 
     @logger
     def _get_next_lesson(self) -> str:
