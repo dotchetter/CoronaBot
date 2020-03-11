@@ -1,5 +1,5 @@
 from datetime import datetime
-from source.weekdays import Weekdays
+from weekdays import Weekdays
 """
 Details:
     2019-11-24

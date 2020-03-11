@@ -4,8 +4,8 @@ import os
 from enum import Enum, auto
 from urllib.request import urlopen
 from datetime import date, datetime, timedelta, time
-from source.custom_errs import *
-from source.weekdays import Weekdays
+from custom_errs import *
+from weekdays import Weekdays
 
 """
 Details:

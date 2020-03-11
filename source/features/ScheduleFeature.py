@@ -1,8 +1,8 @@
 import discord
-import source.commandintegrator as fw
-from source.commandintegrator.enumerators import CommandPronoun, CommandCategory, CommandSubcategory
-from source.timeeditschedule import Schedule
-from source.commandintegrator.logger import logger
+import commandintegrator as fw
+from commandintegrator.enumerators import CommandPronoun, CommandCategory, CommandSubcategory
+from timeeditschedule import Schedule
+from commandintegrator.logger import logger
 from datetime import datetime
 
 class ScheduleFeatureCommandParser(fw.FeatureCommandParserBase):

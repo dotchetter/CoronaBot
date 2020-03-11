@@ -1,5 +1,5 @@
 from apiclient.discovery import build
-from source.custom_errs import AccessViolation
+from custom_errs import AccessViolation
 from random import choice
 """
 Details:
