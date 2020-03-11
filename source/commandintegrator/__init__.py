@@ -173,6 +173,9 @@ class Interpretation:
     response: callable = None
     error: Exception = None
 
+    def __repr__(self):
+        return str(self.__dict__)
+
 
 class FeatureCommandParserABC(ABC):
     """
