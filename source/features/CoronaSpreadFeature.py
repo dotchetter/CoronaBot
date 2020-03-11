@@ -136,7 +136,7 @@ class CoronaSpreadFeature(fw.FeatureBase):
     @logger
     def get_most_infections(self):
         response = self.interface.get_infections()
-        return f'Totalt har {response} insjuknat globalt'
+        return f'Flest har smittats i {response}'
     
     @logger
     def get_least_infections(self):
