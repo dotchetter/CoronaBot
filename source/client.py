@@ -93,7 +93,7 @@ class RobBotClient(discord.Client):
         """
 
         await client.wait_until_ready()
-        channel = self.get_channel(channel) # Private. Edit on server.
+        channel = self.get_channel(channel)
         
         while not self.is_closed():            
             result = self.scheduler.run_pending(passthrough = True)
