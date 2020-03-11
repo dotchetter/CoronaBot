@@ -55,10 +55,9 @@ def logger(func) -> 'function':
             Output from executed function in parameter func
         """
         try:
-            log.debug(f'Ran method "{func.__name__}" in {func.__module__} ' \
-                      f'with ARGS: {args} & KWARGS: {kwargs}')
             results = func(*args, **kwargs)
-            log.info(f'Results: {results}')
+            log.debug(f'Ran method "{func.__name__}" in {func.__module__} ' \
+                      f'with ARGS: {args} & KWARGS: {kwargs} & RETURN: {results}')
             return results
         except Exception as e:
             log.error(f'Exception occured in {func.__name__}: {e}')
