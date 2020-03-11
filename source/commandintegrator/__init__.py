@@ -553,7 +553,7 @@ class CommandProcessor:
         except Exception as e:
             return Interpretation(error = traceback.format_exc(),
                         response = lambda: f'CommandProcessor: Internal error',
-                        original_message = message)
+                        original_message = tuple(message.content))
    
     def _interpret(self, message: discord.Message) -> Interpretation:
         """
@@ -576,7 +576,7 @@ class CommandProcessor:
         if not mapped_features:
             return Interpretation(command_pronouns = found_pronouns,
                 command_category = CommandCategory.UNIDENTIFIED,
-                original_message = (message,),
+                original_message = tuple(message.content),
                 response = lambda: random.choice(self._default_responses['NoResponse']))
 
         for feature in mapped_features:
@@ -588,7 +588,7 @@ class CommandProcessor:
                             command_category = feature.command_parser.category,
                             command_subcategory = subcategory,
                             response = lambda: random.choice(self._default_responses['NoImplementation']),
-                            original_message = (message,),
+                            original_message = tuple(message.content),
                             error = e)
             else:
                 if return_callable == CommandSubcategory.UNIDENTIFIED:
@@ -597,13 +597,13 @@ class CommandProcessor:
                             command_category = feature.command_parser.category,
                             command_subcategory = subcategory,
                             response = return_callable,
-                            original_message = (message,))
+                            original_message = tuple(message.content))
 
         return Interpretation(command_pronouns = found_pronouns,
                     command_category = feature.command_parser.category,
                     command_subcategory = CommandSubcategory.UNIDENTIFIED,
                     response = lambda: random.choice(self._default_responses['NoSubCategory']),
-                    original_message = (message,))
+                    original_message = tuple(message.content))
 
 
 if __name__ == "__main__":
