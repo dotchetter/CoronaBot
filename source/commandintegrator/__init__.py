@@ -536,6 +536,7 @@ class CommandProcessor:
             self._feature_pronoun_mapping[feature] = feature.mapped_pronouns
         self._features = features
 
+    @logger
     def process(self, message: discord.Message) -> CommandSubcategory:
         """
         Part of the public interface. This method takes a discord.Message
