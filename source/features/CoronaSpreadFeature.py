@@ -39,6 +39,7 @@ class CoronaSpreadFeature(fw.FeatureBase):
     infections_by_query_2 = {'är': ('smittade', 'sjuka')}
     deaths_by_query = {'har': ('dött', 'omkommit')}
     recoveries_by_query = {'har': ('friska', 'tillfrisknat')}
+    new_cases_by_query = {'hur': ('nya', 'nytt', 'fall')}    
 
 
     FEATURE_SUBCATEGORIES = {
@@ -56,7 +57,8 @@ class CoronaSpreadFeature(fw.FeatureBase):
         str(infections_by_query_1): CommandSubcategory.CORONA_INFECTIONS_BY_QUERY,
         str(infections_by_query_2): CommandSubcategory.CORONA_INFECTIONS_BY_QUERY,
         str(deaths_by_query): CommandSubcategory.CORONA_DEATHS_BY_QUERY,
-        str(recoveries_by_query): CommandSubcategory.CORONA_RECOVERIES_BY_QUERY
+        str(recoveries_by_query): CommandSubcategory.CORONA_RECOVERIES_BY_QUERY,
+        str(new_cases_by_query): CommandSubcategory.CORONA_NEW_CASES_BY_QUERY
     }
 
     def __init__(self, *args, **kwargs):
@@ -66,7 +68,6 @@ class CoronaSpreadFeature(fw.FeatureBase):
             keywords = CoronaSpreadFeature.FEATURE_KEYWORDS,
             subcategories = CoronaSpreadFeature.FEATURE_SUBCATEGORIES
         )
-
 
         self.callbacks = {
             CommandSubcategory.CORONA_SPREAD_TOTAL_DEATHS: lambda: self.get_total_deaths(),
@@ -81,20 +82,22 @@ class CoronaSpreadFeature(fw.FeatureBase):
             CommandSubcategory.CORONA_DATA_TIMESTAMP: lambda: self.interface.get_data_timestamp(),
             CommandSubcategory.CORONA_INFECTIONS_BY_QUERY: self.get_cases_by_country,
             CommandSubcategory.CORONA_DEATHS_BY_QUERY: self.get_deaths_by_country,
-            CommandSubcategory.CORONA_RECOVERIES_BY_QUERY: self.get_recoveries_by_country
+            CommandSubcategory.CORONA_RECOVERIES_BY_QUERY: self.get_recoveries_by_country,
+            CommandSubcategory.CORONA_NEW_CASES_BY_QUERY: self.get_new_cases_by_country
         }
 
         self.interactive_methods = (
             self.get_cases_by_country,
             self.get_recoveries_by_country,
-            self.get_deaths_by_country
+            self.get_deaths_by_country,
+            self.get_new_cases_by_country
         )
 
         self.mapped_pronouns = (
             CommandPronoun.INTERROGATIVE,
         )
 
-        api_handle = coronafeatureclient.ApiHandle(uri = kwargs['CORONA_API_URI'])
+        api_handle = coronafeatureclient.ApiHandle(uri = kwargs['CORONA_API_URI'], standby_hours = 1)
         api_handle.add_header('x-rapidapi-host', kwargs['CORONA_API_RAPIDAPI_HOST'])
         api_handle.add_header('x-rapidapi-key', kwargs['CORONA_API_RAPIDAPI_KEY'])
 
@@ -149,6 +152,28 @@ class CoronaSpreadFeature(fw.FeatureBase):
     def get_least_recoveries(self):
         response = self.interface.get_recoveries(sort_by_highest = False)
         return f'Minst tillfrisknade: {response}'
+
+    @logger
+    def get_new_cases_by_country(self, message: discord.Message) -> str:
+        """
+        Get new cases by country. New cases are defined by API.
+        :param message:
+            original message from Discord
+        :returns:
+            str
+        """
+        try:
+            country = message.content[-1].strip(fw.FeatureCommandParserBase.IGNORED_CHARS)
+            response = self.interface.get_by_query(query = 'new_cases', country_name = country)
+            
+            if int(response.replace(',','').strip()) > 1: 
+                new = 'nya'
+            else:
+                new = 'nytt'
+
+            return f' {response} {new} fall av corona i {country.capitalize()}'
+        except Exception as e:
+            pass
 
     @logger
     def get_cases_by_country(self, message: discord.Message) -> str:
