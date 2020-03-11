@@ -32,12 +32,19 @@ class Schedule:
     """
     def __init__(self, url = str):
         self._url = url
+        self._activities: list()
+        self._curriculum_events: list()
+        self._init_timestamp: datetime.datetime
+        self.purge()
+
+    def purge(self):
         self._curriculum_events = []
         self._activities = []
+        self._init_timestamp = datetime.now()
         self.set_calendar()
         self.truncate_event_name()
         self._adjust_event_hours()
-        
+
     def _adjust_event_hours(self):
         """
         Adjust the hour in a calendar event by 1 or 2 hours,
@@ -97,6 +104,15 @@ class Schedule:
             event.name = f"{event.name.split(',')[0]},{event.name.split(',')[-1]}"
 
     @property
+    def curriculum(self):
+        if (datetime.now() - self._init_timestamp).days:
+            self.purge()
+
+        _curriculum = list(self._calendar.events)
+        _curriculum.sort()
+        return _curriculum
+
+    @property
     def today(self):
         return datetime.now().date()
 
@@ -110,11 +126,6 @@ class Schedule:
     def current_time(self):
         return datetime.now()
 
-    @property
-    def curriculum(self):
-        _curriculum = list(self._calendar.events)
-        _curriculum.sort()
-        return _curriculum
 
     @property
     def todays_events(self):
