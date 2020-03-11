@@ -11,6 +11,7 @@ from enum import Enum, auto
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
 from timeit import default_timer as timer
+from source.commandintegrator.logger import logger
 from source.commandintegrator.enumerators import (CommandPronoun, 
                                                  CommandCategory, 
                                                  CommandSubcategory)
@@ -43,6 +44,40 @@ Module details:
     documentation which can be found in the wiki on GitHub
 
 """
+
+
+class PollCache:
+    """
+    cache the output in the dictionary last_polled_values. 
+    If a difference is noticed in the method return call and
+    the recent most cached data, it is returned, otherwise
+    nothing is returned. This allows a front end to 
+    continuously poll this method and only receive data if
+    it is a deviation from the recent most number.
+    """
+    
+    def __init__(self):
+        self.cached_polls = {}
+
+    @logger
+    def __call__(self, func: 'function', *args, **kwargs):
+        previous_result = None
+        
+        try:
+            new_result = func(*args, **kwargs)
+        except:
+            raise
+
+        if not func in self.cached_polls.keys():
+            self.cached_polls[func] = new_result
+        else:
+            previous_result = self.cached_polls[func]
+        
+        if previous_result != new_result:
+            self.cached_polls[func] = new_result
+            return new_result
+        return None
+
 
 class PronounLookupTable:
     """
