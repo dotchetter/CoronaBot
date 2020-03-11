@@ -1,10 +1,10 @@
 from enum import Enum, auto
 
 class CommandSubcategory(Enum):
-    '''
+    """
     Constant enumerators for matching keywords against when
     deciding which response to give a given command.
-    '''
+    """
     SCHEDULE_NEXT_LESSON = auto()
     SCHEDULE_TODAYS_LESSONS = auto()
     SCHEDULE_TOMORROWS_LESSONS = auto()
@@ -34,27 +34,34 @@ class CommandSubcategory(Enum):
     CORONA_DEATHS_BY_QUERY = auto()
     CORONA_RECOVERIES_BY_QUERY = auto()
     CORONA_DATA_TIMESTAMP = auto()
+    CORONA_NEW_CASES_BY_QUERY = auto()
+
+    RANKING_DOWN = auto()
+    RANKING_UP = auto()
+    RANKING_FOR_MEMBER = auto()
+    RANKING_FOR_ALL = auto()
 
     UNIDENTIFIED = auto()
 
 class CommandCategory(Enum):
-    '''
+    """
     Various commands that are supported. 
-    '''
+    """
     LUNCH_MENU = auto()
     TELL_JOKE = auto()
     SCHEDULE = auto()
     REMINDER = auto()
     PERSONAL = auto()
     CORONA_SPREAD = auto()
+    RANKING = auto()
     UNIDENTIFIED = auto()
 
 class CommandPronoun(Enum):
-    '''
+    """
     Identifiable pronouns in recieved commands.
     __lt__ is implemented in order for a sorted
     set of instances to be returned.
-    '''
+    """
     INTERROGATIVE = auto()
     PERSONAL = auto()
     POSSESSIVE = auto()
