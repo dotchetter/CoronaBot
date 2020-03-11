@@ -1,3 +1,4 @@
+import os
 import discord
 import source.commandintegrator as fw
 from source.commandintegrator.enumerators import CommandPronoun, CommandCategory, CommandSubcategory
@@ -24,7 +25,7 @@ class LunchMenuFeature(fw.FeatureBase):
         'lunch', 'mat',
         'käk', 'krubb',
         'föda', 'tugg',
-        'matsedel'
+        'matsedel', 'meny'
     )
 
     FEATURE_SUBCATEGORIES = {
@@ -94,23 +95,37 @@ class LunchMenuFeature(fw.FeatureBase):
         """
         days = ('**Måndag**', '**Tisdag**', '**Onsdag**', '**Torsdag**', '**Fredag**')
         menu_for_week = self.interface.get_menu_for_week()
+        output = str()
         
         for index, day in enumerate(menu_for_week):
             day.insert(0, days[index])
             if not len(day):
                 day.append('Meny inte tillgänglig.')
-            day.append('\n')
-        return f'Här är veckans meny :slight_smile:\n{menu_for_week}'
+            day.append(os.linesep)
+        
+        for day in menu_for_week:
+            output += os.linesep.join(day)
+
+        return f'Här är veckans meny :slight_smile:{os.linesep}{os.linesep}{output}'
     
     @logger
     def menu_for_weekday_phrase(self, weekday: datetime, when: CommandSubcategory) -> str:
         """
         Return a user-friendly variant of the content
         retreived by the interface object's methods,
-        for display on front end. Expect a weekday 
-        alias, meaning today, tomorrow etc for describing
-        the day for which the menu concerns.
-        '''
+        for display on front end. The method .purge_cache
+        will be called if the menu object is 5 days or older
+        upon query, to prevent displaying old data from previous
+        week.
+        :param weekday:
+            datetime for the day that the query concerns
+        :when:
+            CommandSubcategory Enum for matching tempus agains
+        :returns:
+            string
+        """
+        if self.interface.cache and (datetime.now().date() - self.interface.cache.creation_date).days >= 5:
+            self.interface.purge_cache()
 
         tempus = {
             CommandSubcategory.LUNCH_YESTERDAY: 'igår',
@@ -127,4 +142,4 @@ class LunchMenuFeature(fw.FeatureBase):
         menu = self.interface.get_menu_for_weekday(weekday.weekday())
         if menu is None:
             return f'Jag ser inget på menyn för {tempus[when]}.'
-        return f'Detta server{tense} {tempus[when]}! {menu}'
+        return f'Detta server{tense} {tempus[when]}!{os.linesep}{os.linesep}{os.linesep.join(menu)}'
