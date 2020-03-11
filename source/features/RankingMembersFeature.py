@@ -71,7 +71,7 @@ class RankingMembersFeature(fw.FeatureBase):
 				self.user_rankings[member] += 1
 			except KeyError:
 				self.user_rankings[member] = 1
-			output.append(f'{member.mention} ökade till: {self.user_rankings[member]}')
+			output.append(f'{member.mention} ökade till {self.user_rankings[member]}')
 		return f'{os.linesep.join(output)}'
 
 	@logger
@@ -84,8 +84,8 @@ class RankingMembersFeature(fw.FeatureBase):
 			try:
 				self.user_rankings[member] -= 1
 			except KeyError:
-				self.user_rankings[member] = 1
-			output.append(f'{member.mention} minskade till: {self.user_rankings[member]}')
+				self.user_rankings[member] = -1
+			output.append(f'{member.mention} minskade till {self.user_rankings[member]}')
 		return f'{os.linesep.join(output)}'
 
 	@logger
@@ -96,7 +96,7 @@ class RankingMembersFeature(fw.FeatureBase):
 		output = []
 		for member in message.mentions:
 			try:
-				output.append(f'{member.mention} rankar: {self.user_rankings[member]}')
+				output.append(f'{member.mention} rankar {self.user_rankings[member]}')
 			except KeyError:
 				output.append(f'{member.mention} har inte rankats')
 		return f'{os.linesep.join(output)}'
@@ -108,5 +108,5 @@ class RankingMembersFeature(fw.FeatureBase):
 		"""
 		output = []
 		for member in self.user_rankings:
-			output.append(f'{member.mention} rankar: {self.user_rankings[member]}')
+			output.append(f'{member.mention} rankar {self.user_rankings[member]}')
 		return f'{os.linesep.join(output)}'
