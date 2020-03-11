@@ -3,7 +3,7 @@ import source.commandintegrator as fw
 from source.commandintegrator.enumerators import CommandPronoun, CommandCategory, CommandSubcategory
 from source.timeeditschedule import Schedule
 from source.commandintegrator.logger import logger
-
+from datetime import datetime
 
 class ScheduleFeatureCommandParser(fw.FeatureCommandParserBase):
 
@@ -39,10 +39,10 @@ class ScheduleFeature(fw.FeatureBase):
         )
 
         self.callbacks = {
-            CommandSubcategory.SCHEDULE_NEXT_LESSON: lambda: self._get_next_lesson(),
-            CommandSubcategory.SCHEDULE_CURRICULUM: lambda: self._get_curriculum(),
-            CommandSubcategory.SCHEDULE_TODAYS_LESSONS: lambda: self._get_todays_lessons(),
-            CommandSubcategory.SCHEDULE_TOMORROWS_LESSONS: lambda: self._get_tomorrows_lessons()
+            CommandSubcategory.SCHEDULE_NEXT_LESSON: lambda: self.get_next_lesson(),
+            CommandSubcategory.SCHEDULE_CURRICULUM: lambda: self.get_curriculum(),
+            CommandSubcategory.SCHEDULE_TODAYS_LESSONS: lambda: self.get_todays_lessons(),
+            CommandSubcategory.SCHEDULE_TOMORROWS_LESSONS: lambda: self.get_tomorrows_lessons()
         }
 
         self.mapped_pronouns = (
