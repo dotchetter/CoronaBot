@@ -8,17 +8,17 @@ from dataclasses import dataclass
 from datetime import datetime, time, timedelta
 from dotenv import load_dotenv
 from pathlib import Path
-from source.custom_errs import *
-from source.event import Event
-from source.weekdays import Weekdays
+from custom_errs import *
+from event import Event
+from weekdays import Weekdays
 
-from source.features.LunchMenuFeature import LunchMenuFeature
-from source.features.RedditJokeFeature import RedditJokeFeature
-from source.features.ScheduleFeature import ScheduleFeature
-from source.features.CoronaSpreadFeature import CoronaSpreadFeature
-from source.features.RankingMembersFeature import RankingMembersFeature
-from source.commandintegrator.logger import logger
-from source.commandintegrator import CommandProcessor, PronounLookupTable, PollCache
+from features.LunchMenuFeature import LunchMenuFeature
+from features.RedditJokeFeature import RedditJokeFeature
+from features.ScheduleFeature import ScheduleFeature
+from features.CoronaSpreadFeature import CoronaSpreadFeature
+from features.RankingMembersFeature import RankingMembersFeature
+from commandintegrator.logger import logger
+from commandintegrator import CommandProcessor, PronounLookupTable, PollCache
 
 """
 Details:

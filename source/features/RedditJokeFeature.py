@@ -1,9 +1,9 @@
 import discord
 import praw
-import source.commandintegrator as fw
-from source.commandintegrator.enumerators import CommandPronoun, CommandCategory, CommandSubcategory
-from source.redditjoke import RedditJoke
-from source.commandintegrator.logger import logger
+import commandintegrator as fw
+from commandintegrator.enumerators import CommandPronoun, CommandCategory, CommandSubcategory
+from redditjoke import RedditJoke
+from commandintegrator.logger import logger
 
 
 class RedditJokeFeatureCommandParser(fw.FeatureCommandParserBase):

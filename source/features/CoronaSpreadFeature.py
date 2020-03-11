@@ -1,9 +1,9 @@
 import discord
-import source.commandintegrator as fw
+import commandintegrator as fw
 import fake_useragent
-import source.coronafeatureclient as coronafeatureclient
-from source.commandintegrator.enumerators import CommandPronoun, CommandCategory, CommandSubcategory
-from source.commandintegrator.logger import logger
+import coronafeatureclient as coronafeatureclient
+from commandintegrator.enumerators import CommandPronoun, CommandCategory, CommandSubcategory
+from commandintegrator.logger import logger
 
 
 class CoronaSpreadFeatureCommandParser(fw.FeatureCommandParserBase):

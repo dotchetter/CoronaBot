@@ -1,9 +1,9 @@
 import os
 import discord
-import source.commandintegrator as fw
-from source.commandintegrator.enumerators import CommandPronoun, CommandCategory, CommandSubcategory
-from source.commandintegrator.logger import logger
-from source.scraper import Scraper
+import commandintegrator as fw
+from commandintegrator.enumerators import CommandPronoun, CommandCategory, CommandSubcategory
+from commandintegrator.logger import logger
+from scraper import Scraper
 from datetime import datetime, timedelta
 
 

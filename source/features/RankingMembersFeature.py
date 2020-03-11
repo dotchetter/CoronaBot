@@ -1,8 +1,8 @@
 import discord
 import os
-import source.commandintegrator as fw
-from source.commandintegrator.enumerators import CommandPronoun, CommandCategory, CommandSubcategory
-from source.commandintegrator.logger import logger
+import commandintegrator as fw
+from commandintegrator.enumerators import CommandPronoun, CommandCategory, CommandSubcategory
+from commandintegrator.logger import logger
 
 class RankingMembersFeatureCommandParser(fw.FeatureCommandParserBase):
 

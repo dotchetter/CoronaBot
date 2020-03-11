@@ -1,7 +1,7 @@
 import ics
 import json
 from datetime import date, datetime, timedelta, time
-from source.custom_errs import *
+from custom_errs import *
 
 """
 Details:

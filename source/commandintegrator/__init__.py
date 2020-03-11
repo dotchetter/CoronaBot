@@ -11,10 +11,10 @@ from enum import Enum, auto
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
 from timeit import default_timer as timer
-from source.commandintegrator.logger import logger
-from source.commandintegrator.enumerators import (CommandPronoun, 
-                                                 CommandCategory, 
-                                                 CommandSubcategory)
+from commandintegrator.logger import logger
+from commandintegrator.enumerators import (CommandPronoun, 
+                                           CommandCategory, 
+                                           CommandSubcategory)
 
 VERSION = 1.0
 
@@ -627,11 +627,11 @@ if __name__ == "__main__":
     arg_parser.add_argument('-testmode', action = 'store_true')
     args = arg_parser.parse_args()
 
-    import source.client as client
-    from source.features.LunchMenuFeature import LunchMenuFeature
-    from source.features.RedditJokeFeature import RedditJokeFeature
-    from source.features.ScheduleFeature import ScheduleFeature
-    from source.features.CoronaSpreadFeature import CoronaSpreadFeature
+    import client as client
+    from features.LunchMenuFeature import LunchMenuFeature
+    from features.RedditJokeFeature import RedditJokeFeature
+    from features.ScheduleFeature import ScheduleFeature
+    from features.CoronaSpreadFeature import CoronaSpreadFeature
 
     with open('commandintegrator.settings.json', 'r', encoding = 'utf-8') as f:
         default_responses = json.loads(f.read())['default_responses']
