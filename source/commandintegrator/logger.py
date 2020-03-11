@@ -14,7 +14,7 @@ Module details:
 """
 
 
-with open ('C:\\users\\admin\\git\\robbottherobot\\source\\commandintegrator\\commandintegrator.settings.json', 'r', encoding = 'utf-8') as f:
+with open ('', 'r', encoding = 'utf-8') as f:
     LOG_DIR = Path(json.loads(f.read())['log_dir'])
 
 LOG_FILE = 'runtime.log'
