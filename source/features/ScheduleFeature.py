@@ -42,7 +42,7 @@ class ScheduleFeature(fw.FeatureBase):
             CommandSubcategory.SCHEDULE_NEXT_LESSON: lambda: self.get_next_lesson(),
             CommandSubcategory.SCHEDULE_CURRICULUM: lambda: self.get_curriculum(),
             CommandSubcategory.SCHEDULE_TODAYS_LESSONS: lambda: self.get_todays_lessons(),
-            CommandSubcategory.SCHEDULE_TOMORROWS_LESSONS: lambda: self.get_tomorrows_lessons()
+            CommandSubcategory.SCHEDULE_TOMORROWS_LESSONS: lambda: self.get_curriculum()
         }
 
         self.mapped_pronouns = (
@@ -91,7 +91,7 @@ class ScheduleFeature(fw.FeatureBase):
                 else:
                     phrase = f'{class_header}'
                 
-                if (allowed_length - len(phrase)) > 10 and (date - today).days <= 5:
+                if (allowed_length - len(phrase)) > 10 and (date - today).days <= 7:
                     curriculum.append(phrase)
                     allowed_length -= len(phrase)
                     last_date = event.begin.date()
@@ -100,7 +100,7 @@ class ScheduleFeature(fw.FeatureBase):
         
         if curriculum:
             curriculum = '\n'.join(curriculum)        
-            return f'Här är schemat för denna vecka ' \
+            return f'Här är schemat 7 veckodagar framåt ' \
                    f':slight_smile:\n{curriculum}'
 
         elif not curriculum and not return_if_none:
@@ -139,21 +139,3 @@ class ScheduleFeature(fw.FeatureBase):
         except Exception as e:
             return e
         return f'Nästa lektion är i {classroom}, {date}, kl {hour} :slight_smile:'
-
-    @logger
-    def get_tomorrows_lessons(self) -> str:
-        """
-        Returns the lessons in schedule for the day 
-        after parsed date upon method execution, if any
-        are present, otherwise a message delivering the
-        absence of lessons.
-        """
-
-        if self.interface.tomorrows_lessons:
-            for event in self.interface.tomorrows_lessons:
-                name = event.name.split(',')[-1].strip()
-                event_start = event.begin.adjusted_time.strftime('%H:%M')
-                event_end = event.end.adjusted_time.strftime('%H:%M')
-                output.append(f'{name}, {event_start} - {event_end} i {event.location}')
-            return output
-        return 'Jag ser inga lektioner på schemat imorgon.'
