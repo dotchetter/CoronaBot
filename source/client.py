@@ -83,7 +83,7 @@ class RobBotClient(discord.Client):
         now = datetime.now().strftime('%Y-%m-%d -- %H:%M:%S')    
         if message.content.lower().startswith('!') and message.author != client.user:
             response = processor.process(message).response()
-            await message.channel.send(response)
+            if response: await message.channel.send(response)
 
     @logger            
     async def run_scheduler(self, channel: int) -> None:
