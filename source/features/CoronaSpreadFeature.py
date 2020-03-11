@@ -187,9 +187,9 @@ class CoronaSpreadFeature(fw.FeatureBase):
         try:
             country = message.content[-1].strip(fw.FeatureCommandParserBase.IGNORED_CHARS)
             response = self.interface.get_by_query(query = 'cases', country_name = country)
-            return f'{response} har smittats av corona i {country}'
+            return f'Totalt {response} har smittats av corona i {country.capitalize()}'
         except Exception as e:
-            return f'Ogiltigt land: "{e}"'
+            pass
 
     @logger
     def get_recoveries_by_country(self, message: discord.Message) -> str:
@@ -202,10 +202,10 @@ class CoronaSpreadFeature(fw.FeatureBase):
         """
         try:
             country = message.content[-1].strip(fw.FeatureCommandParserBase.IGNORED_CHARS)
-            response = self.interface.get_by_query(query = 'recovered', country_name = country)
-            return f'{response} har tillfrisknat i corona i {country}'
+            response = self.interface.get_by_query(query = 'total_recovered', country_name = country)
+            return f'Totalt {response} har tillfrisknat i corona i {country.capitalize()}'
         except Exception as e:
-            return f'Ogiltigt land: "{e}"'
+            pass
 
     @logger
     def get_deaths_by_country(self, message: discord.Message) -> str:
@@ -219,6 +219,6 @@ class CoronaSpreadFeature(fw.FeatureBase):
         try:
             country = message.content[-1].strip(fw.FeatureCommandParserBase.IGNORED_CHARS)
             response = self.interface.get_by_query(query = 'deaths', country_name = country)
-            return f'{response} har omkommit i corona i {country}'
+            return f'Totalt {response} har omkommit i corona i {country.capitalize()}'
         except Exception as e:
-            return f'Ingen data: {e}'
+            pass
