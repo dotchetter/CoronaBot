@@ -18,13 +18,14 @@ class RankingMembersFeature(fw.FeatureBase):
 
 	rank_for_all = {'rank': ('alla', 'all')}
 	rank_up = {'rank': ('upp', 'up')}
-	rank_down = {'rank': ('ner', 'ned')}
+	rank_down = {'rank': ('ner', 'ned', 'down')}
 
 	FEATURE_SUBCATEGORIES = {
 		str(rank_for_all): CommandSubcategory.RANKING_FOR_ALL,
 		str(rank_down): CommandSubcategory.RANKING_DOWN,
 		str(rank_up): CommandSubcategory.RANKING_UP,
-		'?': CommandSubcategory.RANKING_FOR_MEMBER
+		'för': CommandSubcategory.RANKING_FOR_MEMBER,
+		'for': CommandSubcategory.RANKING_FOR_MEMBER
 	}
 
 	def __init__(self, *args, **kwargs):
@@ -72,7 +73,6 @@ class RankingMembersFeature(fw.FeatureBase):
 				self.user_rankings[member] = 1
 			output.append(f'{member.mention} ökade till: {self.user_rankings[member]}')
 		return f'{os.linesep.join(output)}'
-
 
 	@logger
 	def rank_down(self, message: discord.Message) -> str:
