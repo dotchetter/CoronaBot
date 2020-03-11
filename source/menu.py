@@ -1,6 +1,6 @@
 from datetime import datetime
 from source.weekdays import Weekdays
-'''
+"""
 Details:
     2019-11-24
 
@@ -11,10 +11,10 @@ Synposis:
 	Provide a way for the chatbot to scrape
 	the lunch menu for the restaurant in school.
 	Return the menu scraped off the website.
-'''
+"""
 
 class Menu:
-	'''
+	"""
 	Represent a menu in the form of a dictionary.
 	The dictionary is formatted in weekday format,
 	where 0 is monday and 4 is friday. 5 and 6
@@ -23,7 +23,7 @@ class Menu:
 	queried. Each value under said keys are lists
 	which will contain strings that are the menu 
 	items for the given day.
-	'''
+	"""
 	def __init__(self, soup = []):
 		self.soup = soup
 		self._weekly_menu = {
@@ -58,11 +58,11 @@ class Menu:
 		return item
 
 	def _serialize(self):
-		'''
+		"""
 		Iterate over the HTML content found in the 
 		soup object received. Look for the weekday
 		markers, denoted by the keys in the 
-		'''
+		"""
 		selected_weekday = None
 
 		for html in self.soup:			

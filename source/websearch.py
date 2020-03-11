@@ -1,7 +1,7 @@
 from apiclient.discovery import build
 from source.custom_errs import AccessViolation
 from random import choice
-'''
+"""
 Details:
     2019-11-24
 
@@ -39,16 +39,16 @@ Synposis:
 
 	uritemplates - Apache License 2.0
 	httplib2 - MIT License
-'''
+"""
 
 
 class Websearch:
 
-	'''
+	"""
 	A web search response using Google Custom Search
 	engine. The instance object will hold data of interest
 	such as link and title.
-	'''
+	"""
 
 	def __init__(self, *args, **kwargs):
 		for key in kwargs:
@@ -58,10 +58,10 @@ class Websearch:
 			developerKey = self._developerKey).cse()
 
 	def search(self, query):
-		'''
+		"""
 		Return only the URL from a websearch, based upon query.
 		If the search resulted in 0 matches, return None.
-		'''
+		"""
 		prefixes = (
 			'Jag hittade detta!',
 			'Vad tror du om det där?',

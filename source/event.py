@@ -3,7 +3,7 @@ import json
 from datetime import date, datetime, timedelta, time
 from source.custom_errs import *
 
-'''
+"""
 Details:
     2019-09-25
 
@@ -18,7 +18,7 @@ Synposis:
     The goal is to subscribe to the class curriculum and then
     share the current classroom for the day or week in the chat
     with a chatbot. 
-'''
+"""
 
 class Event:
     def __init__(self, *args, **kwargs):

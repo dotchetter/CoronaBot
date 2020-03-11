@@ -7,7 +7,7 @@ from datetime import date, datetime, timedelta, time
 from source.custom_errs import *
 from source.weekdays import Weekdays
 
-'''
+"""
 Details:
     2019-09-25
 
@@ -21,15 +21,15 @@ Synposis:
     The goal is to subscribe to the class curriculum and then
     share the current classroom for the day or week in the chat
     with a chatbot. 
-'''
+"""
 
 class Schedule:
-    '''
+    """
     Parse an .ics url and fetch the data for this calendar.
     The data will be used to return classroom for the day,
     the day after and similar requests in a simple format 
     with properties.
-    '''
+    """
     def __init__(self, url = str):
         self._url = url
         self._curriculum_events = []
@@ -39,7 +39,7 @@ class Schedule:
         self._adjust_event_hours()
         
     def _adjust_event_hours(self):
-        '''
+        """
         Adjust the hour in a calendar event by 1 or 2 hours,
         depending on daylight savings time (dst). This is evaluated
         automatically through the system local time by the datetime
@@ -47,7 +47,7 @@ class Schedule:
         begin and event end, with corrected hour stamps according to 
         hourdelta parameter. The instance attribute will be accessible through
         self.begin.time and self.end.time.
-        '''
+        """
         hourdelta = 2 if datetime.now().dst() else 1
 
         for event in self.curriculum:
@@ -74,11 +74,11 @@ class Schedule:
         return True
 
     def set_calendar(self):
-        '''
+        """
         Get data from the timeedit servers containing the
         curriculum for class IoT19 2 weeks ahead. This callable
         will refresh the .ics Calendar object.
-        '''
+        """
         try:
             calendar = ics.Calendar(urlopen(self._url).read().decode())
         except ValueError:
@@ -87,11 +87,11 @@ class Schedule:
         self._calendar = calendar
 
     def truncate_event_name(self):
-        '''
+        """
         Truncate sensitive name data in events, containing the
         name of the teacher holding the class. This will reduce
         the privacy issue of storing names in log files.
-        '''
+        """
 
         for event in self.curriculum:
             event.name = f"{event.name.split(',')[0]},{event.name.split(',')[-1]}"
@@ -122,10 +122,10 @@ class Schedule:
     
     @property
     def todays_lessons(self):
-        '''
+        """
         Iterate through the lessons of today, return these in a friendly
         string with properties such as start and end time with locations.
-        '''
+        """
         output = []
 
         if len(self.todays_events):
@@ -139,14 +139,14 @@ class Schedule:
 
     @property
     def next_lesson(self):
-        '''
+        """
         Evaluate what lesson is the next on curriculum. Iterate
         through the list of lessons for today. Compare the current
         time with each lesson start time, return the upcoming one.
         Adjust for calendar timezone with 2hrs. If no lesson is found
         for today, iterate over the entire sorted curriculum and return
         the first lesson that lies in the future.
-        '''
+        """
         lesson = None
 
         if self.todays_events:

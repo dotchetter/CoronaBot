@@ -7,12 +7,12 @@ class RedditJoke:
         self.reddit_client = reddit_client
 
     def get(self) -> str:
-        '''
+        """
         Return a random url or random joke phrase parsed
         from reddits api client 'praw'. Ensure that the returned
         joke is sub 2000 characters and randomize the choice between
         the two alternatives, r/jokes and r/programmerhumor
-        '''
+        """
 
         iterations = 0
         iteration_limit = 10

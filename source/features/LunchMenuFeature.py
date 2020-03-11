@@ -88,10 +88,10 @@ class LunchMenuFeature(fw.FeatureBase):
 
     @logger
     def menu_for_week(self) -> str:
-        '''
+        """
         Return the entire week's menu with one empty line
         separating the lists of entries.
-        '''
+        """
         days = ('**Måndag**', '**Tisdag**', '**Onsdag**', '**Torsdag**', '**Fredag**')
         menu_for_week = self.interface.get_menu_for_week()
         
@@ -104,7 +104,7 @@ class LunchMenuFeature(fw.FeatureBase):
     
     @logger
     def menu_for_weekday_phrase(self, weekday: datetime, when: CommandSubcategory) -> str:
-        '''
+        """
         Return a user-friendly variant of the content
         retreived by the interface object's methods,
         for display on front end. Expect a weekday 
