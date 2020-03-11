@@ -12,9 +12,7 @@
 
 		"NoSubCategory": 
 		[
-			"Jag förstod nästan vad du menade, kan du uttrycka dig annorlunda?",
-			"Jag är det på spåret - kan du säga igen fast tydligare?",
-			"Jag fattar vad du säger men inte din fråga exakt?"
+			"Jag förstår dig men inte exakt vad du är ute efter, försök vara lite tydligare"
 		],
 
 		"NoResponse": 
@@ -22,8 +20,12 @@
 	    	"Jag har inget bra svar på det",
 	    	"Hm, vet inte vad du menar",
 	    	":man_shrugging:",
-	    	"No comprendo",
-	    	"404 - not found :robot:"
+	    	"No comprende",
+	    	"404 - not found :robot:",
+	    	"No say, José",
+	    	":thinking:",
+	    	"Que?",
+	    	"Ingen aning"
 		]	
 	}
 }
