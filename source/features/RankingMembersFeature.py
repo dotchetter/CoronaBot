@@ -68,11 +68,14 @@ class RankingMembersFeature(fw.FeatureBase):
 		output = []
 		for member in message.mentions:
 			try:
+				if message.author == member:
+					continue
 				self.user_rankings[member] += 1
 			except KeyError:
 				self.user_rankings[member] = 1
 			output.append(f'{member.mention} ökade till {self.user_rankings[member]}')
-		return f'{os.linesep.join(output)}'
+		if len(output):
+			return f'{os.linesep.join(output)}'
 
 	@logger
 	def rank_down(self, message: discord.Message) -> str:
@@ -82,11 +85,14 @@ class RankingMembersFeature(fw.FeatureBase):
 		output = []
 		for member in message.mentions:
 			try:
+				if message.author == member:
+					continue
 				self.user_rankings[member] -= 1
 			except KeyError:
 				self.user_rankings[member] = -1
 			output.append(f'{member.mention} minskade till {self.user_rankings[member]}')
-		return f'{os.linesep.join(output)}'
+		if len(output): 
+			return f'{os.linesep.join(output)}'
 
 	@logger
 	def rank_for_member(self, message: discord.Message) -> str:
