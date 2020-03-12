@@ -29,6 +29,7 @@ The initial purpose was to inform us in the chat every morning which classroom w
   This feature answers the question "What's on the menu for today?" and similar queries. It scrapes the lunch menu for the local cafeteria on campus, yielding the menu for today. 
   
 * Corona data
+
   Due to the alarming development of the COVID19 virus, a feature was implemented using a free API listed below, for retrieving data about the infections, mortalities and recoveries around the world. 
   
 * Ranking
