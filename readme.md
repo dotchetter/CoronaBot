@@ -1,7 +1,6 @@
 # Rob Bot
 
 
-
 ## What is it?
 
 The Rob Bot project is a chat bot, specifically written to be of assistance for me and my college mates.
@@ -29,10 +28,11 @@ The initial purpose was to inform us in the chat every morning which classroom w
 
   This feature answers the question "What's on the menu for today?" and similar queries. It scrapes the lunch menu for the local cafeteria on campus, yielding the menu for today. 
   
-* Custom reminders
-
-  The reminders feature is pretty cool - the bot will remember things that people ask for it to remember and then sends a message in the #general channel at provided date and time. This feature is creating instances of the **Event** class.
-  The **Event** class is also used to create automatic reminders. Every night at 00:10, the bot will re-load the TimeEdit-calling **Schedule** object and generate automatic **Event** instances with alarms set. This allows the bot to automatically write in the #General channel every morning at 8:00AM and at lunch time, with information about the upcoming lesson with location and time info.
+* Corona data
+  Due to the alarming development of the COVID19 virus, a feature was implemented using a free API listed below, for retrieving data about the infections, mortalities and recoveries around the world. 
+  
+* Ranking
+  Rank one another up or down, just for goofing around really.
 
 ## Mentions
 
@@ -43,6 +43,7 @@ This project would not have been possible if it were not for these 3rd party lib
 * discord.py (MIT License) https://github.com/Rapptz/discord.py
 * praw (BSD 2-Clause "Simplified" License) https://github.com/praw-dev/praw
 * ics (Apache License 2.0) https://pypi.org/project/ics/
+* coronavirus-monitor https://rapidapi.com/astsiatsko/api/coronavirus-monitor
 
 ## Contributions
 
