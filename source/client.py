@@ -174,7 +174,9 @@ pollcache = PollCache()
 with open(corona_translation_file, 'r', encoding = 'utf-8') as f:
     for count, key in ennumerate(json.loads(f.read())['swe_to_eng'].keys()):
 
-        client.scheduler.every(count).minutes.do(pollcache, func = corona_ft.get_cases_by_country, message = message_mock(
+        client.scheduler.every(count).minutes.do(
+            pollcache, func = corona_ft.get_cases_by_country, message = message_mock(
+                f'hur många har smittats i {key}'.split(' ')))
 
         client.scheduler.every(count).minutes.do(
             pollcache, func = corona_ft.get_cases_by_country, message = message_mock(
