@@ -139,8 +139,8 @@ if __name__ == '__main__':
         'CORONA_API_RAPIDAPI_KEY'
     ]
 
-    commandintegrator_settings_file = '/home/pi/RobBotTheRobot/source/commandintegrator/commandintegrator.settings.json'
-    corona_translation_file = '/home/pi/RobBotTheRobot/source/country_eng_swe_translations.json'
+    commandintegrator_settings_file = ''
+    corona_translation_file = ''
 
     with open(commandintegrator_settings_file, 'r', encoding = 'utf-8') as f:
         default_responses = json.loads(f.read())['default_responses']
@@ -151,19 +151,33 @@ if __name__ == '__main__':
 
     #  --- Instantiate the key backend objects used and the discord client ---
 
+    ranking_ft = RankingMembersFeature()
+    lunchmenu_ft = LunchMenuFeature(url = environment_vars['LUNCH_MENU_URL'])
+    schedule_ft = ScheduleFeature(url = environment_vars['TIMEEDIT_URL'])
     corona_ft = CoronaSpreadFeature(
                     CORONA_API_URI = environment_vars['CORONA_API_URI'],
                     CORONA_API_RAPIDAPI_HOST = environment_vars['CORONA_API_RAPIDAPI_HOST'],
                     CORONA_API_RAPIDAPI_KEY = environment_vars['CORONA_API_RAPIDAPI_KEY'],
                     translation_file_path = corona_translation_file)
 
+    redditjoke_ft = RedditJokeFeature(
+                        client_id = environment_vars['REDDIT_CLIENT_ID'], 
+                        client_secret = environment_vars['REDDIT_CLIENT_SECRET'],
+                        user_agent = environment_vars['REDDIT_USER_AGENT'])
+
     processor = CommandProcessor(
         pronoun_lookup_table = PronounLookupTable(), 
         default_responses = default_responses)
     
-    processor.features = (corona_ft,)
+    processor.features = (
+        lunchmenu_ft, 
+        schedule_ft, 
+        corona_ft, 
+        redditjoke_ft, 
+        ranking_ft
+    )
     
-    environment_vars['automessage_channel'] = 687629900555091995
+    environment_vars['automessage_channel'] = 687256070561071167
     client = RobBotClient(**environment_vars)
     
 
@@ -174,27 +188,35 @@ if __name__ == '__main__':
     <<< client.scheduler.every(1).minute.do(add_integers, a = 10, b = 5) >>>
     """
 
-@dataclass
-class message_mock:
-    content: list
+    @dataclass
+    class message_mock:
+        content: list
+
+    pollcache = PollCache()
+
+    client.scheduler.every().day.at('08:30').do(schedule_ft.get_todays_lessons, return_if_none = False)
+    client.scheduler.every().sunday.at('15:00').do(schedule_ft.get_curriculum, return_if_none = False)
+    client.scheduler.every(20).to(24).hours.do(redditjoke_ft.get_random_joke)
+
+    swe_cases_request = message_mock
+    swe_cases_request.content = 'hur många har smittats i sverige'.split(' ')
+
+    swe_recoveries_request = message_mock
+    swe_recoveries_request.content = 'hur många har tillfrisknat i sverige'.split(' ')
+
+    swe_deaths_request = message_mock
+    swe_deaths_request.content = 'hur många har omkommit i sverige'.split(' ')
+    
+    client.scheduler.every(1).minutes.do(
+        pollcache, func = corona_ft.get_cases_by_country, message = swe_cases_request)
+
+    client.scheduler.every(1).minutes.do(
+        pollcache, func = corona_ft.get_recoveries_by_country, message = swe_recoveries_request)
+
+    client.scheduler.every(1).minutes.do(
+        pollcache, func = corona_ft.get_deaths_by_country, message = swe_deaths_request)
 
 
-pollcache = PollCache()
-
-with open(corona_translation_file, 'r', encoding = 'utf-8') as f:
-    for key in json.loads(f.read())['swe_to_eng'].keys():
-
-        client.scheduler.every(1).minutes.do(
-            pollcache, func = corona_ft.get_cases_by_country, message = message_mock(
-                f'hur många har smittats i {key}'.split(' '))
-
-        client.scheduler.every(1).minutes.do(
-            pollcache, func = corona_ft.get_cases_by_country, message = message_mock(
-                f'hur många har omkommit i {key}'.split(' '))
-
-        client.scheduler.every(1).minutes.do(
-            pollcache, func = corona_ft.get_cases_by_country, message = message_mock(
-                f'hur många har tillfrisknat i {key}'.split(' '))
-            
     # --- Turn the key and start the bot ---
+
     client.run(environment_vars['DISCORD_TOKEN'])

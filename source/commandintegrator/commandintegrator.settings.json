@@ -1,6 +1,6 @@
 
 {
-	"log_dir": "/home/pi/RobBotTheRobot/runtime_logs",
+	"log_dir": "",
 	
 	"default_responses": {
 		"NoImplementation": 
