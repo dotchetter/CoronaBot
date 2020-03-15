@@ -12,11 +12,7 @@ from custom_errs import *
 from event import Event
 from weekdays import Weekdays
 
-from features.LunchMenuFeature import LunchMenuFeature
-from features.RedditJokeFeature import RedditJokeFeature
-from features.ScheduleFeature import ScheduleFeature
 from features.CoronaSpreadFeature import CoronaSpreadFeature
-from features.RankingMembersFeature import RankingMembersFeature
 from commandintegrator.logger import logger
 from commandintegrator import CommandProcessor, PronounLookupTable, PollCache
 
