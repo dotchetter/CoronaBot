@@ -1,6 +1,10 @@
 MIT License
 
+<<<<<<< HEAD
 Copyright (c) [2019] [Simon Olofsson]
+=======
+Copyright (c) 2020 Simon Olofsson
+>>>>>>> 9b4f512207103ef9d7daaac8c6d3a4bae46a1aa6
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,6 +23,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+<<<<<<< HEAD
 
  Dependent 3rd party modules mention:
  
@@ -32,3 +37,5 @@ SOFTWARE.
  discord.py (MIT License) https://github.com/Rapptz/discord.py
  praw (BSD 2-Clause "Simplified" License) https://github.com/praw-dev/praw
  ics (Apache License 2.0) https://pypi.org/project/ics/
+=======
+>>>>>>> 9b4f512207103ef9d7daaac8c6d3a4bae46a1aa6
