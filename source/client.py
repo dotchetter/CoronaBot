@@ -180,15 +180,15 @@ with open(corona_translation_file, 'r', encoding = 'utf-8') as f:
 
         client.scheduler.every(1).minutes.do(
             pollcache, func = corona_ft.get_cases_by_country, message = message_mock(
-                f'hur många har smittats i {key}'.split(' '))
+                f'hur många har smittats i {key}'.split(' ')))
 
         client.scheduler.every(1).minutes.do(
             pollcache, func = corona_ft.get_cases_by_country, message = message_mock(
-                f'hur många har omkommit i {key}'.split(' '))
+                f'hur många har omkommit i {key}'.split(' ')))
 
         client.scheduler.every(1).minutes.do(
             pollcache, func = corona_ft.get_cases_by_country, message = message_mock(
-                f'hur många har tillfrisknat i {key}'.split(' '))
+                f'hur många har tillfrisknat i {key}'.split(' ')))
 
     # --- Turn the key and start the bot ---
     client.run(environment_vars['DISCORD_TOKEN'])
