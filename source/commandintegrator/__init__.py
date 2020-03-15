@@ -57,7 +57,7 @@ class PollCache:
     """
     
     def __init__(self):
-        self.cached_polls = {}
+        self.cached_polls = {{}}
 
     @logger
     def __call__(self, func: 'function', *args, **kwargs):
@@ -69,12 +69,19 @@ class PollCache:
             raise
 
         if not func in self.cached_polls.keys():
-            self.cached_polls[func] = new_result
+            self.cached_polls[func] = {}
+            self.cached_polls[func]['result'] = new_result
+            self.cached_polls[func]['args'] = args
+            self.cached_polls[func]['kwargs'] = kwargs
         else:
-            previous_result = self.cached_polls[func]
+            previous_result = self.cached_polls[func]['result']
+            previous_args = self.cached_polls[func]['args']
+            previous_kwargs = self.cached_polls[func]['kwargs']
         
-        if previous_result != new_result:
-            self.cached_polls[func] = new_result
+        if args == previous_args and kwargs == previous_kwargs and previous_result != new_result:
+            self.cached_polls[func]['result'] = new_result
+            self.cached_polls[func]['args'] = args
+            self.cached_polls[func]['kwargs'] = kwargs
             return new_result
         return None
 
