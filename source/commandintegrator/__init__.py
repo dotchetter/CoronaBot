@@ -57,9 +57,8 @@ class PollCache:
     """
     
     def __init__(self):
-        self.cached_polls = {{}}
+        self.cached_polls = dict()
 
-    @logger
     def __call__(self, func: 'function', *args, **kwargs):
         previous_result = None
         
@@ -68,22 +67,24 @@ class PollCache:
         except:
             raise
 
-        if not func in self.cached_polls.keys():
-            self.cached_polls[func] = {}
-            self.cached_polls[func]['result'] = new_result
-            self.cached_polls[func]['args'] = args
-            self.cached_polls[func]['kwargs'] = kwargs
-        else:
-            previous_result = self.cached_polls[func]['result']
-            previous_args = self.cached_polls[func]['args']
-            previous_kwargs = self.cached_polls[func]['kwargs']
-        
-        if args == previous_args and kwargs == previous_kwargs and previous_result != new_result:
-            self.cached_polls[func]['result'] = new_result
-            self.cached_polls[func]['args'] = args
-            self.cached_polls[func]['kwargs'] = kwargs
+        if not func.__name__ in self.cached_polls.keys():
+            self.cached_polls[func.__name__] = {}
+            self.cached_polls[func.__name__]['result'] = new_result
+            self.cached_polls[func.__name__]['args'] = args
+            self.cached_polls[func.__name__]['kwargs'] = kwargs
             return new_result
-        return None
+        else:
+            previous_result = self.cached_polls[func.__name__]['result']
+            previous_args = self.cached_polls[func.__name__]['args']
+            previous_kwargs = self.cached_polls[func.__name__]['kwargs']
+        
+            if args == previous_args and kwargs == previous_kwargs and new_result == previous_result:
+                return None
+            
+            self.cached_polls[func.__name__]['result'] = new_result
+            self.cached_polls[func.__name__]['args'] = args
+            self.cached_polls[func.__name__]['kwargs'] = kwargs
+            return new_result
 
 
 class PronounLookupTable:
