@@ -47,26 +47,27 @@ Module details:
 
 class PollCache:
     """
-    cache the output in the dictionary cached_polls. 
-    If a difference is noticed in the method return call and
-    the recent most cached data, it is returned, otherwise
-    nothing is returned. This allows a front end to 
-    continuously poll this method and only receive data if
-    it is a deviation from the recent most number.
+    This object is designed to act as a cushion between a 
+    function or other callable, and its caller, and only 
+    give returns when new data from the function is identified.
 
-    The PollCache object will keep track of past calls with
-    a function, and which parameters were used. If either the
-    parameters, the function or the return value is different
-    upon the next call, return value of the function will be 
-    passed on, otherwise not. This enables you to use the object
-    with the same function but with different paremeters and 
-    only receive new values back upon repeated calls.
+    This way you can pass functions to an instance of this class
+    and loop indefinitely, where only new results will be returned.
+
+    The PollCache object will treat every function and its 
+    constellation of arguments and keyword arguments as unique,
+    meaning that you can use the same function or other callable
+    with different parameters in a loop, and it will not be 
+    overwritten in the PollCache just because the function is 
+    the same, but will be treated as its own cache.
 
     This class uses the __call__ method as its main interface.
     Call the instance of this class as you would a function.
 
+    The syntax is simply: 
+
     >>    cache = PollCache()
-    >>    cache(function, a = 1, b = 2)
+    >>    cache(function_name, parameter1 = val, parameter2 = val2, ...)
 
 
     :silent_first_call:
@@ -81,13 +82,15 @@ class PollCache:
     
     >>    cache = PollCache()
     >>    cache(function, a = 1, b = 2)   #  Will produce a return value
-    >>    cache(function, a = 1, b = 2)   #  Will produce a return value 
+    >>    cache(function, a = 1, b = 2)   #  Will NOT produce a return value (identical output)
+    >>    cache(function, a = 10, b = 20) #  Will produce a return value (new output)
 
     ----- Example with silent first call -----------------------------------
     
     >>    cache = PollCache(silent_first_call = True)
-    >>    cache(function, a = 1, b = 2)   #  Will not produce a return value
-    >>    cache(function, a = 1, b = 2)   #  Will produce a return value 
+    >>    cache(function, a = 1, b = 2)   #  Will NOT produce a return value
+    >>    cache(function, a = 1, b = 2)   #  Will NOT produce a return value (identical output)
+    >>    cache(function, a = 10, b = 20) #  Will produce a return value (new output)
     """
     
     def __init__(self, silent_first_call = False):
