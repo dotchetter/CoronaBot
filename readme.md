@@ -1,5 +1,6 @@
 # Corona Bot
 
+![](https://dotchetter.cloud/index.php/s/SM9RHCm5BzSiXdJ/preview)
 
 ## What is it?
 
