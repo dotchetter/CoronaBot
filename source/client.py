@@ -97,6 +97,7 @@ class RobBotClient(discord.Client):
             result = self.scheduler.run_pending(passthrough = True)    
             
             if not result:
+                await asyncio.sleep(0.1)
                 continue
 
             for _, message in result.items():
