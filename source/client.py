@@ -89,12 +89,24 @@ class RobBotClient(discord.Client):
         """
         await client.wait_until_ready()
         channel = self.get_channel(channel)
+        length_limit = 2000
 
         while not self.is_closed():
-            result = self.scheduler.run_pending(passthrough = True)
-            if result: 
-                for _, value in result.items():
-                    if value: await channel.send(value)
+            output = []
+            combined = str()
+            result = self.scheduler.run_pending(passthrough = True)    
+            
+            if not result:
+                continue
+
+            for _, message in result.items():
+                if message:
+                    if len(combined) + len(message) >= 2000:
+                        output.append(combined)
+                        combined = str()
+                    combined += f'{os.linesep}{message}'
+        
+            [await channel.send(i) for i in output]
             await asyncio.sleep(0.1)
    
 
@@ -150,9 +162,9 @@ if __name__ == '__main__':
         default_responses = default_responses)
     
     processor.features = (corona_ft,)   
-    environment_vars['automessage_channel'] = 0 # Insert text channel ID here for auto messages 
+    environment_vars['automessage_channel'] = 689199890596626502 # Insert text channel ID here for auto messages 
     client = RobBotClient(**environment_vars)
-    pollcache = PollCache(silent_first_call = True)
+    pollcache = PollCache(silent_first_call = False)
     
 
     """
