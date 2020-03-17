@@ -1,5 +1,6 @@
 # Corona Bot
 
+![](https://dotchetter.cloud/index.php/s/SM9RHCm5BzSiXdJ/preview)
 
 ## What is it?
 
@@ -21,7 +22,7 @@ All of these can be accessed globally *or* per country, upon query by commands.
 ## Use
 
 1. Register for an account or sign in to Discord: https://discordapp.com/register
-2. Click the invite and join the fun. As mentioned above, the bot both speaks and understands strictly Swedish.
+2. Click the invite and join. As mentioned above, the bot both speaks and understands strictly Swedish.
 
 ### Invite link
 https://discord.gg/nM4gaXU
@@ -36,4 +37,4 @@ This project would not have been possible if it were not for these 3rd party lib
 
 ## Contributions
 Do you want to contribute to this project? 
-Clone and send a PR or email me at dotchetter@protonmail.ch to get in touch.
+Fork and send a PR or email me at dotchetter@protonmail.ch to get in touch.
