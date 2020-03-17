@@ -37,4 +37,4 @@ This project would not have been possible if it were not for these 3rd party lib
 
 ## Contributions
 Do you want to contribute to this project? 
-Clone and send a PR or email me at dotchetter@protonmail.ch to get in touch.
+Fork and send a PR or email me at dotchetter@protonmail.ch to get in touch.
