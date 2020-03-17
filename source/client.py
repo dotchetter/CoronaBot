@@ -88,11 +88,10 @@ class RobBotClient(discord.Client):
         Loop indefinitely and send messages that are pre-
         defined on a certain day and a certain time. 
         """
-
         await client.wait_until_ready()
         channel = self.get_channel(channel)
-        
-        while not self.is_closed():            
+
+        while not self.is_closed():
             result = self.scheduler.run_pending(passthrough = True)
             if result: 
                 for _, value in result.items():
