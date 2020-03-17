@@ -29,7 +29,7 @@ Synposis:
     modules. 
 """
 
-
+pollcache = PollCache(silent_first_call = True)
 class RobBotClient(discord.Client):
     
     def __init__(self, *args, **kwargs):
