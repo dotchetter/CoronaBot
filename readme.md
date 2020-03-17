@@ -22,7 +22,7 @@ All of these can be accessed globally *or* per country, upon query by commands.
 ## Use
 
 1. Register for an account or sign in to Discord: https://discordapp.com/register
-2. Click the invite and join the fun. As mentioned above, the bot both speaks and understands strictly Swedish.
+2. Click the invite and join. As mentioned above, the bot both speaks and understands strictly Swedish.
 
 ### Invite link
 https://discord.gg/nM4gaXU
