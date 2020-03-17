@@ -128,8 +128,8 @@ if __name__ == '__main__':
         'CORONA_API_RAPIDAPI_KEY'
     ]
 
-    commandintegrator_settings_file = '/home/pi/RobBotTheRobot/source/commandintegrator/commandintegrator.settings.json'
-    corona_translation_file = '/home/pi/RobBotTheRobot/source/country_eng_swe_translations.json'
+    commandintegrator_settings_file = 'commandintegrator\\commandintegrator.settings.json'
+    corona_translation_file = 'country_eng_swe_translations.json'
 
     with open(commandintegrator_settings_file, 'r', encoding = 'utf-8') as f:
         default_responses = json.loads(f.read())['default_responses']
