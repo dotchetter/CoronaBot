@@ -9,7 +9,6 @@ from datetime import datetime, time, timedelta
 from dotenv import load_dotenv
 from pathlib import Path
 from custom_errs import *
-from event import Event
 from weekdays import Weekdays
 
 from features.CoronaSpreadFeature import CoronaSpreadFeature
