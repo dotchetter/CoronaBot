@@ -150,11 +150,11 @@ if __name__ == '__main__':
         pronoun_lookup_table = PronounLookupTable(), 
         default_responses = default_responses)
     
-    processor.features = (corona_ft,)
-    
+    processor.features = (corona_ft,)   
     environment_vars['automessage_channel'] = 0 """ Insert text channel ID for the guild 
                                                     where automatic messages should be written to. """
     client = RobBotClient(**environment_vars)
+    pollcache = PollCache(silent_first_call = True)
     
 
     """
@@ -164,9 +164,9 @@ if __name__ == '__main__':
     <<< client.scheduler.every(1).minute.do(add_integers, a = 10, b = 5) >>>
     """
 
-@dataclass
-class message_mock:
-    content: list
+    @dataclass
+    class message_mock:
+        content: list
 
 
 pollcache = PollCache()
