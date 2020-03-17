@@ -151,8 +151,7 @@ if __name__ == '__main__':
         default_responses = default_responses)
     
     processor.features = (corona_ft,)   
-    environment_vars['automessage_channel'] = 0 """ Insert text channel ID for the guild 
-                                                    where automatic messages should be written to. """
+    environment_vars['automessage_channel'] = 0 # Insert text channel ID here for auto messages 
     client = RobBotClient(**environment_vars)
     pollcache = PollCache(silent_first_call = True)
     
