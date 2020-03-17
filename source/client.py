@@ -165,7 +165,7 @@ if __name__ == '__main__':
     processor.features = (corona_ft,)   
     environment_vars['automessage_channel'] = 689199890596626502 # Insert text channel ID here for auto messages 
     client = RobBotClient(**environment_vars)
-    pollcache = PollCache(silent_first_call = False)
+    pollcache = PollCache(silent_first_call = True)
     
 
     """
