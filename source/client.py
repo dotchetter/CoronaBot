@@ -152,7 +152,8 @@ if __name__ == '__main__':
     
     processor.features = (corona_ft,)
     
-    environment_vars['automessage_channel'] = 687629900555091995
+    environment_vars['automessage_channel'] = 0 """ Insert text channel ID for the guild 
+                                                    where automatic messages should be written to. """
     client = RobBotClient(**environment_vars)
     
 
