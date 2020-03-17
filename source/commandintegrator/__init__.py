@@ -42,49 +42,87 @@ Module details:
     To read instructions and see examples how to use this 
     framework with your application - please read the full
     documentation which can be found in the wiki on GitHub
-
 """
 
 
 class PollCache:
     """
-    cache the output in the dictionary last_polled_values. 
+    cache the output in the dictionary cached_polls. 
     If a difference is noticed in the method return call and
     the recent most cached data, it is returned, otherwise
     nothing is returned. This allows a front end to 
     continuously poll this method and only receive data if
     it is a deviation from the recent most number.
+
+    The PollCache object will keep track of past calls with
+    a function, and which parameters were used. If either the
+    parameters, the function or the return value is different
+    upon the next call, return value of the function will be 
+    passed on, otherwise not. This enables you to use the object
+    with the same function but with different paremeters and 
+    only receive new values back upon repeated calls.
+
+    This class uses the __call__ method as its main interface.
+    Call the instance of this class as you would a function.
+
+    >>    cache = PollCache()
+    >>    cache(function, a = 1, b = 2)
+
+
+    :silent_first_call:
+        Boolean. Set it to True if the desired behavior is to
+        build up a cache, and only start returning values if 
+        any of the cached method returns deviate.
+        Default is that all initial calls with a new function
+        or a past function with new arguments, will return 
+        values. Suppress this with this parameter.
+    
+    ---- Example with default behavior--------------------------------------
+    
+    >>    cache = PollCache()
+    >>    cache(function, a = 1, b = 2)   #  Will produce a return value
+    >>    cache(function, a = 1, b = 2)   #  Will produce a return value 
+
+    ----- Example with silent first call -----------------------------------
+    
+    >>    cache = PollCache(silent_first_call = True)
+    >>    cache(function, a = 1, b = 2)   #  Will not produce a return value
+    >>    cache(function, a = 1, b = 2)   #  Will produce a return value 
     """
     
-    def __init__(self):
+    def __init__(self, silent_first_call = False):
         self.cached_polls = dict()
+        self.silent_first_call = silent_first_call
 
     def __call__(self, func: 'function', *args, **kwargs):
-        previous_result = None
-        
         try:
             new_result = func(*args, **kwargs)
         except:
             raise
 
-        if not func.__name__ in self.cached_polls.keys():
-            self.cached_polls[func.__name__] = {}
-            self.cached_polls[func.__name__]['result'] = new_result
-            self.cached_polls[func.__name__]['args'] = args
-            self.cached_polls[func.__name__]['kwargs'] = kwargs
-            return new_result
-        else:
-            previous_result = self.cached_polls[func.__name__]['result']
-            previous_args = self.cached_polls[func.__name__]['args']
-            previous_kwargs = self.cached_polls[func.__name__]['kwargs']
-        
-            if args == previous_args and kwargs == previous_kwargs and new_result == previous_result:
-                return None
+        if not func in self.cached_polls.keys():            
+            self.cached_polls[func] = [
+                {'args': args,
+                 'kwargs': kwargs,
+                 'result': new_result,
+                 'calls': 1}]
             
-            self.cached_polls[func.__name__]['result'] = new_result
-            self.cached_polls[func.__name__]['args'] = args
-            self.cached_polls[func.__name__]['kwargs'] = kwargs
-            return new_result
+            return new_result if not self.silent_first_call else None
+
+        for call in self.cached_polls[func]:
+            if call['args'] == args and call['kwargs'] == kwargs and call['result'] != new_result:
+                call['result'] = new_result
+                call['calls'] += 1
+                return new_result
+                
+        if not [i for i in self.cached_polls[func] if i['args'] == args and i['kwargs'] == kwargs]:
+            self.cached_polls[func].append({
+                'args': args, 
+                'kwargs': kwargs, 
+                'result': new_result, 
+                'calls': 1})
+            
+            return new_result if not self.silent_first_call else None
 
 
 class PronounLookupTable:
