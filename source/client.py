@@ -184,22 +184,18 @@ if __name__ == '__main__':
 
 
     with open(corona_translation_file, 'r', encoding = 'utf-8') as f:
-        countries = [i for i in json.loads(f.read())['swe_to_eng'].keys()]
+        for country in json.loads(f.read())['swe_to_eng'].keys():
+            client.scheduler.every(1).minutes.do(
+                pollcache, func = corona_ft.get_cases_by_country, 
+                message = message_mock(f'{country}'.split(' ')))
 
+            client.scheduler.every(1).minutes.do(
+                pollcache, func = corona_ft.get_deaths_by_country, 
 
-    for country in countries:
-        
-        client.scheduler.every(1).minutes.do(
-            pollcache, func = corona_ft.get_cases_by_country, 
-            message = message_mock(f'{country}'.split(' ')))
-
-        client.scheduler.every(1).minutes.do(
-            pollcache, func = corona_ft.get_deaths_by_country, 
-            message = message_mock(f'{country}'.split(' ')))
-
-        client.scheduler.every(1).minutes.do(
-            pollcache, func = corona_ft.get_recoveries_by_country, 
-            message = message_mock(f'{country}'.split(' ')))
+                message = message_mock(f'{country}'.split(' ')))
+            client.scheduler.every(1).minutes.do(
+                pollcache, func = corona_ft.get_recoveries_by_country, 
+                message = message_mock(f'{country}'.split(' ')))
 
 
     # --- Turn the key and start the bot ---
