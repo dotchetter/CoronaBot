@@ -91,25 +91,29 @@ class RobBotClient(discord.Client):
         channel = self.get_channel(channel)
         length_limit = 2000
 
-        while not self.is_closed():
+        while not self.is_closed():            
             output = []
             combined = str()
-            result = self.scheduler.run_pending(passthrough = True)    
             
-            if not result:
+            result = self.scheduler.run_pending(passthrough = True)
+            if not result or datetime.now().hour > 22 or datetime.now().hour < 8:
                 await asyncio.sleep(0.1)
                 continue
-
-            for _, message in result.items():
-                if message:
-                    if len(combined) + len(message) >= 2000:
-                        output.append(combined)
-                        combined = str()
-                    combined += f'{os.linesep}{message}'
+            
+            while True:
+                for _, message in result.items():
+                    if message:
+                        if len(combined) + len(message) >= 2000:
+                            output.append(combined)
+                            combined = str()
+                        combined += f'{os.linesep}{message}'
+                result = self.scheduler.run_pending(passthrough = True)
+                if not result:
+                    break
 
             if combined and not output:
                 output.append(combined)
-
+            
             [await channel.send(i) for i in output]
             await asyncio.sleep(0.1)
    
