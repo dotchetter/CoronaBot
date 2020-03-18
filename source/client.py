@@ -147,7 +147,7 @@ if __name__ == '__main__':
         'CORONA_API_RAPIDAPI_KEY'
     ]
 
-    commandintegrator_settings_file = 'commandintegrator\\commandintegrator.settings.json'
+    commandintegrator_settings_file = Path('commandintegrator') / 'commandintegrator.settings.json'
     corona_translation_file = 'country_eng_swe_translations.json'
 
     with open(commandintegrator_settings_file, 'r', encoding = 'utf-8') as f:

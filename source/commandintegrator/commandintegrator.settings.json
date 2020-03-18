@@ -1,6 +1,6 @@
 
 {
-	"log_dir": ".\\",
+	"log_dir": ".",
 	
 	"default_responses": {
 		"NoImplementation": 
