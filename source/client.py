@@ -106,7 +106,10 @@ class RobBotClient(discord.Client):
                         output.append(combined)
                         combined = str()
                     combined += f'{os.linesep}{message}'
-        
+
+            if combined and not output:
+                output.append(combined)
+
             [await channel.send(i) for i in output]
             await asyncio.sleep(0.1)
    
