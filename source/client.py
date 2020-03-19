@@ -107,6 +107,7 @@ class RobBotClient(discord.Client):
                             output.append(combined)
                             combined = str()
                         combined += f'{os.linesep}{message}'
+                await asyncio.sleep(0.5)
                 result = self.scheduler.run_pending(passthrough = True)
                 if not result:
                     break
