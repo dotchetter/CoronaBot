@@ -97,7 +97,7 @@ class CoronaSpreadFeature(fw.FeatureBase):
             CommandPronoun.INTERROGATIVE,
         )
 
-        api_handle = coronafeatureclient.ApiHandle(uri = kwargs['CORONA_API_URI'], standby_hours = 0.5)
+        api_handle = coronafeatureclient.ApiHandle(uri = kwargs['CORONA_API_URI'], standby_hours = 1)
         api_handle.add_header('x-rapidapi-host', kwargs['CORONA_API_RAPIDAPI_HOST'])
         api_handle.add_header('x-rapidapi-key', kwargs['CORONA_API_RAPIDAPI_KEY'])
 
