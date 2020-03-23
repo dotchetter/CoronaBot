@@ -171,7 +171,7 @@ if __name__ == '__main__':
         default_responses = default_responses)
     
     processor.features = (corona_ft,)   
-    environment_vars['automessage_channel'] = 689199890596626502 # Insert text channel ID here for auto messages 
+    environment_vars['automessage_channel'] = 0 # Insert text channel ID here for auto messages 
     client = RobBotClient(**environment_vars)
     pollcache = PollCache(silent_first_call = True)
     
@@ -187,6 +187,9 @@ if __name__ == '__main__':
     class message_mock:
         content: list
 
+    client.scheduler.every().day.at('21:30').do(corona_ft.get_total_deaths)
+    client.scheduler.every().day.at('21:30').do(corona_ft.get_total_recoveries)
+    client.scheduler.every().day.at('21:30').do(corona_ft.get_total_infections)
 
     with open(corona_translation_file, 'r', encoding = 'utf-8') as f:
         for country in json.loads(f.read())['swe_to_eng'].keys():
