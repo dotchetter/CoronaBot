@@ -81,7 +81,6 @@ class RobBotClient(discord.Client):
             response = processor.process(message).response()
             if response: await message.channel.send(response)
 
-    @logger            
     async def run_scheduler(self, channel: int) -> None:
         """
         Loop indefinitely and send messages that are pre-
