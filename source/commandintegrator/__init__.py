@@ -1,8 +1,10 @@
-import argparse
 import random
 import json
 import discord
 import traceback
+import sys
+from .logger import logger
+from .enumerators import CommandPronoun
 from ast import literal_eval
 from pprint import pprint
 from os import system
@@ -11,12 +13,8 @@ from enum import Enum, auto
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
 from timeit import default_timer as timer
-from commandintegrator.logger import logger
-from commandintegrator.enumerators import (CommandPronoun, 
-                                           CommandCategory, 
-                                           CommandSubcategory)
 
-VERSION = 1.0
+VERSION = 1.2.0
 
 """
 Details:
@@ -198,13 +196,11 @@ class Interpretation:
     command_pronouns: A collection of pronouns
     identified in the message.
 
-    command_category: A single instance of
-    CommandCategory telling which feature the 
-    message was ultimately matched against.
+    feature_name: Name of the feature responsible
+    and ultimately selected to provide a response.
 
-    command_subcategory: A single instance of
-    CommandSubcategory telling which method the
-    message was ultimately matched with.
+    callback_binding: Name of the method that
+    is bound to the subcategory for the feature.
 
     original_message: The original message in 
     a tuple, split by space.
@@ -216,8 +212,8 @@ class Interpretation:
     the message. 
     """
     command_pronouns: tuple(CommandPronoun) = ()
-    command_category: CommandCategory = None,
-    command_subcategory: CommandSubcategory = None,
+    feature_name: str = None,
+    callback_binding: str = None,
     original_message: tuple = ()
     response: callable = None
     error: Exception = None
@@ -252,36 +248,12 @@ class FeatureCommandParserABC(ABC):
         pass
 
     @abstractmethod
-    def get_category(self, message: discord.Message) -> CommandCategory:
-        """
-        Iterate over the words in received message, and 
-        see if any of the words line up with the keywords
-        provided for an instance of this class. If a match
-        is found, the CommandCategory of the instance should
-        return, otherwise None.
-        """
+    def is_contender_for_processing(self, message: discord.Message) -> bool:
         return
     
     @abstractmethod
-    def get_subcategory(self, message: discord.Message) -> CommandSubcategory:
-        """
-        Returns a ResponseOption enum type that indicates more 
-        precisely which method for a feature that the command 
-        is matched against. This method should be overloaded if 
-        a different return behaviour in a no-match-found scenario
-        is desired.
-        """
+    def get_callback(self, message: discord.Message) -> 'function':
         return
-
-    @property
-    @abstractmethod
-    def category(self):
-        return
-    
-    @category.setter
-    @abstractmethod
-    def category(self, category: CommandCategory):
-        pass
 
     @property
     @abstractmethod
@@ -295,12 +267,12 @@ class FeatureCommandParserABC(ABC):
 
     @property
     @abstractmethod
-    def subcategories(self) -> dict:
+    def callbacks(self) -> dict:
         return
 
-    @subcategories.setter
+    @callbacks.setter
     @abstractmethod
-    def subcategories(self, subcategories: dict):
+    def callbacks(self, callbacks: dict):
         pass
 
     @property
@@ -328,22 +300,34 @@ class FeatureCommandParserBase(FeatureCommandParserABC):
     def ignore_all(self, char: str):
         self.ignored_chars[char] = ''
 
-    def get_category(self, message: discord.Message) -> CommandCategory:
+    def is_contender_for_processing(self, message: discord.Message) -> bool:
+        """
+        Iterate over the words in received message, and 
+        see if any of the words line up with the keywords
+        provided for an instance of this class. If a match
+        is found, return True, else False.
+        """
         for key in self.ignored_chars:
             message.content = [word.replace(key, self._ignored_chars[key]) for word in message.content]
 
         for word in message.content:
             if word.strip(FeatureCommandParserBase.IGNORED_CHARS) in self:
-                return self._category
-        return None
+                return True
+        return False
     
-    def get_subcategory(self, message: discord.Message) -> CommandSubcategory:
+    def get_callback(self, message: discord.Message) -> 'function':
+        """
+        Returns the method (function object) bound to a 
+        subcategory in the feature implementation. This method 
+        should be overloaded if a different return behavior 
+        in a no-match-found scenario is desired.
+        """
 
         strip_chars = lambda string: string.strip(FeatureCommandParserBase.IGNORED_CHARS)
         complex_subcategories = []
         simple_subcategories = []
         
-        for key in self._subcategories.keys():
+        for key in self._callbacks.keys():
             try:
                 complex_subcategories.append(literal_eval(key))
             except:
@@ -358,23 +342,13 @@ class FeatureCommandParserBase(FeatureCommandParserABC):
                     pass
                 else:
                     if [strip_chars(i) for i in message.content if strip_chars(i) in subset]:
-                        return self._subcategories[str(subcategory)]
+                        return self._callbacks[str(subcategory)]
     
         for word in message.content:
             word = strip_chars(word)
             if word in simple_subcategories:
-                return self._subcategories[word]
-        return CommandSubcategory.UNIDENTIFIED
-
-    @property
-    def category(self):
-        return self._category
-    
-    @category.setter
-    def category(self, category: CommandCategory):
-        if not isinstance(category, Enum):
-            raise TypeError(f'category must be CommandCategory enum, got {type(category)}')
-        self._category = category
+                return self._callbacks[word]
+        return None
 
     @property
     def keywords(self) -> tuple:
@@ -387,14 +361,14 @@ class FeatureCommandParserBase(FeatureCommandParserABC):
         self._keywords = keywords
 
     @property
-    def subcategories(self) -> dict:
-        return self._subcategories
+    def callbacks(self) -> dict:
+        return self._callbacks
     
-    @subcategories.setter
-    def subcategories(self, subcategories: dict):
-        if not isinstance(subcategories, dict):
-            raise TypeError(f'subcategories must be dict, got {type(subcategories)}')
-        self._subcategories = subcategories
+    @callbacks.setter
+    def callbacks(self, callbacks: dict):
+        if not isinstance(callbacks, dict):
+            raise TypeError(f'callbacks must be dict, got {type(callbacks)}')
+        self._callbacks = callbacks
 
     @property
     def ignored_chars(self) -> dict:
@@ -450,16 +424,6 @@ class FeatureABC(ABC):
 
     @property
     @abstractmethod
-    def callbacks(self) -> dict:
-        return
-    
-    @callbacks.setter
-    @abstractmethod
-    def callbacks(self, callbacks: dict):
-        pass
-
-    @property
-    @abstractmethod
     def interactive_methods(self) -> list:
         return
     
@@ -482,19 +446,17 @@ class FeatureBase(FeatureABC):
 
     def __call__(self, message: discord.Message) -> callable:
         try:
-            command_subcategory = self._command_parser.get_subcategory(message)
-            if command_subcategory == CommandSubcategory.UNIDENTIFIED:
-                return CommandSubcategory.UNIDENTIFIED
+            feature_function = self._command_parser.get_callback(message)
+            if feature_function is None:
+                return None
 
-            if self.callbacks[command_subcategory] in self.interactive_methods:
-                method = self.callbacks[command_subcategory]
-                return lambda message = message: method(message)
-            return self.callbacks[command_subcategory]
+            if feature_function in self.interactive_methods:
+                return lambda message = message: feature_function(message)
         except KeyError:
-            raise NotImplementedError(f'no mapped function call for {command_subcategory} in self')
+            raise NotImplementedError(f'no mapped function call for {feature_function} in self')
 
     def __repr__(self):
-        return f'Feature({self.command_parser.category})'
+        return f'Feature({__class__.__name__})'
     
     @property
     def mapped_pronouns(self) -> tuple:
@@ -526,22 +488,6 @@ class FeatureBase(FeatureABC):
         if not isinstance(command_parser, FeatureCommandParserBase):
             raise TypeError(f'command_parser must be FeatureCommandParserBase, got {type(command_parser)}')
         self._command_parser = command_parser
-
-    @property
-    def callbacks(self) -> dict:
-        return self._callbacks
-    
-    @callbacks.setter
-    def callbacks(self, callbacks: dict):
-        if not isinstance(callbacks, dict):
-            raise TypeError(f'command_parser must be dict, got {type(callbacks)}')
-        
-        for key in callbacks:
-            if not isinstance(key, Enum):
-                raise TypeError(f'key must be CommandSubcategory Enum, got {type(key)}')
-            elif not callable(callbacks[key]):
-                raise TypeError(f'"{callbacks[key]}" is not callable.')
-        self._callbacks = callbacks
 
     @property
     def interactive_methods(self) -> tuple:
@@ -586,7 +532,7 @@ class CommandProcessor:
         self._features = features
 
     @logger
-    def process(self, message: discord.Message) -> CommandSubcategory:
+    def process(self, message: discord.Message) -> Interpretation:
         """
         Part of the public interface. This method takes a discord.Message
         object  and splits the .content property on space characters
@@ -600,8 +546,9 @@ class CommandProcessor:
         try:
             return self._interpret(message)
         except Exception as e:
+            sys.stderr.write(f'Error occured in CommandProcessor _interpret function: {e}')
             return Interpretation(error = traceback.format_exc(),
-                        response = lambda: f'CommandProcessor: Internal error',
+                        response = lambda: f'CommandProcessor: Internal error, see logs.',
                         original_message = tuple(message.content))
    
     def _interpret(self, message: discord.Message) -> Interpretation:
@@ -615,43 +562,40 @@ class CommandProcessor:
         the response.
         """
         mapped_features = list()
+        return_callable = None
         found_pronouns = self._pronoun_lookup_table.lookup(message.content)
         
         for feature in self._features:
-            if bool(set(self._feature_pronoun_mapping[feature]).intersection(found_pronouns)):
-                category = feature.command_parser.get_category(message)                
-                if category is not None: mapped_features.append(feature)
+            if bool(set(self._feature_pronoun_mapping[feature]).intersection(found_pronouns)):                
+                if feature.command_parser.is_contender_for_processing(message): 
+                    mapped_features.append(feature)
 
         if not mapped_features:
-            return Interpretation(command_pronouns = found_pronouns,
-                command_category = CommandCategory.UNIDENTIFIED,
+            return Interpretation(
+                command_pronouns = found_pronouns,
+                feature_name = None,
                 original_message = tuple(message.content),
                 response = lambda: random.choice(self._default_responses['NoResponse']))
 
         for feature in mapped_features:
             try:
-                subcategory = feature.command_parser.get_subcategory(message)
                 return_callable = feature(message)
             except NotImplementedError as e:
-                return Interpretation(command_pronouns = found_pronouns,
-                            command_category = feature.command_parser.category,
-                            command_subcategory = subcategory,
-                            response = lambda: random.choice(self._default_responses['NoImplementation']),
-                            original_message = tuple(message.content),
-                            error = e)
+                return Interpretation(
+                    command_pronouns = found_pronouns,
+                    feature_name = feature.__class__.__name__,
+                    callback_binding = None,
+                    response = lambda: random.choice(self._default_responses['NoImplementation']),
+                    original_message = tuple(message.content),
+                    error = e)
             else:
-                if return_callable == CommandSubcategory.UNIDENTIFIED:
+                if return_callable is None:
                     continue
-                return Interpretation(command_pronouns = found_pronouns,
-                            command_category = feature.command_parser.category,
-                            command_subcategory = subcategory,
-                            response = return_callable,
-                            original_message = tuple(message.content))
-
-        return Interpretation(command_pronouns = found_pronouns,
-                    command_category = feature.command_parser.category,
-                    command_subcategory = CommandSubcategory.UNIDENTIFIED,
-                    response = lambda: random.choice(self._default_responses['NoSubCategory']),
+                return Interpretation(
+                    command_pronouns = found_pronouns,
+                    feature_name = feature.__class__.__name__,
+                    callback_binding = None,
+                    response = return_callable,
                     original_message = tuple(message.content))
 
         return Interpretation(command_pronouns = found_pronouns,
