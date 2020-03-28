@@ -12,8 +12,8 @@ from custom_errs import *
 from weekdays import Weekdays
 
 from features.CoronaSpreadFeature import CoronaSpreadFeature
-from commandintegrator.logger import logger
-from commandintegrator import CommandProcessor, PronounLookupTable, PollCache
+from CommandIntegrator.logger import logger
+from CommandIntegrator import CommandProcessor, PronounLookupTable, PollCache
 
 """
 Details:
@@ -147,10 +147,10 @@ if __name__ == '__main__':
         'CORONA_API_RAPIDAPI_KEY'
     ]
 
-    commandintegrator_settings_file = Path('commandintegrator') / 'commandintegrator.settings.json'
+    CommandIntegrator_settings_file = Path('CommandIntegrator') / 'CommandIntegrator.settings.json'
     corona_translation_file = 'country_eng_swe_translations.json'
 
-    with open(commandintegrator_settings_file, 'r', encoding = 'utf-8') as f:
+    with open(CommandIntegrator_settings_file, 'r', encoding = 'utf-8') as f:
         default_responses = json.loads(f.read())['default_responses']
 
     environment_vars = load_environment(enviromnent_strings)
