@@ -1,7 +1,6 @@
 import os
 import json
 import asyncio
-import schedule
 import discord
 
 from dataclasses import dataclass
@@ -29,7 +28,7 @@ Synposis:
 """
 
 pollcache = PollCache(silent_first_call = True)
-class RobBotClient(discord.Client):
+class CoronaBotClient(discord.Client):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
