@@ -2,6 +2,7 @@ import os
 import json
 import asyncio
 import discord
+from schedule.schedule import Scheduler
 
 from dataclasses import dataclass
 from datetime import datetime, time, timedelta
@@ -37,7 +38,7 @@ class CoronaBotClient(discord.Client):
 
         self.loop.create_task(self.run_scheduler(self.automessage_channel))
         self._guild = kwargs['DISCORD_GUILD']
-        self._scheduler = schedule.Scheduler()
+        self._scheduler = Scheduler()
                         
     @property
     def scheduler(self):
@@ -153,9 +154,7 @@ if __name__ == '__main__':
         default_responses = json.loads(f.read())['default_responses']
 
     environment_vars = load_environment(enviromnent_strings)
-    
-    
-
+        
     #  --- Instantiate the key backend objects used and the discord client ---
 
     corona_ft = CoronaSpreadFeature(
@@ -170,7 +169,7 @@ if __name__ == '__main__':
     
     processor.features = (corona_ft,)   
     environment_vars['automessage_channel'] = 0 # Insert text channel ID here for auto messages 
-    client = RobBotClient(**environment_vars)
+    client = CoronaBotClient(**environment_vars)
     pollcache = PollCache(silent_first_call = True)
     
 
