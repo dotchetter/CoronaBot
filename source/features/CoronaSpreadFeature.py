@@ -137,6 +137,7 @@ class CoronaSpreadFeature(ci.FeatureBase):
         return f'Minst tillfrisknade: {response}'
 
     @logger
+    @ci.scheduledmethod
     def get_new_cases_by_country(self, message: discord.Message) -> str:
         """
         Get new cases by country. New cases are defined by API.
@@ -159,6 +160,7 @@ class CoronaSpreadFeature(ci.FeatureBase):
             pass
 
     @logger
+    @ci.scheduledmethod
     def get_cases_by_country(self, message: discord.Message) -> str:
         """
         Get cases by country.
@@ -170,11 +172,17 @@ class CoronaSpreadFeature(ci.FeatureBase):
         try:
             country = message.content[-1].strip(ci.FeatureCommandParserBase.IGNORED_CHARS)
             response = self.interface.get_by_query(query = 'cases', country_name = country)
+        except:
+            try:
+                country = str().join(message.content).strip(ci.FeatureCommandParserBase.IGNORED_CHARS)
+                response = self.interface.get_by_query(query = 'cases', country_name = country)
+            except:
+                return f'Jag förstod inte.. landet du frågar om behöver vara sist i din mening.'
             return f'Totalt {response} har smittats av corona i {country.capitalize()}'
-        except Exception as e:
-            return f'Jag förstod inte.. landet du frågar om behöver vara sist i din mening.'
+
 
     @logger
+    @ci.scheduledmethod
     def get_recoveries_by_country(self, message: discord.Message) -> str:
         """
         Get recoveries by country.
@@ -207,6 +215,10 @@ class CoronaSpreadFeature(ci.FeatureBase):
         try:
             country = message.content[-1].strip(ci.FeatureCommandParserBase.IGNORED_CHARS)
             response = self.interface.get_by_query(query = 'deaths', country_name = country)
+        except:
+            try:
+                country = str().join(message.content).strip(ci.FeatureCommandParserBase.IGNORED_CHARS)
+                response = self.interface.get_by_query(query = 'deaths', country_name = country)
+            except:
+                return f'Jag förstod inte.. landet du frågar om behöver vara sist i din mening.'
             return f'Totalt {response} har omkommit i corona i {country.capitalize()}'
-        except Exception as e:
-            return f'Jag förstod inte.. landet du frågar om behöver vara sist i din mening.'
