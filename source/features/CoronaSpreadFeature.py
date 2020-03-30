@@ -82,8 +82,7 @@ class CoronaSpreadFeature(ci.FeatureBase):
 
         super().__init__(
             command_parser = self.command_parser,
-            interface = coronafeatureclient.Client(api_handle, self.translation_file_path),
-            interactive_methods = self.interactive_methods
+            interface = coronafeatureclient.Client(api_handle, self.translation_file_path)
         )
 
     @logger
