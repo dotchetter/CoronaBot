@@ -86,10 +86,12 @@
 		"argentina": "argentina",
 		"liechtenstein": "liechtenstein",
 		"polen": "poland",
-		"sydafrika": "south africa"	
+		"sydafrika": "south africa",
+		"uruguay": "uruguay"
 	},
 	
 	"eng_to_swe": {
+		"uruguay": "uruguay",
 		"china": "kina",
 		"s. korea": "sydkorea",
 		"italy": "italien",
