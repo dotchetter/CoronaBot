@@ -140,7 +140,7 @@ class CoronaSpreadFeature(ci.FeatureBase):
             str
         """
         try:
-            country = message.content[-1].strip(fw.FeatureCommandParserBase.IGNORED_CHARS)
+            country = message.content[-1].strip(ci.FeatureCommandParserBase.IGNORED_CHARS)
             response = self.interface.get_by_query(query = 'new_cases', country_name = country)
             
             if int(response.replace(',','').strip()) > 1: 
@@ -162,7 +162,7 @@ class CoronaSpreadFeature(ci.FeatureBase):
             str
         """
         try:
-            country = message.content[-1].strip(fw.FeatureCommandParserBase.IGNORED_CHARS)
+            country = message.content[-1].strip(ci.FeatureCommandParserBase.IGNORED_CHARS)
             response = self.interface.get_by_query(query = 'cases', country_name = country)
             return f'Totalt {response} har smittats av corona i {country.capitalize()}'
         except Exception as e:
@@ -178,7 +178,7 @@ class CoronaSpreadFeature(ci.FeatureBase):
             str
         """
         try:
-            country = message.content[-1].strip(fw.FeatureCommandParserBase.IGNORED_CHARS)
+            country = message.content[-1].strip(ci.FeatureCommandParserBase.IGNORED_CHARS)
             response = self.interface.get_by_query(query = 'total_recovered', country_name = country)
             return f'Totalt {response} har tillfrisknat i corona i {country.capitalize()}'
         except Exception as e:
@@ -194,7 +194,7 @@ class CoronaSpreadFeature(ci.FeatureBase):
             str
         """
         try:
-            country = message.content[-1].strip(fw.FeatureCommandParserBase.IGNORED_CHARS)
+            country = message.content[-1].strip(ci.FeatureCommandParserBase.IGNORED_CHARS)
             response = self.interface.get_by_query(query = 'deaths', country_name = country)
             return f'Totalt {response} har omkommit i corona i {country.capitalize()}'
         except Exception as e:
