@@ -73,7 +73,14 @@ class CoronaSpreadFeature(ci.FeatureBase):
             str(deaths_by_query_1): self.get_deaths_by_country,
             str(deaths_by_query_2): self.get_deaths_by_country,
             str(recoveries_by_query): self.get_recoveries_by_country,
-            str(new_cases_by_query): self.get_new_cases_by_country
+            str(new_cases_by_query): self.get_new_cases_by_country,
+            'smittade': self.get_cases_by_country,
+            'sjuka': self.get_cases_by_country,
+            'dött': self.get_deaths_by_country,
+            'döda': self.get_deaths_by_country,
+            'friska': self.get_recoveries_by_country,
+            'tillfrisknat': self.get_recoveries_by_country,
+            'tillfrisknade': self.get_recoveries_by_country
         }
 
         self.translation_file_path = kwargs['translation_file_path']
