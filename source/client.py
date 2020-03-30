@@ -2,7 +2,7 @@ import os
 import json
 import asyncio
 import discord
-from schedule.schedule import Scheduler
+from schedule import Scheduler
 
 from dataclasses import dataclass
 from datetime import datetime, time, timedelta
