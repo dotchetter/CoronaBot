@@ -1,17 +1,17 @@
 import discord
-import CommandIntegrator as ci
+import CommandIntegrator as fw
 import fake_useragent
 import coronafeatureclient as coronafeatureclient
 from CommandIntegrator.enumerators import CommandPronoun
 from CommandIntegrator.logger import logger
 
 
-class CoronaSpreadFeatureCommandParser(ci.FeatureCommandParserBase):
+class CoronaSpreadFeatureCommandParser(fw.FeatureCommandParserBase):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-class CoronaSpreadFeature(ci.FeatureBase):
+class CoronaSpreadFeature(fw.FeatureBase):
 
     FEATURE_KEYWORDS = (
         'land',
@@ -35,8 +35,8 @@ class CoronaSpreadFeature(ci.FeatureBase):
         most_cases = {'flest': ('smittade', 'sjuka')}
 
         least_deaths = {'minst': ('döda', 'dödsfall', 'omkomna', 'omkommit', 'dött')}
-        least_recoveries = {'minst': ('friska', 'tillfrisknat', 'återhämtat')}
-        least_cases = {'minst': ('smittade', 'smittats', 'sjuka')}
+        least_recoveries = {'minst': ('smittade', 'sjuka')}
+        least_cases = {'minst': ('friska', 'tillfrisknat')}
 
         infections_by_query_1 = {'har': ('smittats', 'sjuka')}
         infections_by_query_2 = {'är': ('smittade', 'sjuka')}
@@ -44,34 +44,37 @@ class CoronaSpreadFeature(ci.FeatureBase):
         recoveries_by_query = {'har': ('friska', 'tillfrisknat')}
         new_cases_by_query = {'hur': ('nya', 'nytt', 'fall')}    
 
-        self.command_parser = CoronaSpreadFeatureCommandParser()
-        self.command_parser.keywords = CoronaSpreadFeature.FEATURE_KEYWORDS
-        self.command_parser.interactive_methods = (
+        self.translation_file_path = kwargs['translation_file_path']
+        self.command_parser = CoronaSpreadFeatureCommandParser(
+            keywords = CoronaSpreadFeature.FEATURE_KEYWORDS,
+            callbacks = {
+                str(data_timestamp_1): lambda: self.interface.get_data_timestamp(),
+                str(data_timestamp_2): lambda: self.interface.get_data_timestamp(),
+                str(total_deaths): lambda: self.get_total_deaths(),
+                str(total_recoveries): lambda: self.get_total_recoveries(),
+                str(total_cases): lambda: self.get_total_infections(),
+                str(most_deaths): lambda: self.get_most_deaths(),
+                str(most_recoveries): lambda: self.get_most_recoveries(),
+                str(most_cases): lambda: self.get_most_infections(),
+                str(least_cases): lambda: self.get_least_infections(),
+                str(least_deaths): lambda: self.get_least_deaths(),
+                str(least_recoveries): lambda: self.get_least_recoveries(),
+                str(infections_by_query_1): self.get_cases_by_country,
+                str(infections_by_query_2): self.get_cases_by_country,
+                str(deaths_by_query): self.get_deaths_by_country,
+                str(recoveries_by_query): self.get_recoveries_by_country,
+                str(new_cases_by_query): self.get_new_cases_by_country
+            }
+        )
+
+
+        self.interactive_methods = (
             self.get_cases_by_country,
             self.get_recoveries_by_country,
             self.get_deaths_by_country,
             self.get_new_cases_by_country
         )
-        self.command_parser.callbacks = {
-            str(data_timestamp_1): lambda: self.interface.get_data_timestamp(),
-            str(data_timestamp_2): lambda: self.interface.get_data_timestamp(),
-            str(total_deaths): lambda: self.get_total_deaths(),
-            str(total_recoveries): lambda: self.get_total_recoveries(),
-            str(total_cases): lambda: self.get_total_infections(),
-            str(most_deaths): lambda: self.get_most_deaths(),
-            str(most_recoveries): lambda: self.get_most_recoveries(),
-            str(most_cases): lambda: self.get_most_infections(),
-            str(least_cases): lambda: self.get_least_infections(),
-            str(least_deaths): lambda: self.get_least_deaths(),
-            str(least_recoveries): lambda: self.get_least_recoveries(),
-            str(infections_by_query_1): self.get_cases_by_country,
-            str(infections_by_query_2): self.get_cases_by_country,
-            str(deaths_by_query): self.get_deaths_by_country,
-            str(recoveries_by_query): self.get_recoveries_by_country,
-            str(new_cases_by_query): self.get_new_cases_by_country
-        }
 
-        self.translation_file_path = kwargs['translation_file_path']
         self.mapped_pronouns = (
             CommandPronoun.INTERROGATIVE,
         )
@@ -82,7 +85,8 @@ class CoronaSpreadFeature(ci.FeatureBase):
 
         super().__init__(
             command_parser = self.command_parser,
-            interface = coronafeatureclient.Client(api_handle, self.translation_file_path)
+            interface = coronafeatureclient.Client(api_handle, self.translation_file_path),
+            interactive_methods = self.interactive_methods
         )
 
     @logger
