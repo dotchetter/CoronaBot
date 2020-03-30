@@ -36,21 +36,13 @@ class CoronaBotClient(discord.Client):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-        self.loop.create_task(self.run_scheduler(self.automessage_channel))
+        self.loop.create_task(self.run_scheduler())
         self._guild = kwargs['DISCORD_GUILD']
         self._scheduler = Scheduler()
                         
     @property
     def scheduler(self):
         return self._scheduler
-
-    @property
-    def automessage_channel(self):
-        return self._automessage_channel
-
-    @automessage_channel.setter
-    def automessage_channel(self, val: int):
-        self._automessage_channel = val    
 
     @logger
     async def on_ready(self) -> None:
@@ -81,13 +73,19 @@ class CoronaBotClient(discord.Client):
             response = processor.process(message).response()
             if response: await message.channel.send(response)
 
-    async def run_scheduler(self, channel: int) -> None:
+    @logger
+    async def run_scheduler(self) -> None:
         """
         Loop indefinitely and send messages that are pre-
         defined on a certain day and a certain time. 
         """
+
+                        # if len(combined) + len(message) >= 2000:
+                        #     output.append(combined)
+                        #     combined = str()
+                        # combined += f'{os.linesep}{message}'
+
         await client.wait_until_ready()
-        channel = self.get_channel(channel)
         length_limit = 2000
 
         while not self.is_closed():            
@@ -95,27 +93,31 @@ class CoronaBotClient(discord.Client):
             combined = str()
             
             result = self.scheduler.run_pending(passthrough = True)
+
             if not result or datetime.now().hour >= 22 or datetime.now().hour < 8:
                 await asyncio.sleep(0.1)
                 continue
             
-            while True:
-                for _, message in result.items():
-                    if message:
-                        if len(combined) + len(message) >= 2000:
-                            output.append(combined)
-                            combined = str()
-                        combined += f'{os.linesep}{message}'
-                await asyncio.sleep(0.5)
-                result = self.scheduler.run_pending(passthrough = True)
-                if not result:
-                    break
-
-            if combined and not output:
-                output.append(combined)
-            
-            [await channel.send(i) for i in output]
+            for _, method_return in result.items():
+                if not method_return:
+                    continue
+                if isinstance(method_return, dict):
+                    channel = method_return['channel']
+                    message = method_return['result']
+                    channel = self.get_channel(channel)
+                    await channel.send(message)
+                else:
+                    await self.default_autochannel.send(method_return)
             await asyncio.sleep(0.1)
+
+    @property
+    def default_autochannel(self):
+        return self._default_autochannel
+
+    @default_autochannel.setter
+    def default_autochannel(self, value):
+        self._default_autochannel = value
+    
    
 
 def load_environment(env_var_strings: list) -> dict:
@@ -168,9 +170,9 @@ if __name__ == '__main__':
         default_responses = default_responses)
     
     processor.features = (corona_ft,)   
-    environment_vars['automessage_channel'] = 0 # Insert text channel ID here for auto messages 
     client = CoronaBotClient(**environment_vars)
-    pollcache = PollCache(silent_first_call = True)
+    client.default_autochannel = 687088295079051289
+    pollcache = PollCache(silent_first_call = False)
     
 
     """
@@ -184,23 +186,46 @@ if __name__ == '__main__':
     class message_mock:
         content: list
 
-    client.scheduler.every().day.at('21:30').do(corona_ft.get_total_deaths)
-    client.scheduler.every().day.at('21:30').do(corona_ft.get_total_recoveries)
-    client.scheduler.every().day.at('21:30').do(corona_ft.get_total_infections)
+    client.scheduler.every().day.at('21:50').do(corona_ft.get_total_deaths, channel = 694193518754660473)
+    client.scheduler.every().day.at('21:50').do(corona_ft.get_total_recoveries, channel = 694193518754660473)
+    client.scheduler.every().day.at('21:50').do(corona_ft.get_total_infections, channel = 694193518754660473)
+    
+    client.scheduler.every(1).minute.do(
+        pollcache, func = corona_ft.get_cases_by_country, 
+        message = message_mock('sverige'.split(' ')), 
+        channel = 694192847590785094
+    )
+
+    client.scheduler.every(1).minute.do(
+        pollcache, func = corona_ft.get_deaths_by_country, 
+        message = message_mock('sverige'.split(' ')), 
+        channel = 694192817014308946
+    )
+
+
+    client.scheduler.every(1).minute.do(
+        pollcache, func = corona_ft.get_recoveries_by_country, 
+        message = message_mock('sverige'.split(' ')), 
+        channel = 694192834739175424
+    )
 
     with open(corona_translation_file, 'r', encoding = 'utf-8') as f:
         for country in json.loads(f.read())['swe_to_eng'].keys():
+            if country == 'sverige': continue
             client.scheduler.every(1).minutes.do(
                 pollcache, func = corona_ft.get_cases_by_country, 
-                message = message_mock(f'{country}'.split(' ')))
+                message = message_mock(f'{country}'.split(' ')), 
+                channel = 694192455062388847)
 
             client.scheduler.every(1).minutes.do(
                 pollcache, func = corona_ft.get_deaths_by_country, 
+                message = message_mock(f'{country}'.split(' ')),
+                channel = 694192280311038023)
 
-                message = message_mock(f'{country}'.split(' ')))
             client.scheduler.every(1).minutes.do(
                 pollcache, func = corona_ft.get_recoveries_by_country, 
-                message = message_mock(f'{country}'.split(' ')))
+                message = message_mock(f'{country}'.split(' ')),
+                channel = 694192447563235448)
 
 
     # --- Turn the key and start the bot ---
