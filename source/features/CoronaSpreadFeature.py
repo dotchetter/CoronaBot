@@ -40,7 +40,10 @@ class CoronaSpreadFeature(ci.FeatureBase):
 
         infections_by_query_1 = {'har': ('smittats', 'sjuka')}
         infections_by_query_2 = {'är': ('smittade', 'sjuka')}
-        deaths_by_query = {'har': ('dött', 'omkommit', 'döda')}
+        
+        deaths_by_query_1 = {'hur': ('dött', 'omkommit', 'döda')}
+        deaths_by_query_2 = {'har': ('dött', 'omkommit', 'döda')}
+        
         recoveries_by_query = {'har': ('friska', 'tillfrisknat')}
         new_cases_by_query = {'hur': ('nya', 'nytt', 'fall')}    
 
@@ -52,6 +55,7 @@ class CoronaSpreadFeature(ci.FeatureBase):
             self.get_deaths_by_country,
             self.get_new_cases_by_country
         )
+        
         self.command_parser.callbacks = {
             str(data_timestamp_1): lambda: self.interface.get_data_timestamp(),
             str(data_timestamp_2): lambda: self.interface.get_data_timestamp(),
@@ -66,15 +70,14 @@ class CoronaSpreadFeature(ci.FeatureBase):
             str(least_recoveries): lambda: self.get_least_recoveries(),
             str(infections_by_query_1): self.get_cases_by_country,
             str(infections_by_query_2): self.get_cases_by_country,
-            str(deaths_by_query): self.get_deaths_by_country,
+            str(deaths_by_query_1): self.get_deaths_by_country,
+            str(deaths_by_query_2): self.get_deaths_by_country,
             str(recoveries_by_query): self.get_recoveries_by_country,
             str(new_cases_by_query): self.get_new_cases_by_country
         }
 
         self.translation_file_path = kwargs['translation_file_path']
-        self.mapped_pronouns = (
-            CommandPronoun.INTERROGATIVE,
-        )
+        self.mapped_pronouns = (CommandPronoun.INTERROGATIVE,)
 
         api_handle = coronafeatureclient.ApiHandle(uri = kwargs['CORONA_API_URI'], standby_hours = 0.1)
         api_handle.add_header('x-rapidapi-host', kwargs['CORONA_API_RAPIDAPI_HOST'])
