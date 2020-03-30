@@ -169,7 +169,7 @@ class CoronaSpreadFeature(ci.FeatureBase):
             response = self.interface.get_by_query(query = 'cases', country_name = country)
             return f'Totalt {response} har smittats av corona i {country.capitalize()}'
         except Exception as e:
-            pass
+            return f'Jag förstod inte.. landet du frågar om behöver vara sist i din mening.'
 
     @logger
     def get_recoveries_by_country(self, message: discord.Message) -> str:
@@ -185,7 +185,7 @@ class CoronaSpreadFeature(ci.FeatureBase):
             response = self.interface.get_by_query(query = 'total_recovered', country_name = country)
             return f'Totalt {response} har tillfrisknat i corona i {country.capitalize()}'
         except Exception as e:
-            pass
+            return f'Jag förstod inte.. landet du frågar om behöver vara sist i din mening.'
 
     @logger
     def get_deaths_by_country(self, message: discord.Message) -> str:
@@ -201,4 +201,4 @@ class CoronaSpreadFeature(ci.FeatureBase):
             response = self.interface.get_by_query(query = 'deaths', country_name = country)
             return f'Totalt {response} har omkommit i corona i {country.capitalize()}'
         except Exception as e:
-            pass
+            return f'Jag förstod inte.. landet du frågar om behöver vara sist i din mening.'
