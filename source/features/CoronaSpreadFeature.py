@@ -89,16 +89,19 @@ class CoronaSpreadFeature(ci.FeatureBase):
         )
 
     @logger
+    @ci.scheduledmethod
     def get_total_deaths(self):
         response = self.interface.get_total_deaths()
         return f'Totalt har {response} omkommit globalt'
     
     @logger
+    @ci.scheduledmethod
     def get_total_recoveries(self):
         response = self.interface.get_total_recoveries()
         return f'Totalt har {response} tillfrisknat globalt'
     
     @logger
+    @ci.scheduledmethod
     def get_total_infections(self):
         response = self.interface.get_total_infections()
         return f'Totalt har {response} insjuknat globalt'
@@ -183,11 +186,16 @@ class CoronaSpreadFeature(ci.FeatureBase):
         try:
             country = message.content[-1].strip(ci.FeatureCommandParserBase.IGNORED_CHARS)
             response = self.interface.get_by_query(query = 'total_recovered', country_name = country)
+        except:
+            try:
+                country = str().join(message.content).strip(ci.FeatureCommandParserBase.IGNORED_CHARS)
+                response = self.interface.get_by_query(query = 'total_recovered', country_name = country)
+            except:
+                return f'Jag förstod inte.. landet du frågar om behöver vara sist i din mening.'
             return f'Totalt {response} har tillfrisknat i corona i {country.capitalize()}'
-        except Exception as e:
-            return f'Jag förstod inte.. landet du frågar om behöver vara sist i din mening.'
 
     @logger
+    @ci.scheduledmethod
     def get_deaths_by_country(self, message: discord.Message) -> str:
         """
         Get deaths by country.
