@@ -172,7 +172,7 @@ if __name__ == '__main__':
     processor.features = (corona_ft,)   
     client = CoronaBotClient(**environment_vars)
     client.default_autochannel = 687088295079051289
-    pollcache = PollCache(silent_first_call = False)
+    pollcache = PollCache(silent_first_call = True)
     
 
     """
