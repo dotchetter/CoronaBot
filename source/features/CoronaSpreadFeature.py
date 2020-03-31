@@ -185,7 +185,9 @@ class CoronaSpreadFeature(ci.FeatureBase):
                 response = self.interface.get_by_query(query = 'cases', country_name = country)
             except:
                 return f'Jag förstod inte.. landet du frågar om behöver vara sist i din mening.'
+        else:
             return f'Totalt {response} har smittats av corona i {country.capitalize()}'
+            
 
 
     @logger
@@ -207,7 +209,9 @@ class CoronaSpreadFeature(ci.FeatureBase):
                 response = self.interface.get_by_query(query = 'total_recovered', country_name = country)
             except:
                 return f'Jag förstod inte.. landet du frågar om behöver vara sist i din mening.'
+        else:
             return f'Totalt {response} har tillfrisknat i corona i {country.capitalize()}'
+            
 
     @logger
     @ci.scheduledmethod
@@ -228,4 +232,5 @@ class CoronaSpreadFeature(ci.FeatureBase):
                 response = self.interface.get_by_query(query = 'deaths', country_name = country)
             except:
                 return f'Jag förstod inte.. landet du frågar om behöver vara sist i din mening.'
+        else:
             return f'Totalt {response} har omkommit i corona i {country.capitalize()}'

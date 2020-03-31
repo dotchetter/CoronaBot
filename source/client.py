@@ -68,7 +68,6 @@ class CoronaBotClient(discord.Client):
         Respond to a message in the channel if someone
         calls on the bot by name, asking for commands.
         """
-        now = datetime.now().strftime('%Y-%m-%d -- %H:%M:%S')    
         if message.content.lower().startswith('!') and message.author != client.user:
             response = processor.process(message).response()
             if response: await message.channel.send(response)
@@ -107,7 +106,8 @@ class CoronaBotClient(discord.Client):
                     channel = self.get_channel(channel)
                     await channel.send(message)
                 else:
-                    await self.default_autochannel.send(method_return)
+                    channel = self.get_channel(self.default_autochannel)
+                    await channel.send(method_return)
             await asyncio.sleep(0.1)
 
     @property
