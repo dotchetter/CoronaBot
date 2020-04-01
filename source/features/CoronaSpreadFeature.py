@@ -38,8 +38,8 @@ class CoronaSpreadFeature(ci.FeatureBase):
         least_recoveries = {'minst': ('friska', 'tillfrisknat', 'återhämtat')}
         least_cases = {'minst': ('smittade', 'smittats', 'sjuka')}
 
-        infections_by_query_1 = {'har': ('smittats', 'sjuka')}
-        infections_by_query_2 = {'är': ('smittade', 'sjuka')}
+        infections_by_query_1 = {'har': ('smittats', 'sjuka', 'insjuknat')}
+        infections_by_query_2 = {'är': ('smittade', 'sjuka', 'insjuknade')}
         
         deaths_by_query_1 = {'hur': ('dött', 'omkommit', 'döda')}
         deaths_by_query_2 = {'har': ('dött', 'omkommit', 'döda')}
