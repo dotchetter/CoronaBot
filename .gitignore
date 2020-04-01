@@ -12,3 +12,7 @@ Include/
 Lib/
 Scripts/
 tcl/
+LICENCE.txt
+
+# Ignore logfile
+runtime.log
