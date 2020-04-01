@@ -162,7 +162,7 @@ class CoronaSpreadFeature(ci.FeatureBase):
             else:
                 new = 'nytt'
 
-            return f' {response} {new} fall av corona i {country.capitalize()}'
+            return f' {response} {new} fall av COVID-19 i {country.capitalize()}'
         except Exception as e:
             pass
 
@@ -176,18 +176,19 @@ class CoronaSpreadFeature(ci.FeatureBase):
         :returns:
             str
         """
+        if "global" in message.content[-1]:
+            return self.get_total_infections()
         try:
             country = message.content[-1].strip(ci.FeatureCommandParserBase.IGNORED_CHARS)
             response = self.interface.get_by_query(query = 'cases', country_name = country)
-        except:
-            try:
-                country = str().join(message.content).strip(ci.FeatureCommandParserBase.IGNORED_CHARS)
-                response = self.interface.get_by_query(query = 'cases', country_name = country)
-            except:
-                return f'Jag förstod inte.. landet du frågar om behöver vara sist i din mening.'
-        else:
-            return f'Totalt {response} har smittats av corona i {country.capitalize()}'
-            
+        except KeyError:
+            country = f'{message.content[-2]} {message.content[-1]}'.strip(ci.FeatureCommandParserBase.IGNORED_CHARS)
+            response = self.interface.get_by_query(query = 'cases', country_name = country)
+        except KeyError as e:
+            return f'Jag förstod inte.. landet du frågar om behöver vara sist i din mening: {e}'
+        except Exception as e:
+            return f'Ett fel uppstod, jag kan tyvärr inte svara just nu'
+        return f'Totalt {response} har smittats av COVID-19 i {country.capitalize()}'    
 
 
     @logger
@@ -200,18 +201,19 @@ class CoronaSpreadFeature(ci.FeatureBase):
         :returns:
             str
         """
+        if "global" in message.content[-1]:
+            return self.get_total_recoveries()
         try:
             country = message.content[-1].strip(ci.FeatureCommandParserBase.IGNORED_CHARS)
-            response = self.interface.get_by_query(query = 'total_recovered', country_name = country)
-        except:
-            try:
-                country = str().join(message.content).strip(ci.FeatureCommandParserBase.IGNORED_CHARS)
-                response = self.interface.get_by_query(query = 'total_recovered', country_name = country)
-            except:
-                return f'Jag förstod inte.. landet du frågar om behöver vara sist i din mening.'
-        else:
-            return f'Totalt {response} har tillfrisknat i corona i {country.capitalize()}'
-            
+            response = self.interface.get_by_query(query = 'recoveries', country_name = country)
+        except KeyError:
+            country = f'{message.content[-2]} {message.content[-1]}'.strip(ci.FeatureCommandParserBase.IGNORED_CHARS)
+            response = self.interface.get_by_query(query = 'recoveries', country_name = country)
+        except KeyError as e:
+            return f'Jag förstod inte.. landet du frågar om behöver vara sist i din mening: {e}'
+        except Exception as e:
+            return f'Ett fel uppstod, jag kan tyvärr inte svara just nu'
+        return f'Totalt {response} har tillfrisknat från COVID-19 i {country.capitalize()}' 
 
     @logger
     @ci.scheduledmethod
@@ -223,14 +225,16 @@ class CoronaSpreadFeature(ci.FeatureBase):
         :returns:
             str
         """
+        if "global" in message.content[-1]:
+            return self.get_total_deaths()
         try:
             country = message.content[-1].strip(ci.FeatureCommandParserBase.IGNORED_CHARS)
             response = self.interface.get_by_query(query = 'deaths', country_name = country)
-        except:
-            try:
-                country = str().join(message.content).strip(ci.FeatureCommandParserBase.IGNORED_CHARS)
-                response = self.interface.get_by_query(query = 'deaths', country_name = country)
-            except:
-                return f'Jag förstod inte.. landet du frågar om behöver vara sist i din mening.'
-        else:
-            return f'Totalt {response} har omkommit i corona i {country.capitalize()}'
+        except KeyError:
+            country = f'{message.content[-2]} {message.content[-1]}'.strip(ci.FeatureCommandParserBase.IGNORED_CHARS)
+            response = self.interface.get_by_query(query = 'deaths', country_name = country)
+        except KeyError as e:
+            return f'Jag förstod inte.. landet du frågar om behöver vara sist i din mening: {e}'
+        except Exception as e:
+            return f'Ett fel uppstod, jag kan tyvärr inte svara just nu'
+        return f'Totalt {response} har dött i COVID-19 i {country.capitalize()}' 
