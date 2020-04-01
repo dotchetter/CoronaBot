@@ -1,0 +1,18 @@
+# Ignore pycache
+__pycache__
+
+# Ignore log files
+runtime_logs
+
+# Ignore client secret
+source/.env
+
+# Ignore virtualenv
+Include/
+Lib/
+Scripts/
+tcl/
+LICENCE.txt
+
+# Ignore logfile
+runtime.log
