@@ -205,10 +205,10 @@ class CoronaSpreadFeature(ci.FeatureBase):
             return self.get_total_recoveries()
         try:
             country = message.content[-1].strip(ci.FeatureCommandParserBase.IGNORED_CHARS)
-            response = self.interface.get_by_query(query = 'recoveries', country_name = country)
+            response = self.interface.get_by_query(query = 'total_recovered', country_name = country)
         except KeyError:
             country = f'{message.content[-2]} {message.content[-1]}'.strip(ci.FeatureCommandParserBase.IGNORED_CHARS)
-            response = self.interface.get_by_query(query = 'recoveries', country_name = country)
+            response = self.interface.get_by_query(query = 'total_recovered', country_name = country)
         except KeyError as e:
             return f'Jag förstod inte.. landet du frågar om behöver vara sist i din mening: {e}'
         except Exception as e:
