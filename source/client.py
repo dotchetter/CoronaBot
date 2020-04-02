@@ -79,24 +79,12 @@ class CoronaBotClient(discord.Client):
         defined on a certain day and a certain time. 
         """
 
-                        # if len(combined) + len(message) >= 2000:
-                        #     output.append(combined)
-                        #     combined = str()
-                        # combined += f'{os.linesep}{message}'
-
         await client.wait_until_ready()
-        length_limit = 2000
-
         while not self.is_closed():            
-            output = []
-            combined = str()
-            
             result = self.scheduler.run_pending(passthrough = True)
-
             if not result or datetime.now().hour >= 22 or datetime.now().hour < 8:
                 await asyncio.sleep(0.1)
                 continue
-            
             for _, method_return in result.items():
                 if not method_return:
                     continue
