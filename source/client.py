@@ -199,7 +199,7 @@ if __name__ == '__main__':
         channel = 694192834739175424
     )
 
-        client.scheduler.every(1).minutes.do(
+    client.scheduler.every(1).minutes.do(
         pollcache, func = corona_ft.get_latest_rss_news, 
         channel = 689199890596626502
     )
