@@ -134,7 +134,8 @@ if __name__ == '__main__':
         'DISCORD_TOKEN',
         'CORONA_API_URI',
         'CORONA_API_RAPIDAPI_HOST',
-        'CORONA_API_RAPIDAPI_KEY'
+        'CORONA_API_RAPIDAPI_KEY',
+        'FOLKHALSOMYNDIGHET_RSS'
     ]
 
     CommandIntegrator_settings_file = Path('CommandIntegrator') / 'commandintegrator.settings.json'
@@ -151,6 +152,7 @@ if __name__ == '__main__':
                     CORONA_API_URI = environment_vars['CORONA_API_URI'],
                     CORONA_API_RAPIDAPI_HOST = environment_vars['CORONA_API_RAPIDAPI_HOST'],
                     CORONA_API_RAPIDAPI_KEY = environment_vars['CORONA_API_RAPIDAPI_KEY'],
+                    FOLKHALSOMYNDIGHET_RSS = environment_vars['FOLKHALSOMYNDIGHET_RSS'],
                     translation_file_path = corona_translation_file)
 
     processor = CommandProcessor(
@@ -195,6 +197,11 @@ if __name__ == '__main__':
         pollcache, func = corona_ft.get_recoveries_by_country, 
         message = message_mock('sverige'.split(' ')), 
         channel = 694192834739175424
+    )
+
+        client.scheduler.every(1).minutes.do(
+        pollcache, func = corona_ft.get_latest_rss_news, 
+        channel = 689199890596626502
     )
 
     with open(corona_translation_file, 'r', encoding = 'utf-8') as f:

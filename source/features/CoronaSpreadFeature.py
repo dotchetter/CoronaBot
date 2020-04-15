@@ -1,7 +1,10 @@
+import os
+import re
 import discord
 import CommandIntegrator as ci
 import fake_useragent
 import coronafeatureclient as coronafeatureclient
+import feedparser
 from CommandIntegrator.enumerators import CommandPronoun
 from CommandIntegrator.logger import logger
 
@@ -84,6 +87,7 @@ class CoronaSpreadFeature(ci.FeatureBase):
         }
 
         self.translation_file_path = kwargs['translation_file_path']
+        self.rss_uri = kwargs['FOLKHALSOMYNDIGHET_RSS']
         self.mapped_pronouns = (CommandPronoun.INTERROGATIVE,)
 
         api_handle = coronafeatureclient.ApiHandle(uri = kwargs['CORONA_API_URI'], standby_hours = 0.25)
@@ -238,3 +242,24 @@ class CoronaSpreadFeature(ci.FeatureBase):
         except Exception as e:
             return f'Ett fel uppstod, jag kan tyvärr inte svara just nu'
         return f'Totalt {response} har dött i COVID-19 i {country.capitalize()}' 
+
+    @logger
+    @ci.scheduledmethod
+    def get_latest_rss_news(self) -> str:
+        """
+        Get the latest entries from RSS, based upon 
+        the URL given at instantiation. Returns the
+        object which is the latest RSS entry in an
+        easily read format with attached link.
+        :returns:
+            str
+        """
+        newsfeed = feedparser.parse(self.rss_uri)
+        if not len(newsfeed.entries):
+            return
+
+        latest = newsfeed.entries[0]
+        clean = re.compile('<.*?>')
+        cleantext = re.sub(clean, '', latest.summary)
+        lead = ':green_circle: **Nyhet från Folkhälsomyndigheten**'
+        return f'{lead}{os.linesep * 2}{latest.title}{os.linesep}{cleantext}{os.linesep}{latest.link}'
