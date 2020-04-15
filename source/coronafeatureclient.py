@@ -157,15 +157,15 @@ class Client:
 
 	def get_total_recoveries(self) -> int:
 		data = self.api_handle.fetch()['countries_stat']
-		return sum([int(i['total_recovered'].replace(',','')) for i in data if i != 'N/A'])
+		return sum([int(i['total_recovered'].replace(',','')) for i in data if i['total_recovered'] != 'N/A'])
 
 	def get_total_infections(self) -> int:
 		data = self.api_handle.fetch()['countries_stat']
-		return sum([int(i['cases'].replace(',','')) for i in data if i != 'N/A'])
+		return sum([int(i['cases'].replace(',','')) for i in data if i['total_recovered'] != 'N/A'])
 
 	def get_total_deaths(self, sort_by_highest = True) -> str:
 		data = self.api_handle.fetch()['countries_stat']
-		return sum([int(i['deaths'].replace(',','')) for i in data if i != 'N/A'])
+		return sum([int(i['deaths'].replace(',','')) for i in data if i['total_recovered'] != 'N/A'])
 
 	def get_recoveries(self, sort_by_highest = True) -> str:
 		sorter = lambda i: int(i['total_recovered'].replace(',',''))
