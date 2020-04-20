@@ -191,7 +191,7 @@ class CoronaSpreadFeature(ci.FeatureBase):
         except KeyError as e:
             return f'Jag förstod inte.. landet du frågar om behöver vara sist i din mening: {e}'
         except Exception as e:
-            return f'Ett fel uppstod, jag kan tyvärr inte svara just nu'
+            return
         return f'Totalt {response} har smittats av COVID-19 i {country.capitalize()}'    
 
 
@@ -216,7 +216,7 @@ class CoronaSpreadFeature(ci.FeatureBase):
         except KeyError as e:
             return f'Jag förstod inte.. landet du frågar om behöver vara sist i din mening: {e}'
         except Exception as e:
-            return f'Ett fel uppstod, jag kan tyvärr inte svara just nu'
+            return
         return f'Totalt {response} har tillfrisknat från COVID-19 i {country.capitalize()}' 
 
     @logger
@@ -240,7 +240,7 @@ class CoronaSpreadFeature(ci.FeatureBase):
         except KeyError as e:
             return f'Jag förstod inte.. landet du frågar om behöver vara sist i din mening: {e}'
         except Exception as e:
-            return f'Ett fel uppstod, jag kan tyvärr inte svara just nu'
+            return
         return f'Totalt {response} har dött i COVID-19 i {country.capitalize()}' 
 
     @logger
