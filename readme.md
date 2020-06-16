@@ -1,4 +1,4 @@
-# Corona Bot
+# Corona Bot (End of life, no longer maintained)
 
 ![](https://dotchetter.cloud/index.php/s/SM9RHCm5BzSiXdJ/preview)
 
